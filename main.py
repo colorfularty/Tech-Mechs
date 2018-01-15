@@ -66,6 +66,12 @@ def handleGameEvents():
     for event in pygame.event.get():
         if event.type == MOUSEMOTION:
             mousex, mousey = event.pos
+        elif event.type == MOUSEBUTTONDOWN:
+            # check if you clicked on a techmech
+            for techMech in techMechs:
+                if techMech.wasClicked(mousex, mousey):
+                    techMech.assignSkill("driller")
+                    break
         elif event.type == QUIT:
             pygame.quit()
             os._exit(0)
@@ -94,8 +100,7 @@ def executeGameFrame():
 
     # blit the tech mechs
     for techMech in techMechs:
-        techMech.move(currentLevel.image)
-        if "exit" in currentLevel.triggerMap[techMech.x][techMech.y]:
+        if not techMech.act(currentLevel.image) or "exit" in currentLevel.triggerMap[techMech.x][techMech.y]:
             techMechs.remove(techMech)
             techMechsSaved += 1
         techMech.render(levelImage)
@@ -118,14 +123,11 @@ while True: # main game loop
                 if playGameButton.checkIfClicked(mousex, mousey):
                     currentMenu = "play"
                 elif levelEditorButton.checkIfClicked(mousex, mousey):
-                    #currentMenu = "editor"
-                    pass
+                    currentMenu = "editor"
                 elif graphicSetButton.checkIfClicked(mousex, mousey):
-                    #currentMenu = "graphics"
-                    pass
+                    currentMenu = "graphics"
                 elif settingsButton.checkIfClicked(mousex, mousey):
-                    #currentMenu = "settings"
-                    pass
+                    currentMenu = "settings"
                 elif exitButton.checkIfClicked(mousex, mousey):
                     pygame.quit()
                     os._exit(0)
@@ -148,7 +150,7 @@ while True: # main game loop
         testExit = gameObject.Exit("styles/special/exit.png", 500, 375)
         levelImage = pygame.surface.Surface((currentLevel.image.get_width(), currentLevel.image.get_height()))
         currentLevel.addObject(testEntrance)
-        currentLevel.addObject(testExit)
+        #currentLevel.addObject(testExit)
         currentLevel.addTerrain(testTerrain)
         while True:
             executeGameFrame()
