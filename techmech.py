@@ -16,7 +16,7 @@ class TechMech(object):
         self.image = pygame.image.load("sprites/" + skill + ".png").convert()
         self.image.set_colorkey(BLACK)
         if self.direction < 0:
-            pygame.transform.flip(self.image, True, False)
+            self.image = pygame.transform.flip(self.image, True, False)
 
     def wasClicked(self, x, y):
         if x >= self.x - 17 and x <= self.x + 17 and y >= self.y - self.image.get_height() and y <= self.y:
