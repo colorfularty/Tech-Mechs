@@ -79,6 +79,13 @@ class TechMech(object):
                 pygame.draw.polygon(level, BLACK, ((self.x, self.y), (self.x, self.y - 14), (self.x + 10 * self.direction, self.y - 14), (self.x + 17 * self.direction, self.y - 7), (self.x + 10 * self.direction, self.y)))
             except IndexError:
                 pass
+
+        elif self.currentSkill == "jackhammerer":
+            self.y += 1
+            try:
+                pygame.draw.polygon(level, BLACK, ((self.x, self.y), (self.x - 1, self.y - 3), (self.x - 2, self.y - 6), (self.x - 3, self.y - 8), (self.x - 4, self.y - 10), (self.x - 5, self.y - 15), (self.x + 5, self.y - 15), (self.x + 4, self.y - 10), (self.x + 3, self.y - 8), (self.x + 2, self.y - 6), (self.x + 1, self.y - 3)))
+            except IndexError:
+                pass
             
         # check if tech mech is over a pit
         try:

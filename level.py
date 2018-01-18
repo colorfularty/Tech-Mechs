@@ -17,7 +17,7 @@ class Level(object):
         self.saveRequirement = 100 # the number of tech mechs you have to save
         self.skillCounts = [] # a list of how many of each skill is given
         self.timeLimit = -1 # defaults to infinite time, which is -1
-        self.releaseRate = 99 # how fast the tech mechs come out of the hatch
+        self.releaseRate = 1 # how fast the tech mechs come out of the hatch
         self.music = "" # the filename for the music that plays on the level
         self.techMechSprites = "default" # the sprites for the tech mechs on that level
         self.initializeImage()

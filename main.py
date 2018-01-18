@@ -36,7 +36,7 @@ exitButton = widgets.Button(250, 400, "Exit")
 currentLevel = None # the level you are playing
 levelImage = None
 currentFrame = 0
-framesSinceLastRelease = 0
+framesSinceLastRelease = 119
 techMechs = [] # a list of the tech mechs currently out
 techMechsOut = 0
 techMechsSaved = 0
@@ -70,8 +70,12 @@ def handleGameEvents():
             # check if you clicked on a techmech
             for techMech in techMechs:
                 if techMech.wasClicked(mousex, mousey):
-                    techMech.assignSkill("driller")
-                    break
+                    if event.button == 1: # left click
+                        techMech.assignSkill("driller")
+                        break
+                    elif event.button == 3: # right click
+                        techMech.assignSkill("jackhammerer")
+                        break
         elif event.type == QUIT:
             pygame.quit()
             os._exit(0)
