@@ -1,5 +1,6 @@
 import pygame, os
 import widgets
+import vector
 import terrain
 import gameObject
 import level
@@ -37,11 +38,15 @@ currentLevel = None # the level you are playing
 levelImage = None
 currentFrame = 0
 framesSinceLastRelease = 119
+selectedSkill = "grappler"
+isPaused = False
 techMechs = [] # a list of the tech mechs currently out
 techMechsOut = 0
 techMechsSaved = 0
 screenX = 0
 screenY = 0
+
+grappler = None
 
 def readLevelFromFile(fileName):
     level = Level()
@@ -61,21 +66,37 @@ def startupLevel(levelFile):
     screenY = level.startY
 
 def handleGameEvents():
-    global mousex, mousey
+    global mousex, mousey, isPaused, selectedSkill, grappler
     
     for event in pygame.event.get():
         if event.type == MOUSEMOTION:
             mousex, mousey = event.pos
         elif event.type == MOUSEBUTTONDOWN:
-            # check if you clicked on a techmech
-            for techMech in techMechs:
-                if techMech.wasClicked(mousex, mousey):
-                    if event.button == 1: # left click
-                        techMech.assignSkill("driller")
-                        break
-                    elif event.button == 3: # right click
-                        techMech.assignSkill("jackhammerer")
-                        break
+            # check if there is a Tech Mech waiting to grapple
+            if grappler != None:
+                vec = vector.Vector(mousex - grappler.x, mousey - grappler.y)
+                vec.normalize()
+                grappler.grapple(currentLevel.image, vec)
+                grappler = None
+            else:
+                # check if you clicked on a techmech
+                for techMech in techMechs:
+                    if techMech.wasClicked(mousex, mousey):
+                        if techMech.currentSkill != "faller": # left click
+                            if selectedSkill == "grappler":
+                                grappler = techMech
+                            else:
+                                techMech.assignSkill(selectedSkill)
+                            break
+        elif event.type == KEYDOWN:
+            if event.key == K_F7:
+                selectedSkill = "grappler"
+            elif event.key == K_F8:
+                selectedSkill = "driller"
+            elif event.key == K_F10:
+                selectedSkill = "jackhammerer"
+            elif event.key == K_F11:
+                isPaused = not isPaused
         elif event.type == QUIT:
             pygame.quit()
             os._exit(0)
@@ -104,10 +125,15 @@ def executeGameFrame():
 
     # blit the tech mechs
     for techMech in techMechs:
-        if not techMech.act(currentLevel.image) or "exit" in currentLevel.triggerMap[techMech.x][techMech.y]:
-            techMechs.remove(techMech)
-            techMechsSaved += 1
+        if not isPaused:
+            if not techMech.act(currentLevel.image) or "exit" in currentLevel.triggerMap[techMech.x][techMech.y]:
+                techMechs.remove(techMech)
+                techMechsSaved += 1
         techMech.render(levelImage)
+
+    # blit masks (if applicable)
+    if grappler != None:
+        pygame.draw.circle(levelImage, WHITE, (grappler.x, grappler.y), 150, 1)
 
     # orient the screen
     SCREEN.blit(levelImage, (screenX, screenY))
@@ -154,7 +180,7 @@ while True: # main game loop
         testExit = gameObject.Exit("styles/special/exit.png", 500, 375)
         levelImage = pygame.surface.Surface((currentLevel.image.get_width(), currentLevel.image.get_height()))
         currentLevel.addObject(testEntrance)
-        #currentLevel.addObject(testExit)
+        currentLevel.addObject(testExit)
         currentLevel.addTerrain(testTerrain)
         while True:
             executeGameFrame()
