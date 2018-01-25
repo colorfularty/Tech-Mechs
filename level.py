@@ -15,7 +15,10 @@ class Level(object):
         self.author = "" # the author of the level
         self.numberOfTechMechs = 100 # the number of tech mechs on the level
         self.saveRequirement = 100 # the number of tech mechs you have to save
-        self.skillCounts = [] # a list of how many of each skill is given
+        # a dict of how many of each skill is given
+        self.skillCounts = {"grappler": 10,
+                            "driller": 10,
+                            "jackhammerer": 10}
         self.timeLimit = -1 # defaults to infinite time, which is -1
         self.releaseRate = 1 # how fast the tech mechs come out of the hatch
         self.music = "" # the filename for the music that plays on the level

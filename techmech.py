@@ -1,4 +1,5 @@
 import pygame
+import vector
 
 BLACK = (  0,   0,   0)
 WHITE = (255, 255, 255)
@@ -12,6 +13,7 @@ class TechMech(object):
         self.currentSkill = "walker" # what the tech mech is currently doing
         self.direction = 1 # this is 1 for right and -1 for left
         self.orientation = 1 # this is 1 for upright, and -1 for upside-down
+        self.skillVector = None # used to store a vector needed for certain skills (i.e. grappling hook)
         self.setImage(self.currentSkill)
 
     def setImage(self, skill):
@@ -109,24 +111,48 @@ class TechMech(object):
         # jackhammer point. Black pixels are counted as no terrain
         pygame.draw.polygon(level, BLACK, ((self.x, self.y), (self.x - 1, self.y - 3), (self.x - 2, self.y - 6), (self.x - 3, self.y - 8), (self.x - 4, self.y - 10), (self.x - 5, self.y - 15), (self.x + 5, self.y - 15), (self.x + 4, self.y - 10), (self.x + 3, self.y - 8), (self.x + 2, self.y - 6), (self.x + 1, self.y - 3)))
 
-    def grapple(self, level, unitVec):
-        ropeLength = 0
+    def determineGrapplePoints(self, level, unitVec):
+        # returns the start and end points if the Tech Mech is able to grapple in the specified direction
+        # returns None if the grappling hook goes out of bounds or is too short to hit terrain
+
+        ropeLength = 0 # the amount of rope currently used
+        # depending on the direction, the rope will either be 1 pixel in front
+        # or behind the tech mech
         if unitVec.x < 0:
             startX = self.x - 1
         else:
             startX = self.x + 1
+
+        # currentX and currentY are the locations of the end of the rope
         currentX = startX
         currentY = self.y
+
+        # loop through the rope length, extending by 1 pixel each iteration
         while ropeLength < 150:
+            # the try-catch checks if the rope moves out of bounds
             try:
+                # check if the rope hits solid terrain
                 if level.get_at((int(currentX), int(currentY))) != BLACK:
-                    break
+                    return ((startX, self.y), (currentX, currentY))
             except IndexError:
-                return False
+                return None
             currentX += unitVec.x
             currentY += unitVec.y
-        pygame.draw.line(level, WHITE, (startX, self.y), (currentX, currentY))
-        return True
+            ropeLength += 1
+        return None
+
+    def grapple(self, level, unitVec):
+        # creates a grappling line from your starting position to the first
+        # part of the terrain it reachs in the specified direction
+
+        # get start and endpoints of grappling line
+        points = self.determineGrapplePoints(level, unitVec)
+        # check if the grappling line can be made
+        if points != None:
+            startX, startY = points[0]
+            endX, endY = points[1]
+            pygame.draw.line(level, WHITE, (startX, startY), (endX, endY))
+        self.assignSkill("walker")
 
     def act(self, level):
         if self.currentSkill == "walker":
@@ -142,6 +168,9 @@ class TechMech(object):
 
         elif self.currentSkill == "jackhammerer":
             self.jackhammer(level)
+
+        elif self.currentSkill == "grappler":
+            self.grapple(level, self.skillVector)
             
         # check if tech mech is over a pit
         try:
