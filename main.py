@@ -1,10 +1,5 @@
+# import libraries
 import pygame, os
-import widgets
-import vector
-import terrain
-import gameObject
-import level
-import techmech
 from pygame.locals import *
 
 pygame.init()
@@ -17,6 +12,14 @@ SCREEN_WIDTH = 650
 SCREEN_HEIGHT = 500
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
 pygame.display.set_caption("Tech Mechs")
+
+# import other game files
+import widgets
+import vector
+import terrain
+import gameObject
+import level
+import techmech
 
 CLOCK = pygame.time.Clock()
 FPS = 30
@@ -84,27 +87,33 @@ def renderSkillPanel():
     grapplingHookSkill = pygame.image.load("sprites/grappling hook skill.png").convert()
     drillSkill = pygame.image.load("sprites/drill skill.png").convert()
     jackhammerSkill = pygame.image.load("sprites/jackhammer skill.png").convert()
+    gravitySkill = pygame.image.load("sprites/gravity skill.png").convert()
 
     grapplingHookSkill.set_colorkey(BLACK)
     drillSkill.set_colorkey(BLACK)
     jackhammerSkill.set_colorkey(BLACK)
+    gravitySkill.set_colorkey(BLACK)
 
     SCREEN.blit(grapplingHookSkill, (25 - grapplingHookSkill.get_width() // 2, SCREEN_HEIGHT - 40))
     SCREEN.blit(drillSkill, (75 - drillSkill.get_width() // 2, SCREEN_HEIGHT - 40))
     SCREEN.blit(jackhammerSkill, (125 - jackhammerSkill.get_width() // 2, SCREEN_HEIGHT - 40))
+    SCREEN.blit(gravitySkill, (175 - gravitySkill.get_width() // 2, SCREEN_HEIGHT - 40))
 
     # compute the skills left and TODO: blit those to the skill panel
     grapplingHooksLeft = skillFont.render(str(currentLevel.skillCounts["grappler"]), True, WHITE, BLACK)
     drillsLeft = skillFont.render(str(currentLevel.skillCounts["driller"]), True, WHITE, BLACK)
     jackhammersLeft = skillFont.render(str(currentLevel.skillCounts["jackhammerer"]), True, WHITE, BLACK)
+    gravityReversersLeft = skillFont.render(str(currentLevel.skillCounts["gravity reverser"]), True, WHITE, BLACK)
 
     grapplingHooksLeft.set_colorkey(BLACK)
     drillsLeft.set_colorkey(BLACK)
     jackhammersLeft.set_colorkey(BLACK)
+    gravityReversersLeft.set_colorkey(BLACK)
 
     SCREEN.blit(grapplingHooksLeft, (25 - grapplingHooksLeft.get_width() // 2, SCREEN_HEIGHT - 90))
     SCREEN.blit(drillsLeft, (75 - drillsLeft.get_width() // 2, SCREEN_HEIGHT - 90))
     SCREEN.blit(jackhammersLeft, (125 - jackhammersLeft.get_width() // 2, SCREEN_HEIGHT - 90))
+    SCREEN.blit(gravityReversersLeft, (175 - gravityReversersLeft.get_width() // 2, SCREEN_HEIGHT - 90))
 
 def addToReplay(techMech, skill, vec = None):
     if currentFrame not in replay:
@@ -129,6 +138,22 @@ def handleGameEvents():
                 # check if user clicked on the jackhammer skill
                 elif mousex < 150:
                     selectedSkill = "jackhammerer"
+                elif mousex < 200:
+                    selectedSkill = "gravity reverser"
+                elif mousex < 250:
+                    # skill 5
+                    pass
+                elif mousex < 300:
+                    # skill 6
+                    pass
+                elif mousex < 350:
+                    # skill 7
+                    pass
+                elif mousex < 400:
+                    # skill 8
+                    pass
+                elif mousex < 450:
+                    isPaused = not isPaused
             # check if there is a Tech Mech waiting to grapple
             elif grappler != None:
                 # the click is for determining where the grappler shoots
@@ -138,6 +163,7 @@ def handleGameEvents():
                 # add the grappler, the skill, and the unit vector to the replay
                 addToReplay(grappler, "grappler", vec)
                 grappler = None
+                isPaused = False
             else: # normal assignment, not a grappling confirmation
                 # check if you clicked on a techmech
                 for techMech in techMechs:
@@ -152,8 +178,11 @@ def handleGameEvents():
                                 # the vector is None, because it is not required
                                 addToReplay(techMech, selectedSkill)
                             break
+                isPaused = False
         elif event.type == KEYDOWN:
-            if event.key == K_F7:
+            if event.key == K_F1:
+                selectedSkill = "gravity reverser"
+            elif event.key == K_F7:
                 selectedSkill = "grappler"
             elif event.key == K_F8:
                 selectedSkill = "driller"
@@ -183,9 +212,10 @@ def executeGameFrame():
             techMech = assignment[0]
             skill = assignment[1]
             vec = assignment[2]
-            techMech.skillVector = vec
-            techMech.assignSkill(skill)
-            currentLevel.skillCounts[skill] -= 1
+            if currentLevel.skillCounts[skill] > 0:
+                techMech.skillVector = vec
+                techMech.assignSkill(skill)
+                currentLevel.skillCounts[skill] -= 1
 
     # render everything on screen; start by filling the screen with black,
     # to overwrite everything that happened last frame
@@ -242,6 +272,8 @@ def executeGameFrame():
         SCREEN.blit(skillHighlight, (50, SCREEN_HEIGHT - 100))
     elif selectedSkill == "jackhammerer":
         SCREEN.blit(skillHighlight, (100, SCREEN_HEIGHT - 100))
+    elif selectedSkill == "gravity reverser":
+        SCREEN.blit(skillHighlight, (150, SCREEN_HEIGHT - 100))
 
     # show screen updates and advance time
     pygame.display.update()

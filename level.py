@@ -18,7 +18,8 @@ class Level(object):
         # a dict of how many of each skill is given
         self.skillCounts = {"grappler": 10,
                             "driller": 10,
-                            "jackhammerer": 10}
+                            "jackhammerer": 10,
+                            "gravity reverser": 10}
         self.timeLimit = -1 # defaults to infinite time, which is -1
         self.releaseRate = 1 # how fast the tech mechs come out of the hatch
         self.music = "" # the filename for the music that plays on the level
