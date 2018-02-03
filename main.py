@@ -194,6 +194,18 @@ def handleGameEvents():
             pygame.quit()
             os._exit(0)
 
+def advancePhysics():
+    global techMechs
+    def keepMech(mech):
+        global techMechsSaved, currentLevel
+        if not mech.act(currentLevel.image):
+            return False
+        if "exit" in currentLevel.triggerMap[mech.x][mech.y]:
+            techMechsSaved += 1
+            return False
+        return True
+    techMechs[:] = [mech for mech in techMechs if keepMech(mech)]
+
 def executeGameFrame():
     global currentFrame, framesSinceLastRelease, techMechs, techMechsReleased, techMechsSaved
     global screenX, screenY
@@ -232,12 +244,10 @@ def executeGameFrame():
                 techMechs.append(techmech.TechMech(obj.x + 30, obj.y + 30))
                 techMechsReleased += 1
 
-    # next, we animate and blit the Tech Mechs, who overlap all terrain and objects
+    if not isPaused:
+        advancePhysics()
+
     for techMech in techMechs:
-        if not isPaused:
-            if not techMech.act(currentLevel.image) or "exit" in currentLevel.triggerMap[techMech.x][techMech.y]:
-                techMechs.remove(techMech)
-                techMechsSaved += 1
         techMech.render(levelImage)
 
     # finally, we blit any skill masks needed to help users see where the skills
