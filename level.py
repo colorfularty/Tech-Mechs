@@ -1,7 +1,6 @@
 import pygame
+import constants
 import gameObject
-
-BLACK = (0, 0, 0)
 
 class Level(object):
     def __init__(self):
@@ -13,8 +12,8 @@ class Level(object):
         self.objects = [] # a list of the objects arranged on the level
         self.name = "" # the level name
         self.author = "" # the author of the level
-        self.numberOfTechMechs = 100 # the number of tech mechs on the level
-        self.saveRequirement = 100 # the number of tech mechs you have to save
+        self.numberOfTechMechs = 1 # the number of tech mechs on the level
+        self.saveRequirement = 1 # the number of tech mechs you have to save
         # a dict of how many of each skill is given
         self.skillCounts = {"grappler": 10,
                             "driller": 10,
@@ -25,7 +24,7 @@ class Level(object):
         self.music = "" # the filename for the music that plays on the level
         self.techMechSprites = "default" # the sprites for the tech mechs on that level
         self.initializeImage()
-        self.initializeTriggerMap()
+        self.initializeTriggerMaps()
         
     def addTerrain(self, terrain):
         self.terrain.append(terrain)
@@ -33,27 +32,30 @@ class Level(object):
 
     def addObject(self, obj):
         self.objects.append(obj)
-        self.updateTriggerMap(obj)
+        self.updateTriggerMaps()
 
     def initializeImage(self):
         self.image = pygame.surface.Surface((self.width, self.height))
-        self.image.fill(BLACK)
+        self.image.fill(constants.BLACK)
 
     def updateImage(self, terrain):
         self.image.blit(terrain.image, (terrain.x, terrain.y))
 
-    def initializeTriggerMap(self):
-        self.triggerMap = []
-        for x in range(self.width):
-            self.triggerMap.append([])
-            for y in range(self.height):
-                self.triggerMap[x].append([])
+    def initializeTriggerMaps(self):
+        self.triggersByPoint = {}
+        self.triggersByType = {"exit": []}
 
-    def updateTriggerMap(self, obj):
-        if type(obj) is gameObject.Exit:
+    def updateTriggerMaps(self):
+        self.initializeTriggerMaps()
+        for obj in self.objects:
             for x in range(obj.width):
                 for y in range(obj.height):
-                    self.triggerMap[obj.x + x][obj.y + y].append("exit")
+                    point = (obj.triggerX + x, obj.triggerY + y)
+                    if point not in self.triggersByPoint.keys():
+                        self.triggersByPoint[point] = []
+                    if type(obj) is gameObject.Exit:
+                        self.triggersByPoint[point].append("exit")
+                        self.triggersByType["exit"].append(point)
             
 
 

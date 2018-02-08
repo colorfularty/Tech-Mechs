@@ -1,10 +1,7 @@
 import pygame
+import constants
 
 pygame.init()
-
-# colors
-BLACK = (  0,   0,   0)
-WHITE = (255, 255, 255)
 
 class Label(object):
     font = pygame.font.SysFont('helvetica', 32)
@@ -13,7 +10,7 @@ class Label(object):
         self.x = x
         self.y = y
         self.text = text
-        self.image = self.font.render(self.text, True, WHITE, BLACK)
+        self.image = self.font.render(self.text, True, constants.WHITE, constants.BLACK)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 

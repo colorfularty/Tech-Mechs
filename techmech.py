@@ -2,9 +2,6 @@ import pygame
 import vector
 import constants
 
-BLACK = (  0,   0,   0)
-WHITE = (255, 255, 255)
-
 class TechMech(object):
     # the main characters in the game
 
@@ -15,11 +12,11 @@ class TechMech(object):
     drillerSprites = pygame.image.load("sprites/driller.png").convert()
     jackhammererSprites = pygame.image.load("sprites/jackhammerer.png").convert()
 
-    walkerSprites.set_colorkey(BLACK)
-    fallerSprites.set_colorkey(BLACK)
-    grapplerSprites.set_colorkey(BLACK)
-    drillerSprites.set_colorkey(BLACK)
-    jackhammererSprites.set_colorkey(BLACK)
+    walkerSprites.set_colorkey(constants.BLACK)
+    fallerSprites.set_colorkey(constants.BLACK)
+    grapplerSprites.set_colorkey(constants.BLACK)
+    drillerSprites.set_colorkey(constants.BLACK)
+    jackhammererSprites.set_colorkey(constants.BLACK)
 
     spriteSheets = {"walker":       walkerSprites,
                     "faller":       fallerSprites,
@@ -43,10 +40,10 @@ class TechMech(object):
 
     def wasClicked(self, x, y):
         if self.orientation > 0:
-            if x >= self.x - 17 and x <= self.x + 17 and y >= self.y - self.image.get_height() and y <= self.y:
+            if x >= self.x - constants.TECH_MECH_SPRITE_WIDTH // 2 and x <= self.x + constants.TECH_MECH_SPRITE_WIDTH // 2 and y >= self.y - self.image.get_height() and y <= self.y:
                 return True
         else:
-            if x >= self.x - 17 and x <= self.x + 17 and y >= self.y and y <= self.y - self.image.get_height():
+            if x >= self.x - constants.TECH_MECH_SPRITE_WIDTH // 2 and x <= self.x + constants.TECH_MECH_SPRITE_WIDTH // 2 and y >= self.y and y <= self.y + self.image.get_height():
                 return True
         return False
 
@@ -64,6 +61,9 @@ class TechMech(object):
         # them a tool, or they walked off a cliff, etc.
         if skill == "gravity reverser":
             self.reverseGravity()
+            self.currentSkill = "walker"
+            self.animationFrame = 0
+            self.setImage("walker")
         else:
             self.currentSkill = skill
             self.animationFrame = 0
@@ -83,11 +83,11 @@ class TechMech(object):
         newXPos = self.x + self.direction
         # check if the tech mech is about to hit a wall
         try: # checks to make sure there are no index out of bounds errors
-            if level.get_at((newXPos, self.y)) != BLACK:
+            if level.get_at((newXPos, self.y)) != constants.BLACK:
                 # check if the wall is short enough to walk up
                 wallHeight = 1
                 for i in range(1, 7):
-                    if level.get_at((newXPos, self.y - (i * self.orientation))) == BLACK:
+                    if level.get_at((newXPos, self.y - (i * self.orientation))) == constants.BLACK:
                         break
                     wallHeight += 1
                 if wallHeight == 7: # the wall was too tall to walk up
@@ -101,7 +101,7 @@ class TechMech(object):
                 pitHeight = 0
                 for i in range(1, 7):
                     # check if the pit ends
-                    if level.get_at((self.x, self.y + (i * self.orientation))) != BLACK:
+                    if level.get_at((self.x, self.y + (i * self.orientation))) != constants.BLACK:
                         break
                     pitHeight += 1
                 # if pit height is less than 6 pixels high, you can walk down it
@@ -119,11 +119,11 @@ class TechMech(object):
         self.y += self.orientation
         try: # ensure there are no IndexErrors
             # check to see if you hit the ground
-            if level.get_at((self.x, self.y + self.orientation)) == BLACK:
+            if level.get_at((self.x, self.y + self.orientation)) == constants.BLACK:
                 # you didn't hit the ground; fall another pixel
                 self.y += self.orientation
                 # check if you hit the ground now
-                if level.get_at((self.x, self.y + self.orientation)) != BLACK:
+                if level.get_at((self.x, self.y + self.orientation)) != constants.BLACK:
                     # you hit the ground; make the Tech Mech a walker
                     self.assignSkill("walker")
             else: # you hit the ground; make the Tech Mech a walker
@@ -133,9 +133,9 @@ class TechMech(object):
         return True
 
     def drill(self, level):
-        if self.animationFrame % 2 == 0:
+        if self.animationFrame % 4 == 0:
             self.x += self.direction
-            pygame.draw.polygon(level, BLACK, (
+            pygame.draw.polygon(level, constants.BLACK, (
                 (self.x, self.y),
                 (self.x, self.y - self.orientation * 14),
                 (self.x + 10 * self.direction, self.y - self.orientation * 14),
@@ -144,7 +144,7 @@ class TechMech(object):
             # check if there is enough terrain in front of you to keep drilling
             for i in range(1, 7):
                 try:
-                    if level.get_at((self.x + self.direction * (i + 17), self.y - 7)) != BLACK:
+                    if level.get_at((self.x + self.direction * (i + 17), self.y - 7)) != constants.BLACK:
                         return True
                 except IndexError:
                     break
@@ -155,12 +155,12 @@ class TechMech(object):
     def jackhammer(self, level):
         # The Tech Mech drills into the ground, destroying terrain in the way
 
-        if self.animationFrame % 2 == 0:
+        if self.animationFrame % 4 == 0:
             # move down 1 pixel, regardless of terrain being there
             self.y += self.orientation
             # terrain is destroyed by drawing a black polygon in the shape of the
             # jackhammer point. Black pixels are counted as no terrain
-            pygame.draw.polygon(level, BLACK, (
+            pygame.draw.polygon(level, constants.BLACK, (
                 (self.x, self.y),
                 (self.x - 1, self.y - self.orientation * 3),
                 (self.x - 2, self.y - self.orientation * 6),
@@ -194,7 +194,7 @@ class TechMech(object):
             # the try-catch checks if the rope moves out of bounds
             try:
                 # check if the rope hits solid terrain
-                if level.get_at((int(currentX), int(currentY))) != BLACK:
+                if level.get_at((int(currentX), int(currentY))) != constants.BLACK:
                     return ((startX, self.y), (currentX, currentY))
             except IndexError:
                 return None
@@ -213,7 +213,7 @@ class TechMech(object):
         if points != None:
             startX, startY = points[0]
             endX, endY = points[1]
-            pygame.draw.line(level, WHITE, (startX, startY), (endX, endY))
+            pygame.draw.line(level, constants.WHITE, (startX, startY), (endX, endY))
         self.assignSkill("walker")
 
     def act(self, level):
@@ -243,7 +243,7 @@ class TechMech(object):
             
         # check if tech mech is over a pit
         try:
-            if level.get_at((self.x, self.y + self.orientation)) == BLACK:
+            if level.get_at((self.x, self.y + self.orientation)) == constants.BLACK:# and self.currentSkill != "faller":
                 self.assignSkill("faller")
         except IndexError: # the Tech Mech fell in a bottomless pit
             return False
