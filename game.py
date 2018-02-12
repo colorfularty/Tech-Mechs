@@ -35,9 +35,6 @@ replay = {}
 grappler = None
 exitsHaveLeft = False
 
-triggersFromPoint = {}
-triggersFromType = {}
-
 def readLevelFromFile(fileName):
     level = Level()
     levelFile = open(fileName + ".txt", 'r')
@@ -88,23 +85,28 @@ def renderSkillPanel():
         skillPanel.blit(skillSlot, (i * constants.SKILL_PANEL_WIDTH, 0))
         
     # now blit the skill images on each panel
-    releaseRatePanel = pygame.image.load("sprites/release rate icon.png").convert()
+    releaseRateIncrease = pygame.image.load("sprites/release rate increase.png").convert()
+    releaseRateDecrease = pygame.image.load("sprites/release rate decrease.png")
     grapplingHookSkill = pygame.image.load("sprites/grappling hook skill.png").convert()
     drillSkill = pygame.image.load("sprites/drill skill.png").convert()
     jackhammerSkill = pygame.image.load("sprites/jackhammer skill.png").convert()
     gravitySkill = pygame.image.load("sprites/gravity skill.png").convert()
+    cautionSkill = pygame.image.load("sprites/caution skill.png").convert()
 
-    releaseRatePanel.set_colorkey(constants.BLACK)
+    releaseRateIncrease.set_colorkey(constants.BLACK)
     grapplingHookSkill.set_colorkey(constants.BLACK)
     drillSkill.set_colorkey(constants.BLACK)
     jackhammerSkill.set_colorkey(constants.BLACK)
     gravitySkill.set_colorkey(constants.BLACK)
+    cautionSkill.set_colorkey(constants.BLACK)
 
-    skillPanel.blit(releaseRatePanel, (25 - constants.SKILL_WIDTH // 2, 60))
+    skillPanel.blit(releaseRateIncrease, (25 - constants.SKILL_WIDTH // 2, 50))
+    skillPanel.blit(releaseRateDecrease, (25 - constants.SKILL_WIDTH // 2, 80))
     skillPanel.blit(grapplingHookSkill, (75 - constants.SKILL_WIDTH // 2, 60))
     skillPanel.blit(drillSkill, (125 - constants.SKILL_WIDTH // 2, 60))
     skillPanel.blit(jackhammerSkill, (175 - constants.SKILL_WIDTH // 2, 60))
     skillPanel.blit(gravitySkill, (225 - constants.SKILL_WIDTH // 2, 60))
+    skillPanel.blit(cautionSkill, (275 - constants.SKILL_WIDTH // 2, 60))
 
     # compute the skills left and blit those to the skill panel
     releaseRate = skillFont.render(str(currentReleaseRate), True, constants.WHITE, constants.BLACK)
@@ -112,18 +114,21 @@ def renderSkillPanel():
     drillsLeft = skillFont.render(str(currentLevel.skillCounts["driller"]), True, constants.WHITE, constants.BLACK)
     jackhammersLeft = skillFont.render(str(currentLevel.skillCounts["jackhammerer"]), True, constants.WHITE, constants.BLACK)
     gravityReversersLeft = skillFont.render(str(currentLevel.skillCounts["gravity reverser"]), True, constants.WHITE, constants.BLACK)
+    cautionSignsLeft = skillFont.render(str(currentLevel.skillCounts["cautioner"]), True, constants.WHITE, constants.BLACK)
 
     releaseRate.set_colorkey(constants.BLACK)
     grapplingHooksLeft.set_colorkey(constants.BLACK)
     drillsLeft.set_colorkey(constants.BLACK)
     jackhammersLeft.set_colorkey(constants.BLACK)
     gravityReversersLeft.set_colorkey(constants.BLACK)
+    cautionSignsLeft.set_colorkey(constants.BLACK)
 
-    skillPanel.blit(releaseRate, (25 - releaseRate.get_width() // 2, 20))
-    skillPanel.blit(grapplingHooksLeft, (75 - grapplingHooksLeft.get_width() // 2, 20))
-    skillPanel.blit(drillsLeft, (125 - drillsLeft.get_width() // 2, 20))
-    skillPanel.blit(jackhammersLeft, (175 - jackhammersLeft.get_width() // 2, 20))
-    skillPanel.blit(gravityReversersLeft, (225 - gravityReversersLeft.get_width() // 2, 20))
+    skillPanel.blit(releaseRate, (25 - releaseRate.get_width() // 2, 10))
+    skillPanel.blit(grapplingHooksLeft, (75 - grapplingHooksLeft.get_width() // 2, 10))
+    skillPanel.blit(drillsLeft, (125 - drillsLeft.get_width() // 2, 10))
+    skillPanel.blit(jackhammersLeft, (175 - jackhammersLeft.get_width() // 2, 10))
+    skillPanel.blit(gravityReversersLeft, (225 - gravityReversersLeft.get_width() // 2, 10))
+    skillPanel.blit(cautionSignsLeft, (275 - cautionSignsLeft.get_width() // 2, 10))
 
 def addToReplay(techMech, skill, vec = None):
     if currentFrame not in replay:
@@ -169,14 +174,33 @@ def renderTechMechs():
     
     for techMech in techMechs:
         if not isPaused:
-            if not techMech.act(currentLevel.image):
+            if not techMech.act(currentLevel):
                 techMechs.remove(techMech)
                 continue
             if (techMech.x, techMech.y) in currentLevel.triggersByType["exit"] and gameObject.Exit.status == "open":
                 techMechs.remove(techMech)
                 techMechsSaved += 1
                 continue
+            elif (techMech.x + techMech.direction, techMech.y) in currentLevel.triggersByType["caution"]:
+                techMech.turnAround()
         techMech.render(levelImage)
+
+def renderTechMechObjects():
+    # first, we remove all tech mech object-specific triggers to update them
+    currentLevel.triggersByPoint = {point: trigger for point, trigger in currentLevel.triggersByPoint.items() if trigger != "caution"}
+    currentLevel.triggersByType["caution"] = []
+
+    for obj in currentLevel.techMechObjects:
+        if type(obj) is gameObject.CautionSign:
+            # check if there is no terrain to support the sign base
+            if currentLevel.image.get_at((obj.triggerX, obj.triggerY + 1)) == constants.BLACK:
+                # there is no terrain support, so destroy the sign
+                currentLevel.techMechObjects.remove(obj)
+                continue
+            else: # the sign is supported, so add its triggers to the triggerMaps
+                currentLevel.triggersByPoint[(obj.triggerX, obj.triggerY)] = "caution"
+                currentLevel.triggersByType["caution"].append((obj.triggerX, obj.triggerY))
+        obj.render(levelImage)
 
 def scrollScreen():
     global screenX, screenY
@@ -222,9 +246,9 @@ def handleGameEvents():
                 # check if the user clicked on the release rate
                 if mousex < 50:
                     # check if the user wants to increase the release rate
-                    if mousey < constants.SCREEN_HEIGHT - 13:
+                    if mousey >= constants.SCREEN_HEIGHT - 50 and mousey <= constants.SCREEN_HEIGHT - 50 + constants.SKILL_HEIGHT:
                         increaseReleaseRate = True
-                    else: # the user wants to decrease the release rate
+                    elif mousey >= constants.SCREEN_HEIGHT - 20 and mousey <= constants.SCREEN_HEIGHT - 15: # the user wants to decrease the release rate
                         decreaseReleaseRate = True
                 # check if user clicked on the grappling hook skill
                 elif mousex < 100:
@@ -235,11 +259,12 @@ def handleGameEvents():
                 # check if user clicked on the jackhammer skill
                 elif mousex < 200:
                     selectedSkill = "jackhammerer"
+                # check if the user clicked on the gravity reverser skill
                 elif mousex < 250:
                     selectedSkill = "gravity reverser"
+                # check if the user clicked on the caution sign skill
                 elif mousex < 300:
-                    # skill 5
-                    pass
+                    selectedSkill = "cautioner"
                 elif mousex < 350:
                     # skill 6
                     pass
@@ -287,7 +312,11 @@ def handleGameEvents():
             decreaseReleaseRate = False
         elif event.type == KEYDOWN:
             if event.key == K_F1:
-                selectedSkill = "gravity reverser"
+                decreaseReleaseRate = True
+            elif event.key == K_F2:
+                increaseReleaseRate = True
+            elif event.key == K_F6:
+                selectedSkill = "cautioner"
             elif event.key == K_F7:
                 selectedSkill = "grappler"
             elif event.key == K_F8:
@@ -296,6 +325,11 @@ def handleGameEvents():
                 selectedSkill = "jackhammerer"
             elif event.key == K_F11:
                 isPaused = not isPaused
+        elif event.type == KEYUP:
+            if event.key == K_F1:
+                decreaseReleaseRate = False
+            elif event.key == K_F2:
+                increaseReleaseRate = False
         elif event.type == QUIT:
             pygame.quit()
             os._exit(0)
@@ -332,6 +366,8 @@ def executeGameFrame(SCREEN):
 
     renderGameObjects()
 
+    renderTechMechObjects()
+
     renderTechMechs()
 
     # finally, we blit any skill masks needed to help users see where the skills will be used
@@ -356,6 +392,8 @@ def executeGameFrame(SCREEN):
         SCREEN.blit(skillHighlight, (150, constants.SCREEN_HEIGHT - constants.SKILL_PANEL_HEIGHT))
     elif selectedSkill == "gravity reverser":
         SCREEN.blit(skillHighlight, (200, constants.SCREEN_HEIGHT - constants.SKILL_PANEL_HEIGHT))
+    elif selectedSkill == "cautioner":
+        SCREEN.blit(skillHighlight, (250, constants.SCREEN_HEIGHT - constants.SKILL_PANEL_HEIGHT))
 
     # show screen updates and advance time
     pygame.display.update()

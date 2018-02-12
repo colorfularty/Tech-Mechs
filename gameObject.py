@@ -37,6 +37,36 @@ class Exit(GameObject):
     def close(self):
         Exit.status = "closed"
 
+class TechMechObject(object):
+    # an object placed by a Tech Mech
+
+    def __init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight):
+        self.imageName = imageName
+        self.image = pygame.image.load(imageName).convert()
+        self.image.set_colorkey(constants.BLACK)
+        self.x = x
+        self.y = y
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+        self.triggerX = triggerX
+        self.triggerY = triggerY
+        self.triggerWidth = triggerWidth
+        self.triggerHeight = triggerHeight
+
+    def render(self, surf):
+        surf.blit(self.image, (self.x, self.y))
+
+class CautionSign(TechMechObject):
+    # a caution sign which turns Tech Mechs around when they hit the trigger area
+
+    def __init__(self, triggerX, triggerY, orientation):
+        y = triggerY - 59
+        if orientation < 0:
+            y = triggerY
+        TechMechObject.__init__(self, "sprites/caution sign.png", triggerX - 12, y, triggerX, triggerY, 1, 1)
+        self.image = pygame.transform.flip(self.image, False, orientation < 0)
+        
+
 
 
 

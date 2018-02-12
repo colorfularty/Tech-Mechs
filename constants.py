@@ -14,7 +14,8 @@ TECH_MECH_SPRITE_HEIGHT = 48
 ANIMATION_FRAMES = {"walker": 16,
                     "faller": 16,
                     "driller": 4,
-                    "jackhammerer": 4}
+                    "jackhammerer": 4,
+                    "cautioner": 1}
 GRAPPLER_RANGE = 150
 
 NUMBER_OF_SKILL_PANELS = 13

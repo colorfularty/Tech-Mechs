@@ -1,6 +1,7 @@
 import pygame
 import vector
 import constants
+import gameObject
 
 class TechMech(object):
     # the main characters in the game
@@ -11,18 +12,21 @@ class TechMech(object):
     grapplerSprites = pygame.image.load("sprites/grappler.png").convert()
     drillerSprites = pygame.image.load("sprites/driller.png").convert()
     jackhammererSprites = pygame.image.load("sprites/jackhammerer.png").convert()
+    cautionerSprites = pygame.image.load("sprites/cautioner.png").convert()
 
     walkerSprites.set_colorkey(constants.BLACK)
     fallerSprites.set_colorkey(constants.BLACK)
     grapplerSprites.set_colorkey(constants.BLACK)
     drillerSprites.set_colorkey(constants.BLACK)
     jackhammererSprites.set_colorkey(constants.BLACK)
+    cautionerSprites.set_colorkey(constants.BLACK)
 
     spriteSheets = {"walker":       walkerSprites,
                     "faller":       fallerSprites,
                     "grappler":     grapplerSprites,
                     "driller":      drillerSprites,
-                    "jackhammerer": jackhammererSprites}
+                    "jackhammerer": jackhammererSprites,
+                    "cautioner": cautionerSprites}
     
     def __init__(self, x, y):
         self.x = x # their x-coordinate relative to the map (trigger area)
@@ -216,24 +220,32 @@ class TechMech(object):
             pygame.draw.line(level, constants.WHITE, (startX, startY), (endX, endY))
         self.assignSkill("walker")
 
+    def setCautionSign(self, level):
+        cautionSign = gameObject.CautionSign(self.x + self.direction, self.y, self.orientation)
+        level.addTechMechObject(cautionSign)
+        self.assignSkill("walker")
+
     def act(self, level):
         self.setImage(self.currentSkill)
         if self.currentSkill == "walker":
-            if not self.walk(level):
+            if not self.walk(level.image):
                 return False
                 
         elif self.currentSkill == "faller":
-            if not self.fall(level):
+            if not self.fall(level.image):
                 return False
 
         elif self.currentSkill == "driller":
-            self.drill(level)
+            self.drill(level.image)
 
         elif self.currentSkill == "jackhammerer":
-            self.jackhammer(level)
+            self.jackhammer(level.image)
 
         elif self.currentSkill == "grappler":
-            self.grapple(level, self.skillVector)
+            self.grapple(level.image, self.skillVector)
+
+        elif self.currentSkill == "cautioner":
+            self.setCautionSign(level)
 
         # adjust the animation frame
         if self.animationFrame >= constants.ANIMATION_FRAMES[self.currentSkill] - 1:
@@ -243,7 +255,7 @@ class TechMech(object):
             
         # check if tech mech is over a pit
         try:
-            if level.get_at((self.x, self.y + self.orientation)) == constants.BLACK:# and self.currentSkill != "faller":
+            if level.image.get_at((self.x, self.y + self.orientation)) == constants.BLACK:# and self.currentSkill != "faller":
                 self.assignSkill("faller")
         except IndexError: # the Tech Mech fell in a bottomless pit
             return False

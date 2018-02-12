@@ -63,10 +63,10 @@ while True: # main game loop
         CLOCK.tick(constants.FPS)
 
     while currentMenu == "play":
-        currentLevel = level.Level()
-        testTerrain = terrain.Terrain("styles/special/test level.png", 0, 0)
-        testEntrance = gameObject.Entrance("styles/special/entrance.png", 100, 0)
-        testExit = gameObject.Exit("styles/special/exit.png", 500, 251)
+        testTerrain = terrain.Terrain("styles/special/test level 2.png", 0, 0)
+        testEntrance = gameObject.Entrance("styles/special/entrance.png", 200, 0)
+        testExit = gameObject.Exit("styles/special/exit.png", 464 - 46, 479 - 166)
+        currentLevel = level.Level(testTerrain.image.get_width(), testTerrain.image.get_height())
         levelImage = pygame.surface.Surface((currentLevel.image.get_width(), currentLevel.image.get_height()))
         currentLevel.addObject(testEntrance)
         currentLevel.addObject(testExit)
