@@ -1,11 +1,14 @@
+import pygame
+
 # colors
 BLACK = (  0,   0,   0)
 WHITE = (255, 255, 255)
 
 SCREEN_WIDTH = 650
 SCREEN_HEIGHT = 500
-
+CLOCK = pygame.time.Clock()
 FPS = 30
+TIME_PASSED = CLOCK.tick(FPS) / 1000.0
 
 SCROLL_SPEED = 6
 
@@ -15,7 +18,9 @@ ANIMATION_FRAMES = {"walker": 16,
                     "faller": 16,
                     "driller": 4,
                     "jackhammerer": 4,
-                    "cautioner": 1}
+                    "grappler": 1,
+                    "cautioner": 1,
+                    "detonator": 1}
 GRAPPLER_RANGE = 150
 
 NUMBER_OF_SKILL_PANELS = 13

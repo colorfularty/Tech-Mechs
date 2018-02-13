@@ -8,8 +8,6 @@ import vector
 mousex = 0
 mousey = 0
 
-CLOCK = None
-
 skillFont = pygame.font.SysFont("helvetica", 32)
 skillSlot = pygame.image.load("sprites/skill panel.png")
 skillHighlight = pygame.image.load("sprites/skill highlight.png").convert()
@@ -44,9 +42,9 @@ def readLevelFromFile(fileName):
     levelFile.close()
     return level
 
-def startLevel(level, clock):
+def startLevel(level):
     global currentLevel, levelImage, currentReleaseRate, increaseReleaseRate, decreaseReleaseRate, techMechs, techMechsReleased, techMechsSaved, playingLevel
-    global currentFrame, framesSinceLastRelease, selectedSkill, isPaused, screenX, screenY, replay, grappler, exitsHaveLeft, CLOCK
+    global currentFrame, framesSinceLastRelease, selectedSkill, isPaused, screenX, screenY, replay, grappler, exitsHaveLeft
     
     currentLevel = level
     levelImage = pygame.surface.Surface((currentLevel.image.get_width(), currentLevel.image.get_height()))
@@ -69,8 +67,6 @@ def startLevel(level, clock):
 
     renderSkillPanel()
 
-    CLOCK = clock
-
     gameObject.Entrance.status = "closed"
     gameObject.Exit.status = "open"
 
@@ -92,6 +88,7 @@ def renderSkillPanel():
     jackhammerSkill = pygame.image.load("sprites/jackhammer skill.png").convert()
     gravitySkill = pygame.image.load("sprites/gravity skill.png").convert()
     cautionSkill = pygame.image.load("sprites/caution skill.png").convert()
+    detonatorSkill = pygame.image.load("sprites/detonator skill.png").convert()
 
     releaseRateIncrease.set_colorkey(constants.BLACK)
     grapplingHookSkill.set_colorkey(constants.BLACK)
@@ -99,6 +96,7 @@ def renderSkillPanel():
     jackhammerSkill.set_colorkey(constants.BLACK)
     gravitySkill.set_colorkey(constants.BLACK)
     cautionSkill.set_colorkey(constants.BLACK)
+    detonatorSkill.set_colorkey(constants.BLACK)
 
     skillPanel.blit(releaseRateIncrease, (25 - constants.SKILL_WIDTH // 2, 50))
     skillPanel.blit(releaseRateDecrease, (25 - constants.SKILL_WIDTH // 2, 80))
@@ -107,6 +105,7 @@ def renderSkillPanel():
     skillPanel.blit(jackhammerSkill, (175 - constants.SKILL_WIDTH // 2, 60))
     skillPanel.blit(gravitySkill, (225 - constants.SKILL_WIDTH // 2, 60))
     skillPanel.blit(cautionSkill, (275 - constants.SKILL_WIDTH // 2, 60))
+    skillPanel.blit(detonatorSkill, (325 - constants.SKILL_WIDTH // 2, 60))
 
     # compute the skills left and blit those to the skill panel
     releaseRate = skillFont.render(str(currentReleaseRate), True, constants.WHITE, constants.BLACK)
@@ -115,6 +114,7 @@ def renderSkillPanel():
     jackhammersLeft = skillFont.render(str(currentLevel.skillCounts["jackhammerer"]), True, constants.WHITE, constants.BLACK)
     gravityReversersLeft = skillFont.render(str(currentLevel.skillCounts["gravity reverser"]), True, constants.WHITE, constants.BLACK)
     cautionSignsLeft = skillFont.render(str(currentLevel.skillCounts["cautioner"]), True, constants.WHITE, constants.BLACK)
+    landMinesLeft = skillFont.render(str(currentLevel.skillCounts["detonator"]), True, constants.WHITE, constants.BLACK)
 
     releaseRate.set_colorkey(constants.BLACK)
     grapplingHooksLeft.set_colorkey(constants.BLACK)
@@ -122,6 +122,7 @@ def renderSkillPanel():
     jackhammersLeft.set_colorkey(constants.BLACK)
     gravityReversersLeft.set_colorkey(constants.BLACK)
     cautionSignsLeft.set_colorkey(constants.BLACK)
+    landMinesLeft.set_colorkey(constants.BLACK)
 
     skillPanel.blit(releaseRate, (25 - releaseRate.get_width() // 2, 10))
     skillPanel.blit(grapplingHooksLeft, (75 - grapplingHooksLeft.get_width() // 2, 10))
@@ -129,6 +130,7 @@ def renderSkillPanel():
     skillPanel.blit(jackhammersLeft, (175 - jackhammersLeft.get_width() // 2, 10))
     skillPanel.blit(gravityReversersLeft, (225 - gravityReversersLeft.get_width() // 2, 10))
     skillPanel.blit(cautionSignsLeft, (275 - cautionSignsLeft.get_width() // 2, 10))
+    skillPanel.blit(landMinesLeft, (325 - landMinesLeft.get_width() // 2, 10))
 
 def addToReplay(techMech, skill, vec = None):
     if currentFrame not in replay:
@@ -183,6 +185,8 @@ def renderTechMechs():
                 continue
             elif (techMech.x + techMech.direction, techMech.y) in currentLevel.triggersByType["caution"]:
                 techMech.turnAround()
+                for point in currentLevel.triggersByType["caution"]:
+                    print(point)
         techMech.render(levelImage)
 
 def renderTechMechObjects():
@@ -193,13 +197,28 @@ def renderTechMechObjects():
     for obj in currentLevel.techMechObjects:
         if type(obj) is gameObject.CautionSign:
             # check if there is no terrain to support the sign base
-            if currentLevel.image.get_at((obj.triggerX, obj.triggerY + 1)) == constants.BLACK:
+            if currentLevel.image.get_at((obj.triggerX, obj.triggerY + obj.orientation)) == constants.BLACK:
                 # there is no terrain support, so destroy the sign
                 currentLevel.techMechObjects.remove(obj)
                 continue
             else: # the sign is supported, so add its triggers to the triggerMaps
                 currentLevel.triggersByPoint[(obj.triggerX, obj.triggerY)] = "caution"
                 currentLevel.triggersByType["caution"].append((obj.triggerX, obj.triggerY))
+        elif type(obj) is gameObject.LandMine:
+            # check if the ground supporting the land mine has disappeared
+            if currentLevel.image.get_at((obj.triggerX, obj.triggerY + obj.orientation)) == constants.BLACK:
+                # there is no terrain to support, so destroy the land mine SUBJECT TO CHANGE
+                currentLevel.techMechObjects.remove(obj)
+                continue
+            # decrease the timer if the game is unpaused
+            if not isPaused:
+                obj.timer -= constants.TIME_PASSED
+            # check if the timer has run out
+            if obj.timer <= 0.0:
+                # the land mine blows up, destroying nearby terrain
+                currentLevel.techMechObjects.remove(obj)
+                pygame.draw.ellipse(currentLevel.image, constants.BLACK, (obj.triggerX - obj.triggerWidth // 2, obj.triggerY - obj.triggerHeight // 2, obj.triggerWidth, obj.triggerHeight))
+                continue
         obj.render(levelImage)
 
 def scrollScreen():
@@ -265,9 +284,9 @@ def handleGameEvents():
                 # check if the user clicked on the caution sign skill
                 elif mousex < 300:
                     selectedSkill = "cautioner"
+                # check if the user clicked on the detonator skill
                 elif mousex < 350:
-                    # skill 6
-                    pass
+                    selectedSkill = "detonator"
                 elif mousex < 400:
                     # skill 7
                     pass
@@ -315,6 +334,8 @@ def handleGameEvents():
                 decreaseReleaseRate = True
             elif event.key == K_F2:
                 increaseReleaseRate = True
+            elif event.key == K_F5:
+                selectedSkill = "detonator"
             elif event.key == K_F6:
                 selectedSkill = "cautioner"
             elif event.key == K_F7:
@@ -394,10 +415,12 @@ def executeGameFrame(SCREEN):
         SCREEN.blit(skillHighlight, (200, constants.SCREEN_HEIGHT - constants.SKILL_PANEL_HEIGHT))
     elif selectedSkill == "cautioner":
         SCREEN.blit(skillHighlight, (250, constants.SCREEN_HEIGHT - constants.SKILL_PANEL_HEIGHT))
+    elif selectedSkill == "detonator":
+        SCREEN.blit(skillHighlight, (300, constants.SCREEN_HEIGHT - constants.SKILL_PANEL_HEIGHT))
 
     # show screen updates and advance time
     pygame.display.update()
-    CLOCK.tick(constants.FPS)
+    constants.CLOCK.tick(constants.FPS)
     if not isPaused:
         currentFrame += 1
         framesSinceLastRelease += 1

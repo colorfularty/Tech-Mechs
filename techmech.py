@@ -13,6 +13,7 @@ class TechMech(object):
     drillerSprites = pygame.image.load("sprites/driller.png").convert()
     jackhammererSprites = pygame.image.load("sprites/jackhammerer.png").convert()
     cautionerSprites = pygame.image.load("sprites/cautioner.png").convert()
+    detonatorSprites = pygame.image.load("sprites/detonator.png").convert()
 
     walkerSprites.set_colorkey(constants.BLACK)
     fallerSprites.set_colorkey(constants.BLACK)
@@ -20,13 +21,15 @@ class TechMech(object):
     drillerSprites.set_colorkey(constants.BLACK)
     jackhammererSprites.set_colorkey(constants.BLACK)
     cautionerSprites.set_colorkey(constants.BLACK)
+    detonatorSprites.set_colorkey(constants.BLACK)
 
     spriteSheets = {"walker":       walkerSprites,
                     "faller":       fallerSprites,
                     "grappler":     grapplerSprites,
                     "driller":      drillerSprites,
                     "jackhammerer": jackhammererSprites,
-                    "cautioner": cautionerSprites}
+                    "cautioner": cautionerSprites,
+                    "detonator": detonatorSprites}
     
     def __init__(self, x, y):
         self.x = x # their x-coordinate relative to the map (trigger area)
@@ -225,6 +228,11 @@ class TechMech(object):
         level.addTechMechObject(cautionSign)
         self.assignSkill("walker")
 
+    def setLandMine(self, level):
+        landMine = gameObject.LandMine(self.x, self.y, self.orientation)
+        level.addTechMechObject(landMine)
+        self.assignSkill("walker")
+
     def act(self, level):
         self.setImage(self.currentSkill)
         if self.currentSkill == "walker":
@@ -246,6 +254,9 @@ class TechMech(object):
 
         elif self.currentSkill == "cautioner":
             self.setCautionSign(level)
+
+        elif self.currentSkill == "detonator":
+            self.setLandMine(level)
 
         # adjust the animation frame
         if self.animationFrame >= constants.ANIMATION_FRAMES[self.currentSkill] - 1:

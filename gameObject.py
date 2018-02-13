@@ -40,7 +40,7 @@ class Exit(GameObject):
 class TechMechObject(object):
     # an object placed by a Tech Mech
 
-    def __init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight):
+    def __init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight, orientation):
         self.imageName = imageName
         self.image = pygame.image.load(imageName).convert()
         self.image.set_colorkey(constants.BLACK)
@@ -52,6 +52,8 @@ class TechMechObject(object):
         self.triggerY = triggerY
         self.triggerWidth = triggerWidth
         self.triggerHeight = triggerHeight
+        self.orientation = orientation
+        self.image = pygame.transform.flip(self.image, False, self.orientation < 0)
 
     def render(self, surf):
         surf.blit(self.image, (self.x, self.y))
@@ -63,8 +65,17 @@ class CautionSign(TechMechObject):
         y = triggerY - 59
         if orientation < 0:
             y = triggerY
-        TechMechObject.__init__(self, "sprites/caution sign.png", triggerX - 12, y, triggerX, triggerY, 1, 1)
-        self.image = pygame.transform.flip(self.image, False, orientation < 0)
+        TechMechObject.__init__(self, "sprites/caution sign.png", triggerX - 12, y, triggerX, triggerY, 1, 1, orientation)
+
+class LandMine(TechMechObject):
+    # a land mine that blows up nearby terrain after 3 seconds
+
+    def __init__(self, triggerX, triggerY, orientation):
+        y = triggerY - 5
+        if orientation < 0:
+            y = triggerY
+        TechMechObject.__init__(self, "sprites/land mine.png", triggerX - 2, y, triggerX, triggerY, 30, 30, orientation)
+        self.timer = 3.0
         
 
 

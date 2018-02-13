@@ -20,7 +20,8 @@ class Level(object):
                             "driller": 10,
                             "jackhammerer": 10,
                             "gravity reverser": 10,
-                            "cautioner": 10}
+                            "cautioner": 10,
+                            "detonator": 10}
         self.timeLimit = -1 # defaults to infinite time, which is -1
         self.releaseRate = 1 # how fast the tech mechs come out of the hatch
         self.music = "" # the filename for the music that plays on the level
@@ -64,8 +65,8 @@ class Level(object):
                         self.triggersByPoint[point].append("exit")
                         self.triggersByType["exit"].append(point)
         for obj in self.techMechObjects:
-            for x in range(obj.width):
-                for y in range(obj.height):
+            for x in range(obj.triggerWidth):
+                for y in range(obj.triggerHeight):
                     point = (obj.triggerX + x, obj.triggerY + y)
                     if point not in self.triggersByPoint.keys():
                         self.triggersByPoint[point] = []

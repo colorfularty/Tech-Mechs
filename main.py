@@ -2,9 +2,9 @@
 import pygame, os
 from pygame.locals import *
 
-import constants
-
 pygame.init()
+
+import constants
 
 SCREEN = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT), 0, 32)
 pygame.display.set_caption("Tech Mechs")
@@ -17,8 +17,6 @@ import gameObject
 import level
 import techmech
 import game
-
-CLOCK = pygame.time.Clock()
 
 mousex = 0
 mousey = 0
@@ -60,7 +58,7 @@ while True: # main game loop
         settingsButton.render(SCREEN)
         exitButton.render(SCREEN)
         pygame.display.update()
-        CLOCK.tick(constants.FPS)
+        constants.CLOCK.tick(constants.FPS)
 
     while currentMenu == "play":
         testTerrain = terrain.Terrain("styles/special/test level 2.png", 0, 0)
@@ -71,7 +69,7 @@ while True: # main game loop
         currentLevel.addObject(testEntrance)
         currentLevel.addObject(testExit)
         currentLevel.addTerrain(testTerrain)
-        game.startLevel(currentLevel, CLOCK)
+        game.startLevel(currentLevel)
         while game.playingLevel:
             game.executeGameFrame(SCREEN)
         currentMenu = "main"
