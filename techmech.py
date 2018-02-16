@@ -266,7 +266,7 @@ class TechMech(object):
             
         # check if tech mech is over a pit
         try:
-            if level.image.get_at((self.x, self.y + self.orientation)) == constants.BLACK:# and self.currentSkill != "faller":
+            if level.image.get_at((self.x, self.y + self.orientation)) == constants.BLACK and self.currentSkill != "faller":
                 self.assignSkill("faller")
         except IndexError: # the Tech Mech fell in a bottomless pit
             return False

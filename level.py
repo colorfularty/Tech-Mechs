@@ -56,8 +56,8 @@ class Level(object):
     def updateTriggerMaps(self):
         self.initializeTriggerMaps()
         for obj in self.objects:
-            for x in range(obj.width):
-                for y in range(obj.height):
+            for x in range(obj.triggerWidth):
+                for y in range(obj.triggerHeight):
                     point = (obj.triggerX + x, obj.triggerY + y)
                     if point not in self.triggersByPoint.keys():
                         self.triggersByPoint[point] = []

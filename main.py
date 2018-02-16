@@ -24,11 +24,12 @@ mousey = 0
 currentMenu = "main"
 
 # menu labels and buttons
-playGameButton = widgets.Button(250, 0, "Play")
+titleScreen = pygame.image.load("sprites/Title Screen.png")
+playGameButton = widgets.Button(150, 150, "Play")
 levelEditorButton = widgets.Button(250, 100, "Level editor")
 graphicSetButton = widgets.Button(250, 200, "Graphic sets")
 settingsButton = widgets.Button(250, 300, "Settings")
-exitButton = widgets.Button(250, 400, "Exit")
+exitButton = widgets.Button(450, 150, "Exit")
 
 while True: # main game loop
     
@@ -52,10 +53,11 @@ while True: # main game loop
                 pygame.quit()
                 os._exit(0)
         SCREEN.fill(constants.BLACK)
+        SCREEN.blit(titleScreen, (0, 0))
         playGameButton.render(SCREEN)
-        levelEditorButton.render(SCREEN)
-        graphicSetButton.render(SCREEN)
-        settingsButton.render(SCREEN)
+        #levelEditorButton.render(SCREEN)
+        #graphicSetButton.render(SCREEN)
+        #settingsButton.render(SCREEN)
         exitButton.render(SCREEN)
         pygame.display.update()
         constants.CLOCK.tick(constants.FPS)
@@ -63,7 +65,7 @@ while True: # main game loop
     while currentMenu == "play":
         testTerrain = terrain.Terrain("styles/special/test level 2.png", 0, 0)
         testEntrance = gameObject.Entrance("styles/special/entrance.png", 200, 0)
-        testExit = gameObject.Exit("styles/special/exit.png", 464 - 46, 479 - 166)
+        testExit = gameObject.Exit("styles/special/exit.png", 464 - 46, 479 - 165)
         currentLevel = level.Level(testTerrain.image.get_width(), testTerrain.image.get_height())
         levelImage = pygame.surface.Surface((currentLevel.image.get_width(), currentLevel.image.get_height()))
         currentLevel.addObject(testEntrance)

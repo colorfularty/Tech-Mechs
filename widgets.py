@@ -11,6 +11,7 @@ class Label(object):
         self.y = y
         self.text = text
         self.image = self.font.render(self.text, True, constants.WHITE, constants.BLACK)
+        self.image.set_colorkey(constants.BLACK)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 

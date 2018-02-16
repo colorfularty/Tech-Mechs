@@ -185,8 +185,6 @@ def renderTechMechs():
                 continue
             elif (techMech.x + techMech.direction, techMech.y) in currentLevel.triggersByType["caution"]:
                 techMech.turnAround()
-                for point in currentLevel.triggersByType["caution"]:
-                    print(point)
         techMech.render(levelImage)
 
 def renderTechMechObjects():
