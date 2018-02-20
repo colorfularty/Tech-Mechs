@@ -1,22 +1,19 @@
-# import libraries
 import pygame, os
 from pygame.locals import *
 
 pygame.init()
 
-import constants
+from constants import *
 
-SCREEN = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT), 0, 32)
+SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
 pygame.display.set_caption("Tech Mechs")
 
 # import other game files
-import widgets
-import vector
-import terrain
-import gameObject
-import level
-import techmech
-import game
+from widgets import *
+from terrain import *
+from gameObject import *
+from level import *
+from game import *
 
 mousex = 0
 mousey = 0
@@ -25,11 +22,11 @@ currentMenu = "main"
 
 # menu labels and buttons
 titleScreen = pygame.image.load("sprites/Title Screen.png")
-playGameButton = widgets.Button(150, 150, "Play")
-levelEditorButton = widgets.Button(250, 100, "Level editor")
-graphicSetButton = widgets.Button(250, 200, "Graphic sets")
-settingsButton = widgets.Button(250, 300, "Settings")
-exitButton = widgets.Button(450, 150, "Exit")
+playGameButton = Button(150, 150, "Play")
+levelEditorButton = Button(250, 100, "Level editor")
+graphicSetButton = Button(250, 200, "Graphic sets")
+settingsButton = Button(250, 300, "Settings")
+exitButton = Button(450, 150, "Exit")
 
 while True: # main game loop
     
@@ -52,7 +49,7 @@ while True: # main game loop
             elif event.type == QUIT:
                 pygame.quit()
                 os._exit(0)
-        SCREEN.fill(constants.BLACK)
+        SCREEN.fill(BLACK)
         SCREEN.blit(titleScreen, (0, 0))
         playGameButton.render(SCREEN)
         #levelEditorButton.render(SCREEN)
@@ -60,20 +57,20 @@ while True: # main game loop
         #settingsButton.render(SCREEN)
         exitButton.render(SCREEN)
         pygame.display.update()
-        constants.CLOCK.tick(constants.FPS)
+        CLOCK.tick(FPS)
 
     while currentMenu == "play":
-        testTerrain = terrain.Terrain("styles/special/test level 2.png", 0, 0)
-        testEntrance = gameObject.Entrance("styles/special/entrance.png", 200, 0)
-        testExit = gameObject.Exit("styles/special/exit.png", 464 - 46, 479 - 165)
-        currentLevel = level.Level(testTerrain.image.get_width(), testTerrain.image.get_height())
+        testTerrain = Terrain("styles/special/test level 2.png", 0, 0)
+        testEntrance = Entrance("styles/special/entrance.png", 200, 0)
+        testExit = Exit("styles/special/exit.png", 464 - 46, 479 - 165)
+        currentLevel = Level(testTerrain.image.get_width(), testTerrain.image.get_height())
         levelImage = pygame.surface.Surface((currentLevel.image.get_width(), currentLevel.image.get_height()))
         currentLevel.addObject(testEntrance)
         currentLevel.addObject(testExit)
         currentLevel.addTerrain(testTerrain)
-        game.startLevel(currentLevel)
-        while game.playingLevel:
-            game.executeGameFrame(SCREEN)
+        startLevel(currentLevel)
+        while playingLevel:
+            executeGameFrame(SCREEN)
         currentMenu = "main"
 
     while currentMenu == "editor":

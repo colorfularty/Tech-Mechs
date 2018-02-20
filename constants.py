@@ -1,4 +1,5 @@
 import pygame
+from skill import *
 
 # colors
 BLACK = (  0,   0,   0)
@@ -14,13 +15,13 @@ SCROLL_SPEED = 6
 
 TECH_MECH_SPRITE_WIDTH = 35
 TECH_MECH_SPRITE_HEIGHT = 48
-ANIMATION_FRAMES = {"walker": 16,
-                    "faller": 16,
-                    "driller": 4,
-                    "jackhammerer": 4,
-                    "grappler": 1,
-                    "cautioner": 1,
-                    "detonator": 1}
+ANIMATION_FRAMES = {Walker: 16,
+                    Faller: 16,
+                    Driller: 4,
+                    Jackhammerer: 4,
+                    Grappler: 1,
+                    Cautioner: 1,
+                    Detonator: 1}
 GRAPPLER_RANGE = 150
 
 NUMBER_OF_SKILL_PANELS = 13

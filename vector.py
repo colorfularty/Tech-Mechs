@@ -1,4 +1,4 @@
-import math
+from math import *
 
 class Vector(object):
     # an object that represents a 2D vector
@@ -8,10 +8,10 @@ class Vector(object):
         self.y = y # the vertical distance of the vector
 
     def getMagnitude(self):
-        return math.sqrt(self.x**2 + self.y**2)
+        return sqrt(self.x**2 + self.y**2)
 
     def getAngle(self):
-        return math.atan(self.y / self.x)
+        return atan(self.y / self.x)
 
     def normalize(self):
         magnitude = self.getMagnitude()

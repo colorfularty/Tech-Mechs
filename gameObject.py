@@ -1,10 +1,10 @@
 import pygame
-import constants
+from constants import *
 
 class GameObject(object):
     def __init__(self, imageName, x, y, triggerX = 0, triggerY = 0, triggerWidth = 0, triggerHeight = 0):
         self.image = pygame.image.load(imageName).convert()
-        self.image.set_colorkey(constants.BLACK)
+        self.image.set_colorkey(BLACK)
         self.x = x # the x-coordinate of the object on the level
         self.y = y # the y-coordinate of the object on the level
         self.width = self.image.get_width() # the width of the object
@@ -43,7 +43,7 @@ class TechMechObject(object):
     def __init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight, orientation):
         self.imageName = imageName
         self.image = pygame.image.load(imageName).convert()
-        self.image.set_colorkey(constants.BLACK)
+        self.image.set_colorkey(BLACK)
         self.x = x
         self.y = y
         self.width = self.image.get_width()

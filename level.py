@@ -1,6 +1,7 @@
 import pygame
-import constants
-import gameObject
+from constants import *
+from gameObject import *
+from skill import *
 
 class Level(object):
     def __init__(self, width, height):
@@ -13,15 +14,15 @@ class Level(object):
         self.techMechObjects = [] # a list of objects placed by tech mechs
         self.name = "" # the level name
         self.author = "" # the author of the level
-        self.numberOfTechMechs = 1 # the number of tech mechs on the level
+        self.numberOfTechMechs = 10 # the number of tech mechs on the level
         self.saveRequirement = 1 # the number of tech mechs you have to save
         # a dict of how many of each skill is given
-        self.skillCounts = {"grappler": 10,
-                            "driller": 10,
-                            "jackhammerer": 10,
-                            "gravity reverser": 10,
-                            "cautioner": 10,
-                            "detonator": 10}
+        self.skillCounts = {Grappler: 10,
+                            Driller: 10,
+                            Jackhammerer: 10,
+                            GravityReverser: 10,
+                            Cautioner: 10,
+                            Detonator: 10}
         self.timeLimit = -1 # defaults to infinite time, which is -1
         self.releaseRate = 1 # how fast the tech mechs come out of the hatch
         self.music = "" # the filename for the music that plays on the level
@@ -43,7 +44,7 @@ class Level(object):
 
     def initializeImage(self):
         self.image = pygame.surface.Surface((self.width, self.height))
-        self.image.fill(constants.BLACK)
+        self.image.fill(BLACK)
 
     def updateImage(self, terrain):
         self.image.blit(terrain.image, (terrain.x, terrain.y))
@@ -61,7 +62,7 @@ class Level(object):
                     point = (obj.triggerX + x, obj.triggerY + y)
                     if point not in self.triggersByPoint.keys():
                         self.triggersByPoint[point] = []
-                    if type(obj) is gameObject.Exit:
+                    if type(obj) is Exit:
                         self.triggersByPoint[point].append("exit")
                         self.triggersByType["exit"].append(point)
         for obj in self.techMechObjects:
@@ -70,7 +71,7 @@ class Level(object):
                     point = (obj.triggerX + x, obj.triggerY + y)
                     if point not in self.triggersByPoint.keys():
                         self.triggersByPoint[point] = []
-                    if type(obj) is gameObject.CautionSign:
+                    if type(obj) is CautionSign:
                         self.triggersByPoint[point].append("caution")
                         self.triggersByType["caution"].append(point)
             
