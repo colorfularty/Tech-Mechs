@@ -14,6 +14,9 @@ from terrain import *
 from gameObject import *
 from level import *
 from game import *
+from graphicSet import *
+
+GraphicSet.loadGraphicSets()
 
 mousex = 0
 mousey = 0
@@ -60,7 +63,7 @@ while True: # main game loop
         CLOCK.tick(FPS)
 
     while currentMenu == "play":
-        testTerrain = Terrain("styles/special/test level 2.png", 0, 0)
+        testTerrain = TerrainPiece("styles/special/test level 2.png", 0, 0)
         testEntrance = Entrance("styles/special/entrance.png", 200, 0)
         testExit = Exit("styles/special/exit.png", 464 - 46, 479 - 165)
         currentLevel = Level(testTerrain.image.get_width(), testTerrain.image.get_height())
@@ -69,8 +72,9 @@ while True: # main game loop
         currentLevel.addObject(testExit)
         currentLevel.addTerrain(testTerrain)
         startLevel(currentLevel)
+        playingLevel = True
         while playingLevel:
-            executeGameFrame(SCREEN)
+            playingLevel = executeGameFrame(SCREEN)
         currentMenu = "main"
 
     while currentMenu == "editor":

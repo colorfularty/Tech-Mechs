@@ -1,5 +1,4 @@
 import pygame
-from constants import *
 from gameObject import *
 
 class Skill(object):
@@ -13,12 +12,13 @@ class Walker(Skill):
     # makes the Tech Mech walk forward and (if necessary) turn around
 
     @classmethod
-    def use(self, techMech, level):
+    def use(self, techMech, level, unitVec):
         # the Tech Mech walks. Returns False if the Tech Mech walks offscreen
         # to its death, and True otherwise
         newXPos = techMech.x + techMech.direction
         # check if the tech mech is about to hit a wall
         try: # checks to make sure there are no index out of bounds errors
+            from constants import BLACK
             if level.image.get_at((newXPos, techMech.y)) != BLACK:
                 # check if the wall is short enough to walk up
                 wallHeight = 1
@@ -51,7 +51,7 @@ class Faller(Skill):
     # makes the Tech Mech fall downward
 
     @classmethod
-    def use(self, techMech, level):
+    def use(self, techMech, level, unitVec):
         # the Tech Mech falls 2 pixels
         # returns False if the Tech Mech falls into a bottomless pit
 
@@ -59,6 +59,7 @@ class Faller(Skill):
         techMech.y += techMech.orientation
         try: # ensure there are no IndexErrors
             # check to see if you hit the ground
+            from constants import BLACK
             if level.image.get_at((techMech.x, techMech.y + techMech.orientation)) == BLACK:
                 # you didn't hit the ground; fall another pixel
                 techMech.y += techMech.orientation
@@ -75,6 +76,7 @@ class Faller(Skill):
 class Grappler(Skill):
     # allows a Tech Mech to grapple to a specific point, quickly creating a rope there
 
+    @classmethod
     def determineGrapplePoints(self, techMech, level, unitVec):
         # returns the start and end points if the Tech Mech is able to grapple in the specified direction
         # returns None if the grappling hook goes out of bounds or is too short to hit terrain
@@ -96,6 +98,7 @@ class Grappler(Skill):
             # the try-catch checks if the rope moves out of bounds
             try:
                 # check if the rope hits solid terrain
+                from constants import BLACK
                 if level.image.get_at((int(currentX), int(currentY))) != BLACK:
                     return ((startX, techMech.y), (currentX, currentY))
             except IndexError:
@@ -106,7 +109,7 @@ class Grappler(Skill):
         return None
 
     @classmethod
-    def use(self, techMech, level):
+    def use(self, techMech, level, unitVec):
         # creates a grappling line from your starting position to the first
         # part of the terrain it reachs in the specified direction
 
@@ -116,16 +119,18 @@ class Grappler(Skill):
         if points != None:
             startX, startY = points[0]
             endX, endY = points[1]
-            pygame.draw.line(level, WHITE, (startX, startY), (endX, endY))
+            from constants import WHITE
+            pygame.draw.line(level.image, WHITE, (startX, startY), (endX, endY))
         techMech.assignSkill(Walker)
 
 class Driller(Skill):
     # makes the Tech Mech destroy terrain in a horizontal direction
 
     @classmethod
-    def use(self, techMech, level):
+    def use(self, techMech, level, unitVec):
         if techMech.animationFrame % 4 == 0:
             techMech.x += techMech.direction
+            from constants import BLACK
             pygame.draw.polygon(level.image, BLACK, (
                 (techMech.x, techMech.y),
                 (techMech.x, techMech.y - techMech.orientation * 14),
@@ -147,7 +152,7 @@ class Jackhammerer(Skill):
     # makes the Tech Mech destroy terrain in a downards direction
 
     @classmethod
-    def use(self, techMech, level):
+    def use(self, techMech, level, unitVec):
         # The Tech Mech drills into the ground, destroying terrain in the way
 
         if techMech.animationFrame % 4 == 0:
@@ -155,6 +160,7 @@ class Jackhammerer(Skill):
             techMech.y += techMech.orientation
             # terrain is destroyed by drawing a black polygon in the shape of the
             # jackhammer point. Black pixels are counted as no terrain
+            from constants import BLACK
             pygame.draw.polygon(level.image, BLACK, (
                 (techMech.x, techMech.y),
                 (techMech.x - 1, techMech.y - techMech.orientation * 3),
@@ -176,7 +182,7 @@ class Cautioner(Skill):
     # makes the Tech Mech place a Sign which turns Tech Mechs around
 
     @classmethod
-    def use(self, techMech, level):
+    def use(self, techMech, level, unitVec):
         cautionSign = CautionSign(techMech.x + techMech.direction, techMech.y, techMech.orientation)
         level.addTechMechObject(cautionSign)
         techMech.assignSkill(Walker)
@@ -185,7 +191,7 @@ class Detonator(Skill):
     # makes the Tech Mech place a land mine which blows up terrain after a few seconds
 
     @classmethod
-    def use(self, techMech, level):
+    def use(self, techMech, level, unitVec):
         landMine = LandMine(techMech.x, techMech.y, techMech.orientation)
         level.addTechMechObject(landMine)
         techMech.assignSkill(Walker)

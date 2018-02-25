@@ -159,14 +159,14 @@ def renderGameObjects():
     global techMechsReleased, framesSinceLastRelease, exitsHaveLeft
     
     for obj in currentLevel.objects:
-        if type(obj) is Entrance:
-            shouldReleaseTechMech = framesSinceLastRelease >= 100 - currentLevel.releaseRate and techMechsReleased < currentLevel.numberOfTechMechs and Entrance.status == "open"
+        if type(obj) is Entrance and not isPaused:
+            shouldReleaseTechMech = framesSinceLastRelease >= 100 - currentReleaseRate and techMechsReleased < currentLevel.numberOfTechMechs and Entrance.status == "open"
             if shouldReleaseTechMech:
                 techMechs.append(TechMech(obj.x + obj.width // 2, obj.y + obj.height // 2))
                 techMechsReleased += 1
                 framesSinceLastRelease = 0
         elif type(obj) is Exit:
-            if Exit.status == "closed":
+            if Exit.status == "closed" and not isPaused:
                 obj.y -= 5
             if obj.y + obj.height > 0:
                 exitsHaveLeft = False
@@ -426,6 +426,8 @@ def executeGameFrame(SCREEN):
 
     if exitsHaveLeft:
         playingLevel = False
+
+    return playingLevel
 
 
 

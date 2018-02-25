@@ -2,11 +2,16 @@ import pygame
 from constants import *
 
 class Terrain(object):
-    # a piece of terrain used for levels
-    def __init__(self, imageName, x, y):
+    # terrain contained in a graphic set
+    def __init__(self, imageName):
         self.image = pygame.image.load(imageName).convert()
         self.image.set_colorkey(BLACK)
-        self.width = self.image.get_width() # the width of the terrain
-        self.height = self.image.get_height() # the height of the terrain
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
+class TerrainPiece(Terrain):
+    # a piece of terrain inserted into a level
+    def __init__(self, imageName, x, y):
+        Terrain.__init__(self, imageName)
         self.x = x
         self.y = y

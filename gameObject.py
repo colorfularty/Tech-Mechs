@@ -1,9 +1,9 @@
 import pygame
-from constants import *
 
 class GameObject(object):
     def __init__(self, imageName, x, y, triggerX = 0, triggerY = 0, triggerWidth = 0, triggerHeight = 0):
         self.image = pygame.image.load(imageName).convert()
+        from constants import BLACK
         self.image.set_colorkey(BLACK)
         self.x = x # the x-coordinate of the object on the level
         self.y = y # the y-coordinate of the object on the level
@@ -37,12 +37,21 @@ class Exit(GameObject):
     def close(self):
         Exit.status = "closed"
 
+class Trap(GameObject):
+    def __init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight):
+        GameObject.__init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight)
+
+class Water(Trap):
+    def __init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight):
+        Trap.__init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight)
+
 class TechMechObject(object):
     # an object placed by a Tech Mech
 
     def __init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight, orientation):
         self.imageName = imageName
         self.image = pygame.image.load(imageName).convert()
+        from constants import BLACK
         self.image.set_colorkey(BLACK)
         self.x = x
         self.y = y

@@ -49,6 +49,11 @@ class Level(object):
     def updateImage(self, terrain):
         self.image.blit(terrain.image, (terrain.x, terrain.y))
 
+    def updateWholeImage(self):
+        self.image.fill(BLACK)
+        for terrain in self.terrain:
+            self.image.blit(terrain.image, (terrain.x, terrain.y))
+
     def initializeTriggerMaps(self):
         self.triggersByPoint = {}
         self.triggersByType = {"exit": [],
