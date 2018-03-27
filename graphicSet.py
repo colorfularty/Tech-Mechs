@@ -1,5 +1,6 @@
 import os
 from terrain import *
+from gameObject import *
 
 class GraphicSet(object):
     graphicSets = []
@@ -25,9 +26,14 @@ class GraphicSet(object):
 
         for name in graphicSetNames:
             graphicSet = GraphicSet(name)
-            allTerrain = os.listdir("styles/" + name + "/")
+            allTerrain = os.listdir("styles/" + name + "/terrain/")
             for terrainPiece in allTerrain:
-                terrain = Terrain("styles/" + name + "/" + terrainPiece)
+                terrain = Terrain(name, terrainPiece.split(".")[0])
                 graphicSet.addTerrain(terrain)
+            allObjects = os.listdir("styles/" + name + "/objects/")
+            for obj in allObjects:
+                o = GameObject(name, obj.split(".")[0])
+                graphicSet.addObject(o)
+            GraphicSet.graphicSets.append(graphicSet)
 
         

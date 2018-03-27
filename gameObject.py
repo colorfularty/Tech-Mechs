@@ -1,49 +1,82 @@
 import pygame
 
 class GameObject(object):
-    def __init__(self, imageName, x, y, triggerX = 0, triggerY = 0, triggerWidth = 0, triggerHeight = 0):
-        self.image = pygame.image.load(imageName).convert()
+    def __init__(self, graphicSet, imageName):
+        self.graphicSet = graphicSet
+        self.name = imageName
+        self.spriteSheet = pygame.image.load("styles/" + self.graphicSet + "/objects/" + self.name + ".png").convert()
+        self.type, self.numFrames, self.triggerXDisp, self.triggerYDisp, self.triggerWidth, self.triggerHeight = GameObject.getData(self.graphicSet, self.name)
         from constants import BLACK
-        self.image.set_colorkey(BLACK)
-        self.x = x # the x-coordinate of the object on the level
-        self.y = y # the y-coordinate of the object on the level
-        self.width = self.image.get_width() # the width of the object
-        self.height = self.image.get_height() # the height of the object
-        self.triggerX = triggerX # the x-coordinate of the object's trigger area relative to the object surface
-        self.triggerY = triggerY # the y-coordinate of the object's trigger area relative to the object surface
-        self.triggerWidth = triggerWidth # the width of the object's trigger
-        self.triggerHeight = triggerHeight # the height of the object's trigger
+        self.spriteSheet.set_colorkey(BLACK)
+        self.width = self.spriteSheet.get_width() # the width of the object
+        self.height = self.spriteSheet.get_height() // self.numFrames # the height of the object
 
-    def animate(self):
-        pass
+    @classmethod
+    def getData(self, graphicSet, objName):
+        dataFile = open("styles/" + graphicSet + "/data.txt", 'r')
+        for line in dataFile:
+            objType, name, numFrames, triggerXDisp, triggerYDisp, triggerWidth, triggerHeight = line.split("~")
+            if name == objName:
+                dataFile.close()
+                return objType, int(numFrames), int(triggerXDisp), int(triggerYDisp), int(triggerWidth), int(triggerHeight)
 
-class Entrance(GameObject):
+class GameObjectInstance(GameObject):
+    # a game object inserted into the level    
+    @classmethod
+    def insertObject(cls, graphicSet, name, x, y, flipped, inverted, rotated):
+        return cls(graphicSet, name, x, y, flipped, inverted, rotated)
+
+    def __init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated):
+        GameObject.__init__(self, graphicSet, imageName)
+        self.x = x
+        self.y = y
+        self.triggerX = self.x + self.triggerXDisp
+        self.triggerY = self.y + self.triggerYDisp
+        self.flipped = flipped
+        self.inverted = inverted
+        self.rotated = rotated
+        self.animationFrame = 0
+        self.setImage()
+
+    def __str__(self):
+        return self.__class__.__name__ + "~" + self.graphicSet + "~" + self.name + "~" + str(self.x) + "~" + str(self.y) + "~" + str(self.flipped) + "~" + str(self.inverted) + "~" + str(self.rotated)
+
+    @classmethod
+    def createObjectFromString(self, string):
+        cls, graphicSet, name, x, y, flipped, inverted, rotated = string.split("~")
+        if cls == 'Entrance':
+            return Entrance(graphicSet, name, int(x), int(y), bool(flipped), bool(inverted), bool(rotated))
+        elif cls == 'Exit':
+            return Exit(graphicSet, name, int(x), int(y), bool(flipped), bool(inverted), bool(rotated))
+        else:
+            return GameObjectInstance(graphicSet, name, int(x), int(y), bool(flipped), bool(inverted), bool(rotated))
+
+    def setImage(self):
+        self.image = self.spriteSheet.subsurface((0, self.height * self.animationFrame, self.width, self.height))
+
+    def update(self):
+        self.__init__(self.graphicSet, self.name, self.x, self.y, self.flipped, self.inverted, self.rotated)
+        
+
+class Entrance(GameObjectInstance):
     status = "closed"
     
-    def __init__(self, imageName, x, y):
-        GameObject.__init__(self, imageName, x, y, x + 22, y + 21, 1, 1)
+    def __init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated):
+        GameObjectInstance.__init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated)
 
     @classmethod
     def open(self):
         Entrance.status = "open"
         
-class Exit(GameObject):
+class Exit(GameObjectInstance):
     status = "open"
     
-    def __init__(self, imageName, x, y):
-        GameObject.__init__(self, imageName, x, y, x + 43, y + 155, 7, 11)
+    def __init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated):
+        GameObjectInstance.__init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated)
 
     @classmethod
     def close(self):
         Exit.status = "closed"
-
-class Trap(GameObject):
-    def __init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight):
-        GameObject.__init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight)
-
-class Water(Trap):
-    def __init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight):
-        Trap.__init__(self, imageName, x, y, triggerX, triggerY, triggerWidth, triggerHeight)
 
 class TechMechObject(object):
     # an object placed by a Tech Mech

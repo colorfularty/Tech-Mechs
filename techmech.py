@@ -87,7 +87,8 @@ class TechMech(object):
     def act(self, level):
         self.setImage(self.currentSkill)
 
-        self.currentSkill.use(self, level, self.skillVector)
+        if not self.currentSkill.use(self, level, self.skillVector):
+            return False
 
         # adjust the animation frame
         if self.animationFrame >= ANIMATION_FRAMES[self.currentSkill] - 1:

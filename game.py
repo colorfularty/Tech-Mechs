@@ -15,6 +15,7 @@ skillHighlight = pygame.image.load("sprites/skill highlight.png").convert()
 skillHighlight.set_colorkey(BLACK)
 skillPanel = pygame.surface.Surface((SKILL_PANEL_WIDTH * NUMBER_OF_SKILL_PANELS, SKILL_PANEL_HEIGHT))
 
+playerNum = 0
 currentLevel = None
 levelImage = None
 currentReleaseRate = None
@@ -34,20 +35,13 @@ replay = {}
 grappler = None
 exitsHaveLeft = False
 
-def readLevelFromFile(fileName):
-    level = Level()
-    levelFile = open(fileName + ".txt", 'r')
-    # first line is TERRAIN
-    levelFile.readline()
+def startLevel(level, num):
+    global playerNum, currentLevel, levelImage, currentReleaseRate, increaseReleaseRate, decreaseReleaseRate, techMechs, techMechsReleased, techMechsSaved
+    global playingLevel, currentFrame, framesSinceLastRelease, selectedSkill, isPaused, screenX, screenY, replay, grappler, exitsHaveLeft
 
-    levelFile.close()
-    return level
-
-def startLevel(level):
-    global currentLevel, levelImage, currentReleaseRate, increaseReleaseRate, decreaseReleaseRate, techMechs, techMechsReleased, techMechsSaved, playingLevel
-    global currentFrame, framesSinceLastRelease, selectedSkill, isPaused, screenX, screenY, replay, grappler, exitsHaveLeft
-    
+    playerNum = num
     currentLevel = level
+    currentLevel.updateWholeImage()
     levelImage = pygame.surface.Surface((currentLevel.image.get_width(), currentLevel.image.get_height()))
     currentReleaseRate = currentLevel.releaseRate
     increaseReleaseRate = False
@@ -66,12 +60,12 @@ def startLevel(level):
     grappler = None
     exitsHaveLeft = False
 
-    renderSkillPanel()
+    renderSkillPanel(skillPanel)
 
     Entrance.status = "closed"
     Exit.status = "open"
 
-def renderSkillPanel():
+def renderSkillPanel(skillPanel):
     # blits the panels, the images, and the number of skills left
     # to the skill panel
 
@@ -110,12 +104,12 @@ def renderSkillPanel():
 
     # compute the skills left and blit those to the skill panel
     releaseRate = skillFont.render(str(currentReleaseRate), True, WHITE, BLACK)
-    grapplingHooksLeft = skillFont.render(str(currentLevel.skillCounts[Grappler]), True, WHITE, BLACK)
-    drillsLeft = skillFont.render(str(currentLevel.skillCounts[Driller]), True, WHITE, BLACK)
-    jackhammersLeft = skillFont.render(str(currentLevel.skillCounts[Jackhammerer]), True, WHITE, BLACK)
-    gravityReversersLeft = skillFont.render(str(currentLevel.skillCounts[GravityReverser]), True, WHITE, BLACK)
-    cautionSignsLeft = skillFont.render(str(currentLevel.skillCounts[Cautioner]), True, WHITE, BLACK)
-    landMinesLeft = skillFont.render(str(currentLevel.skillCounts[Detonator]), True, WHITE, BLACK)
+    grapplingHooksLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Grappler]), True, WHITE, BLACK)
+    drillsLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Driller]), True, WHITE, BLACK)
+    jackhammersLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Jackhammerer]), True, WHITE, BLACK)
+    gravityReversersLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][GravityReverser]), True, WHITE, BLACK)
+    cautionSignsLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Cautioner]), True, WHITE, BLACK)
+    landMinesLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Detonator]), True, WHITE, BLACK)
 
     releaseRate.set_colorkey(BLACK)
     grapplingHooksLeft.set_colorkey(BLACK)
@@ -149,11 +143,11 @@ def executeReplay():
                 techMech = assignment[0]
                 skill = assignment[1]
                 vec = assignment[2]
-                if currentLevel.skillCounts[skill] > 0:
+                if currentLevel.skillCounts[playerNum][skill] > 0:
                     techMech.skillVector = vec
                     techMech.assignSkill(skill)
-                    currentLevel.skillCounts[skill] -= 1
-        renderSkillPanel()
+                    currentLevel.skillCounts[playerNum][skill] -= 1
+        renderSkillPanel(skillPanel)
 
 def renderGameObjects():
     global techMechsReleased, framesSinceLastRelease, exitsHaveLeft
@@ -315,7 +309,7 @@ def handleGameEvents():
                 for techMech in techMechs:
                     if techMech.wasClicked(mousex + screenX, mousey + screenY):
                         # tech mech was clicked, make sure they're not falling
-                        if techMech.currentSkill != Faller and currentLevel.skillCounts[selectedSkill] > 0:
+                        if techMech.currentSkill != Faller and currentLevel.skillCounts[playerNum][selectedSkill] > 0:
                             # if skill assigned is grappler, this is a special case
                             # simply change the grappler variable to this tech mech
                             if selectedSkill == Grappler:

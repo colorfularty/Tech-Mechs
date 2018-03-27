@@ -1,0 +1,25 @@
+1
+Test Level
+Me
+768
+512
+0
+0
+10
+10
+-1
+20
+
+SKILLS
+Grappler: 10: 0
+Driller: 10: 0
+Jackhammerer: 10: 0
+GravityReverser: 10: 0
+Cautioner: 10: 0
+Detonator: 10: 0
+TERRAIN
+special~test level 2~0~0~False~False~False
+OBJECTS
+Entrance~special~entrance~232~0~False~False~False
+Exit~special~exit~432~314~False~False~False
+END

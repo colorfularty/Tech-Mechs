@@ -3,6 +3,7 @@ from skill import *
 
 # colors
 BLACK = (  0,   0,   0)
+GREY  = (128, 128, 128)
 WHITE = (255, 255, 255)
 
 SCREEN_WIDTH = 650
@@ -29,3 +30,23 @@ SKILL_PANEL_WIDTH = 50
 SKILL_PANEL_HEIGHT = 100
 SKILL_WIDTH = 27
 SKILL_HEIGHT = 26
+
+STRING_SKILL_CONVERSIONS = {"Walker": Walker,
+                          "Faller": Faller,
+                          "Driller": Driller,
+                          "Jackhammerer": Jackhammerer,
+                          "Grappler": Grappler,
+                          "Cautioner": Cautioner,
+                          "Detonator": Detonator,
+                          "GravityReverser": GravityReverser}
+
+SKILL_STRING_CONVERSIONS = {Walker: "Walker",
+                            Faller: "Faller",
+                            Driller: "Driller",
+                            Jackhammerer: "Jackhammerer",
+                            Grappler: "Grappler",
+                            Cautioner: "Cautioner",
+                            Detonator: "Detonator",
+                            GravityReverser: "GravityReverser"}
+
+PORT = 9898

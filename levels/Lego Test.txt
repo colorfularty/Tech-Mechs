@@ -1,0 +1,45 @@
+1
+Lego Test
+Me
+640
+320
+0
+0
+10
+10
+-1
+1
+
+SKILLS
+Driller: 10: 0
+Jackhammerer: 10: 0
+Cautioner: 10: 0
+Detonator: 10: 0
+Grappler: 10: 0
+GravityReverser: 10: 0
+TERRAIN
+lego~blue 4x1~0~298~False~False~False
+lego~blue 4x1~64~298~False~False~False
+lego~blue 4x1~128~298~False~False~False
+lego~blue 4x1~192~298~False~False~False
+lego~blue 4x1~256~298~False~False~False
+lego~blue 4x1~320~298~False~False~False
+lego~blue 4x1~384~298~False~False~False
+lego~blue 4x1~448~298~False~False~False
+lego~blue 4x1~512~298~False~False~False
+lego~blue 4x1~576~298~False~False~False
+lego~green 2x1~0~280~False~False~False
+lego~green 2x1~0~262~False~False~False
+lego~green 2x1~0~244~False~False~False
+lego~green 2x1~0~226~False~False~False
+lego~orange 4x1~224~280~False~False~False
+lego~purple 4x1~288~280~False~False~False
+lego~red 4x1~352~280~False~False~False
+lego~red 4x1~320~262~False~False~False
+lego~red 4x1~256~262~False~False~False
+lego~yellow ramp long~272~244~False~False~False
+lego~yellow ramp long~320~244~True~False~False
+OBJECTS
+Entrance~lego~entrance~64~136~False~False~False
+Exit~lego~exit~512~46~False~False~False
+END

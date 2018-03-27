@@ -122,6 +122,7 @@ class Grappler(Skill):
             from constants import WHITE
             pygame.draw.line(level.image, WHITE, (startX, startY), (endX, endY))
         techMech.assignSkill(Walker)
+        return True
 
 class Driller(Skill):
     # makes the Tech Mech destroy terrain in a horizontal direction
@@ -145,7 +146,6 @@ class Driller(Skill):
                 except IndexError:
                     break
             techMech.assignSkill(Walker)
-            return False
         return True
 
 class Jackhammerer(Skill):
@@ -173,6 +173,7 @@ class Jackhammerer(Skill):
                 (techMech.x + 3, techMech.y - techMech.orientation * 8),
                 (techMech.x + 2, techMech.y - techMech.orientation * 6),
                 (techMech.x + 1, techMech.y - techMech.orientation * 3)))
+        return True
 
 class GravityReverser(Skill):
     # flips the Tech Mech upside-down
@@ -186,6 +187,7 @@ class Cautioner(Skill):
         cautionSign = CautionSign(techMech.x + techMech.direction, techMech.y, techMech.orientation)
         level.addTechMechObject(cautionSign)
         techMech.assignSkill(Walker)
+        return True
 
 class Detonator(Skill):
     # makes the Tech Mech place a land mine which blows up terrain after a few seconds
@@ -195,6 +197,7 @@ class Detonator(Skill):
         landMine = LandMine(techMech.x, techMech.y, techMech.orientation)
         level.addTechMechObject(landMine)
         techMech.assignSkill(Walker)
+        return True
 
 
 
