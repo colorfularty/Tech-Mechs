@@ -1,0 +1,2 @@
+Entrance~entrance~15~22~21~1~1
+Exit~exit~1~48~234~32~22
