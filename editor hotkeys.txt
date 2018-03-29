@@ -6,20 +6,21 @@ Change selected terrain/object to the next one in the graphic set's list: S
 Flip the selected terrain/object horizontally: F
 Invert the selected terrain/object vertically: I
 Rotate the selected terrain/object 90 degrees: R
+Copy the selected terrain/object and move the copy 16 pixels left and down: C
 Delete the selected terrain/object: DELETE
 Move the selected terrain/object 1 pixel right: RIGHT ARROW KEY
 Move the selected terrain/object 1 pixel left: LEFT ARROW KEY
 Move the selected terrain/object 1 pixel down: DOWN ARROW KEY
 Move the selected terrain/object 1 pixel up: UP ARROW KEY
-Move the selected terrain/object 8 pixels right: RIGHT CTRL + RIGHT ARROW KEY
-Move the selected terrain/object 8 pixels left: RIGHT CTRL + LEFT ARROW KEY
-Move the selected terrain/object 8 pixels down: RIGHT CTRL + DOWN ARROW KEY
-Move the selected terrain/object 8 pixels up: RIGHT CTRL + UP ARROW KEY
+Move the selected terrain/object 8 pixels right: CTRL + RIGHT ARROW KEY
+Move the selected terrain/object 8 pixels left: CTRL + LEFT ARROW KEY
+Move the selected terrain/object 8 pixels down: CTRL + DOWN ARROW KEY
+Move the selected terrain/object 8 pixels up: CTRL + UP ARROW KEY
 Move the perspective on the level 1 pixel right: J
 Move the perspective on the level 1 pixel left: G
 Move the perspective on the level 1 pixel down: H
 Move the perspective on the level 1 pixel up: Y
-Move the perspective on the level 8 pixels right: RIGHT CTRL + J
-Move the perspective on the level 8 pixels left: RIGHT CTRL + G
-Move the perspective on the level 8 pixels down: RIGHT CTRL + H
-Move the perspective on the level 8 pixels up: RIGHT CTRL + Y
+Move the perspective on the level 8 pixels right: CTRL + J
+Move the perspective on the level 8 pixels left: CTRL + G
+Move the perspective on the level 8 pixels down: CTRL + H
+Move the perspective on the level 8 pixels up: CTRL + Y
