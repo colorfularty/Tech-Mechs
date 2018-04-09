@@ -4,6 +4,9 @@ from gameObject import *
 class Skill(object):
     # a skill used by Tech Mechs
 
+    soundEffect = None
+    loops = 0
+
     @classmethod
     def use(self):
         pass
@@ -71,10 +74,12 @@ class Faller(Skill):
                 techMech.assignSkill(Walker)
         except IndexError: # IndexError means Tech Mech fell into a bottomless pit
             return False
-        return True
+        return True        
 
 class Grappler(Skill):
     # allows a Tech Mech to grapple to a specific point, quickly creating a rope there
+
+    soundEffect = "release grappling hook"
 
     @classmethod
     def determineGrapplePoints(self, techMech, level, unitVec):
@@ -127,6 +132,9 @@ class Grappler(Skill):
 class Driller(Skill):
     # makes the Tech Mech destroy terrain in a horizontal direction
 
+    soundEffect = "drill"
+    loops = -1
+
     @classmethod
     def use(self, techMech, level, unitVec):
         if techMech.animationFrame % 4 == 0:
@@ -150,6 +158,9 @@ class Driller(Skill):
 
 class Jackhammerer(Skill):
     # makes the Tech Mech destroy terrain in a downards direction
+
+    soundEffect = "jackhammer"
+    loops = -1
 
     @classmethod
     def use(self, techMech, level, unitVec):
@@ -181,6 +192,8 @@ class GravityReverser(Skill):
 
 class Cautioner(Skill):
     # makes the Tech Mech place a Sign which turns Tech Mechs around
+
+    soundEffect = "place caution sign"
 
     @classmethod
     def use(self, techMech, level, unitVec):

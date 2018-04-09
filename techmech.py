@@ -7,42 +7,68 @@ class TechMech(object):
     # the main characters in the game
 
     # sprite sheets
-    walkerSprites = pygame.image.load("sprites/walker.png").convert()
-    fallerSprites = pygame.image.load("sprites/faller.png").convert()
-    grapplerSprites = pygame.image.load("sprites/grappler.png").convert()
-    drillerSprites = pygame.image.load("sprites/driller.png").convert()
-    jackhammererSprites = pygame.image.load("sprites/jackhammerer.png").convert()
-    cautionerSprites = pygame.image.load("sprites/cautioner.png").convert()
-    detonatorSprites = pygame.image.load("sprites/detonator.png").convert()
+    walkerSprites = pygame.image.load("sprites/walker.png").convert_alpha()
+    fallerSprites = pygame.image.load("sprites/faller.png").convert_alpha()
+    grapplerSprites = pygame.image.load("sprites/grappler.png").convert_alpha()
+    drillerSprites = pygame.image.load("sprites/driller.png").convert_alpha()
+    jackhammererSprites = pygame.image.load("sprites/jackhammerer.png").convert_alpha()
+    cautionerSprites = pygame.image.load("sprites/cautioner.png").convert_alpha()
+    detonatorSprites = pygame.image.load("sprites/detonator.png").convert_alpha()
 
-    walkerSprites.set_colorkey(BLACK)
-    fallerSprites.set_colorkey(BLACK)
-    grapplerSprites.set_colorkey(BLACK)
-    drillerSprites.set_colorkey(BLACK)
-    jackhammererSprites.set_colorkey(BLACK)
-    cautionerSprites.set_colorkey(BLACK)
-    detonatorSprites.set_colorkey(BLACK)
+    greenWalkerSprites = pygame.image.load("sprites/walker green.png").convert_alpha()
+    greenFallerSprites = pygame.image.load("sprites/faller green.png").convert_alpha()
+    greenGrapplerSprites = pygame.image.load("sprites/grappler green.png").convert_alpha()
+    greenDrillerSprites = pygame.image.load("sprites/driller green.png").convert_alpha()
+    greenJackhammererSprites = pygame.image.load("sprites/jackhammerer green.png").convert_alpha()
+    greenCautionerSprites = pygame.image.load("sprites/cautioner green.png").convert_alpha()
+    greenDetonatorSprites = pygame.image.load("sprites/detonator green.png").convert_alpha()
 
-    spriteSheets = {Walker:       walkerSprites,
+    redWalkerSprites = pygame.image.load("sprites/walker red.png").convert_alpha()
+    redFallerSprites = pygame.image.load("sprites/faller red.png").convert_alpha()
+    redGrapplerSprites = pygame.image.load("sprites/grappler red.png").convert_alpha()
+    redDrillerSprites = pygame.image.load("sprites/driller red.png").convert_alpha()
+    redJackhammererSprites = pygame.image.load("sprites/jackhammerer red.png").convert_alpha()
+    redCautionerSprites = pygame.image.load("sprites/cautioner red.png").convert_alpha()
+    redDetonatorSprites = pygame.image.load("sprites/detonator red.png").convert_alpha()
+
+    spriteSheets = [{Walker:      walkerSprites,
                     Faller:       fallerSprites,
                     Grappler:     grapplerSprites,
                     Driller:      drillerSprites,
                     Jackhammerer: jackhammererSprites,
-                    Cautioner: cautionerSprites,
-                    Detonator: detonatorSprites}
+                    Cautioner:    cautionerSprites,
+                    Detonator:    detonatorSprites},
+
+                    {Walker:       greenWalkerSprites,
+                     Faller:       greenFallerSprites,
+                     Grappler:     greenGrapplerSprites,
+                     Driller:      greenDrillerSprites,
+                     Jackhammerer: greenJackhammererSprites,
+                     Cautioner:    greenCautionerSprites,
+                     Detonator:    greenDetonatorSprites},
+
+                    {Walker:       redWalkerSprites,
+                     Faller:       redFallerSprites,
+                     Grappler:     redGrapplerSprites,
+                     Driller:      redDrillerSprites,
+                     Jackhammerer: redJackhammererSprites,
+                     Cautioner:    redCautionerSprites,
+                     Detonator:    redDetonatorSprites}]
     
-    def __init__(self, x, y):
+    def __init__(self, x, y, owner = 0):
         self.x = x # their x-coordinate relative to the map (trigger area)
         self.y = y # their y-coordinate relative to the map (trigger area)
+        self.owner = owner
         self.currentSkill = Walker # what the tech mech is currently doing
         self.direction = 1 # this is 1 for right and -1 for left
         self.orientation = 1 # this is 1 for upright, and -1 for upside-down
         self.skillVector = None # used to store a vector needed for certain skills (i.e. grappling hook)
         self.animationFrame = 0
+        self.soundEffect = None
         self.setImage(self.currentSkill)
 
     def setImage(self, newSkill):
-        self.image = self.spriteSheets[newSkill].subsurface((0, self.animationFrame * TECH_MECH_SPRITE_HEIGHT, TECH_MECH_SPRITE_WIDTH, TECH_MECH_SPRITE_HEIGHT))
+        self.image = self.spriteSheets[self.owner][newSkill].subsurface((0, self.animationFrame * TECH_MECH_SPRITE_HEIGHT, TECH_MECH_SPRITE_WIDTH, TECH_MECH_SPRITE_HEIGHT))
         self.image = pygame.transform.flip(self.image, self.direction < 0, self.orientation < 0)
 
     def wasClicked(self, x, y):
@@ -53,6 +79,12 @@ class TechMech(object):
             if x >= self.x - TECH_MECH_SPRITE_WIDTH // 2 and x <= self.x + TECH_MECH_SPRITE_WIDTH // 2 and y >= self.y and y <= self.y + self.image.get_height():
                 return True
         return False
+
+    def getXCoordinate(self):
+        return self.x - 17
+
+    def getYCoordinate(self):
+        return self.y - 47
 
     def render(self, surf):
         # blit the tech mech's image to the surface
@@ -66,6 +98,11 @@ class TechMech(object):
     def assignSkill(self, newSkill):
         # changes a tech mech's current skill, either because the user gave
         # them a tool, or they walked off a cliff, etc.
+        if self.soundEffect != None:
+            self.soundEffect.stop()
+        if newSkill.soundEffect != None:
+            self.soundEffect = pygame.mixer.Sound("sound/" + newSkill.soundEffect + ".wav")
+            self.soundEffect.play(newSkill.loops)
         if newSkill == GravityReverser:
             self.reverseGravity()
             self.currentSkill = Walker

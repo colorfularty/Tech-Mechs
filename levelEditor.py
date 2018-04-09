@@ -4,6 +4,8 @@ from constants import *
 from widgets import *
 from level import *
 from graphicSet import *
+from editorSkills import *
+from editorDetails import *
 from loadScreen import *
 
 levelInProgress = None # the level object being edited
@@ -12,70 +14,24 @@ currentGraphicSet = GraphicSet.graphicSets[0] # the current graphic set you have
 selectedThing = None # the terrain or object you have clicked on in the editor
 levelDispX = 0 # the x displacement the level should be blitted to in the editor (in case of large levels needing scrolling)
 levelDispY = 0 # the y displacement the level should be blitted to in the editor (in case of large levels needing scrolling)
-updateScreen = True # determines if the screen needs updating (only exists to maximize performance)
 continueEditor = True # if set to False, it brings the user back to the main menu
 currentTab = "editor" # deterines what part of the editor you are on
 
 # tabs to take you to different parts of the editor
-backTab = Button(0, 400, "Exit editor")
-graphicSetLeft = Button(200, 400, "<-")
+backTab = Button(0, SCREEN_HEIGHT - 100, "Exit editor")
+graphicSetLeft = Button(200, SCREEN_HEIGHT - 100, "<-")
 graphicSetLabel = None
-graphicSetRight = Button(550, 400, "->")
-skillsTab = Button(0, 450, "Skills")
-detailsTab = Button(170, 450, "Details")
-loadTab = Button(340, 450, "Load level")
-saveTab = Button(500, 450, "Save level")
-editorTab = Button(0, 0, "<-Editor")
-
-# buttons for changing skill counts
-releaseRateUp = Button(20, 250, "^")
-releaseRateDown = Button(20, 410, "v")
-grapplersUp = Button(70, 250, "^")
-grapplersDown = Button(70, 410, "v")
-drillersUp = Button(120, 250, "^")
-drillersDown = Button(120, 410, "v")
-jackhammerersUp = Button(170, 250, "^")
-jackhammerersDown = Button(170, 410, "v")
-gravityReversersUp = Button(220, 250, "^")
-gravityReversersDown = Button(220, 410, "v")
-cautionersUp = Button(270, 250, "^")
-cautionersDown = Button(270, 410, "v")
-detonatorsUp = Button(320, 250, "^")
-detonatorsDown = Button(320, 410, "v")
-
-# the skill panel displayed in the skills section
-skillPanel = pygame.surface.Surface((SKILL_PANEL_WIDTH * NUMBER_OF_SKILL_PANELS, SKILL_PANEL_HEIGHT))
-skillFont = pygame.font.SysFont("helvetica", 32)
-skillSlot = pygame.image.load("sprites/skill panel.png")
-
-# widgets used in the details part of the editor
-widthLabel = Label(300, 0, "Level width:")
-widthBox = None
-heightLabel = Label(500, 0, "Level height:")
-heightBox = None
-startLabel = Label(400, 124, "Screen start:")
-startXBox = None
-startYBox = None
-numPlayersLabel = Label(0, 60, "Number of Players:")
-numPlayersBox = None
-timeLimitLabel = Label(0, 148, "Time Limit (in seconds):")
-timeLimitBox = None
-techMechsLabel = Label(200, 212, "Tech Mechs")
-techMechsBox = None
-saveRequirementLabel = Label(400, 212, "Save Requirement:")
-saveRequirementBox = None
-nameLabel = Label(4, 278, "Name:")
-nameBox = None
-authorLabel = Label(4, 352, "Author:")
-authorBox = None
-musicLabel = Label(4, 426, "Music:")
-musicBox = None
-boxEdited = None
+graphicSetRight = Button(550, SCREEN_HEIGHT - 100, "->")
+skillsTab = Button(0, SCREEN_HEIGHT - 50, "Skills")
+detailsTab = Button(170, SCREEN_HEIGHT - 50, "Details")
+loadTab = Button(340, SCREEN_HEIGHT - 50, "Load level")
+saveTab = Button(500, SCREEN_HEIGHT - 50, "Save level")
 
 # keeps track of the x and y coordinates of the mouse cursor
 mousex = 0
 mousey = 0
 
+mouseClicked = False # keeps track of the mouse being held down
 keysPressed = [] # keeps track of keys being held down (used for fast movement in the editor)
 
 textBoxActive = skillFont.render("_", True, WHITE, BLACK) # used to show when a user is editing a text or number box
@@ -84,14 +40,16 @@ textBoxActive = skillFont.render("_", True, WHITE, BLACK) # used to show when a 
 directionHeldTimer = 0.0
 textBoxTimer = 0.0
 
+multiplayer_icons = {0: pygame.image.load("sprites/multiplayer icon " + MULTIPLAYER_COLORS[0] + ".png").convert_alpha(),
+                     1: pygame.image.load("sprites/multiplayer icon " + MULTIPLAYER_COLORS[1] + ".png").convert_alpha()}
+
 def startEditor():
     # call everytime the user starts the editor; initializes the important variables to their proper values
-    global levelInProgress, levelImage, currentGraphicSet, selectedThing, updateScreen, continueEditor, keysPressed
-    levelInProgress = Level(640, 320, 0, 0, [], [], "", "", 1, 1, [{}], -1, 1, "", 1)
+    global levelInProgress, levelImage, currentGraphicSet, selectedThing, continueEditor, keysPressed
+    levelInProgress = Level(640, 320, 0, 0, [], [], "", "", 1, 1, [{}], -1, [0], "", 1)
     levelImage = pygame.surface.Surface((640, 320))
     currentGraphicSet = GraphicSet.graphicSets[0]
     selectedThing = None
-    updateScreen = True
     continueEditor = True
     keysPressed = []
 
@@ -127,47 +85,6 @@ def changeGraphicSet(direction):
     # change the graphic set label to the new graphic set
     setGraphicSetLabel()
 
-def loadDetails():
-    # loads the level object's attributes into the text and numbers boxes on the details screen
-    
-    global widthBox, heightBox, startXBox, startYBox, numPlayersBox, timeLimitBox, techMechsBox, saveRequirementBox, nameBox, authorBox, musicBox
-    widthBox = NumberBox(300, 37, str(levelInProgress.width))
-    heightBox = NumberBox(500, 37, str(levelInProgress.height))
-    startXBox = NumberBox(300, 161, str(levelInProgress.startX))
-    startYBox = NumberBox(500, 161, str(levelInProgress.startY))
-    #numPlayersBox = NumberBox(0, 110, str(levelInProgress.numPlayers))
-    if levelInProgress.timeLimit == -1:
-        timeLimitBox = NumberBox(0, 185, "0")
-    else:
-        timeLimitBox = NumberBox(0, 185, str(levelInProgress.timeLimit))
-    techMechsBox = NumberBox(200, 249, str(levelInProgress.numberOfTechMechs))
-    saveRequirementBox = NumberBox(400, 249, str(levelInProgress.saveRequirement))
-    nameBox = TextBox(4, 315, levelInProgress.name)
-    authorBox = TextBox(4, 389, levelInProgress.author)
-    musicBox = TextBox(4, 463, levelInProgress.music)
-    boxEdited = None
-
-def saveDetails():
-    # saves the new values inputted into the text and number boxes on the details screen into the level object's attributes
-    global levelImage
-    levelInProgress.width = int(widthBox.text)
-    levelInProgress.height = int(heightBox.text)
-    levelImage = pygame.surface.Surface((levelInProgress.width, levelInProgress.height))
-    levelInProgress.initializeImage()
-    levelInProgress.updateWholeImage()
-    levelInProgress.startX = int(startXBox.text)
-    levelInProgress.startY = int(startYBox.text)
-    #levelInProgress.updateNumPlayers(int(numPlayersBox.text))
-    if timeLimitBox.text == "0":
-        levelInProgress.timeLimit = -1
-    else:
-        levelInProgress.timeLimit = int(timeLimitBox.text)
-    levelInProgress.numberOfTechMechs = int(techMechsBox.text)
-    levelInProgress.saveRequirement = int(saveRequirementBox.text)
-    levelInProgress.name = nameBox.text
-    levelInProgress.author = authorBox.text
-    levelInProgress.music = musicBox.text
-
 def insertTerrain(x, y, name, graphicSet, flipped = False, inverted = False, rotated = False):
     # inserts a piece of terrain into the level you are editing
     return TerrainPiece.insertTerrain(graphicSet, name, x, y, flipped, inverted, rotated)
@@ -181,78 +98,32 @@ def insertObject(x, y, name, graphicSet, objType = "Normal", flipped = False, in
     else:
         return GameObjectInstance(graphicSet, name, x, y, flipped, inverted, rotated)
 
-def renderSkillPanel():
-    # blits the panels, the images, and the number of skills left
-    # to the skill panel
-
-    skillPanel.fill(BLACK)
-
-    # start by blitting the empty skill panels
-    for i in range(13):
-        skillPanel.blit(skillSlot, (i * SKILL_PANEL_WIDTH, 0))
-        
-    # now blit the skill images on each panel
-    releaseRateIncrease = pygame.image.load("sprites/release rate increase.png").convert()
-    releaseRateDecrease = pygame.image.load("sprites/release rate decrease.png")
-    grapplingHookSkill = pygame.image.load("sprites/grappling hook skill.png").convert()
-    drillSkill = pygame.image.load("sprites/drill skill.png").convert()
-    jackhammerSkill = pygame.image.load("sprites/jackhammer skill.png").convert()
-    gravitySkill = pygame.image.load("sprites/gravity skill.png").convert()
-    cautionSkill = pygame.image.load("sprites/caution skill.png").convert()
-    detonatorSkill = pygame.image.load("sprites/detonator skill.png").convert()
-
-    releaseRateIncrease.set_colorkey(BLACK)
-    grapplingHookSkill.set_colorkey(BLACK)
-    drillSkill.set_colorkey(BLACK)
-    jackhammerSkill.set_colorkey(BLACK)
-    gravitySkill.set_colorkey(BLACK)
-    cautionSkill.set_colorkey(BLACK)
-    detonatorSkill.set_colorkey(BLACK)
-
-    skillPanel.blit(releaseRateIncrease, (25 - SKILL_WIDTH // 2, 50))
-    skillPanel.blit(releaseRateDecrease, (25 - SKILL_WIDTH // 2, 80))
-    skillPanel.blit(grapplingHookSkill, (75 - SKILL_WIDTH // 2, 60))
-    skillPanel.blit(drillSkill, (125 - SKILL_WIDTH // 2, 60))
-    skillPanel.blit(jackhammerSkill, (175 - SKILL_WIDTH // 2, 60))
-    skillPanel.blit(gravitySkill, (225 - SKILL_WIDTH // 2, 60))
-    skillPanel.blit(cautionSkill, (275 - SKILL_WIDTH // 2, 60))
-    skillPanel.blit(detonatorSkill, (325 - SKILL_WIDTH // 2, 60))
-
-    # compute the skills left and blit those to the skill panel
-    releaseRate = skillFont.render(str(levelInProgress.releaseRate), True, WHITE, BLACK)
-    grapplingHooksLeft = skillFont.render(str(levelInProgress.skillCounts[0][Grappler]), True, WHITE, BLACK)
-    drillsLeft = skillFont.render(str(levelInProgress.skillCounts[0][Driller]), True, WHITE, BLACK)
-    jackhammersLeft = skillFont.render(str(levelInProgress.skillCounts[0][Jackhammerer]), True, WHITE, BLACK)
-    gravityReversersLeft = skillFont.render(str(levelInProgress.skillCounts[0][GravityReverser]), True, WHITE, BLACK)
-    cautionSignsLeft = skillFont.render(str(levelInProgress.skillCounts[0][Cautioner]), True, WHITE, BLACK)
-    landMinesLeft = skillFont.render(str(levelInProgress.skillCounts[0][Detonator]), True, WHITE, BLACK)
-
-    releaseRate.set_colorkey(BLACK)
-    grapplingHooksLeft.set_colorkey(BLACK)
-    drillsLeft.set_colorkey(BLACK)
-    jackhammersLeft.set_colorkey(BLACK)
-    gravityReversersLeft.set_colorkey(BLACK)
-    cautionSignsLeft.set_colorkey(BLACK)
-    landMinesLeft.set_colorkey(BLACK)
-
-    skillPanel.blit(releaseRate, (25 - releaseRate.get_width() // 2, 10))
-    skillPanel.blit(grapplingHooksLeft, (75 - grapplingHooksLeft.get_width() // 2, 10))
-    skillPanel.blit(drillsLeft, (125 - drillsLeft.get_width() // 2, 10))
-    skillPanel.blit(jackhammersLeft, (175 - jackhammersLeft.get_width() // 2, 10))
-    skillPanel.blit(gravityReversersLeft, (225 - gravityReversersLeft.get_width() // 2, 10))
-    skillPanel.blit(cautionSignsLeft, (275 - cautionSignsLeft.get_width() // 2, 10))
-    skillPanel.blit(landMinesLeft, (325 - landMinesLeft.get_width() // 2, 10))
+def updateObjectOwners():
+    entranceOwner = 0
+    exitOwner = 0
+    for obj in levelInProgress.objects:
+        if obj.__class__.__name__ == "Entrance":
+            obj.owner = entranceOwner
+            entranceOwner = int(not entranceOwner)
+        elif obj.__class__.__name__ == "Exit":
+            obj.owner = exitOwner
+            exitOwner = int(not exitOwner)
 
 def handleEditorEvents():
     # handles all user interactions with the main editor screen
     
-    global updateScreen, mousex, mousey, continueEditor, selectedThing, currentTab
+    global mousex, mousey, mouseClicked, continueEditor, selectedThing, currentTab
     
     for event in pygame.event.get():
         if event.type == MOUSEMOTION:
             # update the mouse cursor coordinates
             mousex, mousey = event.pos
+            # move the selected thing to the mouse's coordinates
+            if selectedThing != None and mouseClicked:
+                selectedThing.x = mousex + levelDispX
+                selectedThing.y = mousey + levelDispY
         elif event.type == MOUSEBUTTONDOWN:
+            mouseClicked = True
             if backTab.checkIfClicked(mousex, mousey):
                 # user clicked exit editor; terminate loop condition
                 continueEditor = False
@@ -262,12 +133,12 @@ def handleEditorEvents():
                 changeGraphicSet("right")
             elif skillsTab.checkIfClicked(mousex, mousey):
                 # user clicked skills tab; take them to the skills part of the editor
-                renderSkillPanel()
                 currentTab = "skills"
+                startEditorSkills(levelInProgress)
             elif detailsTab.checkIfClicked(mousex, mousey):
                 # user clicked details tab; take them to the details part of the editor
-                loadDetails()
                 currentTab = "details"
+                loadDetails(levelInProgress)
             elif loadTab.checkIfClicked(mousex, mousey):
                 # user clicked load level; take them to the load level screen
                 currentTab = "load level"
@@ -291,16 +162,18 @@ def handleEditorEvents():
                             # user clicked on this terrain; set selectedThing to terrain and break out of the loop
                             selectedThing = terrain
                             break
+        elif event.type == MOUSEBUTTONUP:
+            mouseClicked = False
         elif event.type == KEYDOWN:
             if event.key == K_t: # insert terrain
                 if len(currentGraphicSet.terrain) > 0: # make sure the current graphic set has terrain in it
                     # there is terrain; insert the first terrain in the list into the level and make the new insertion the selected thing
-                    selectedThing = insertTerrain(0, 0, currentGraphicSet.terrain[0].imageName, currentGraphicSet.name)
+                    selectedThing = insertTerrain(levelDispX, levelDispY, currentGraphicSet.terrain[0].imageName, currentGraphicSet.name)
                     levelInProgress.addTerrain(selectedThing)
             elif event.key == K_o: # insert object
                 if len(currentGraphicSet.objects) > 0: # make sure the current graphic set has an object to insert
                     # there is an object; insert the first object in the list into the level and make the new insertion the selected thing
-                    selectedThing = insertObject(0, 0, currentGraphicSet.objects[0].name, currentGraphicSet.name, currentGraphicSet.objects[0].type)
+                    selectedThing = insertObject(levelDispX, levelDispY, currentGraphicSet.objects[0].name, currentGraphicSet.name, currentGraphicSet.objects[0].type)
                     levelInProgress.addObject(selectedThing)
             elif event.key == K_a: # change selected terrain/object to the previous one in the graphic set's list
                 if selectedThing != None: # make sure the user has something selected
@@ -322,7 +195,6 @@ def handleEditorEvents():
                                 else:
                                     selectedThing = TerrainPiece.insertTerrain(terrainGraphicSet.name, terrainGraphicSet.terrain[terrainIndex - 1].imageName, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                 levelInProgress.terrain[levelIndex] = selectedThing # update the level object
-                                updateScreen = True
                                 break
                     else: # the selected thing is an object
                         levelIndex = levelInProgress.objects.index(selectedThing) # the index of the object relative to the level object's list
@@ -342,6 +214,8 @@ def handleEditorEvents():
                                         selectedThing = Entrance(objectGraphicSet.name, objectGraphicSet.objects[-1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                     elif objectGraphicSet.objects[-1].type == "Exit":
                                         selectedThing = Exit(objectGraphicSet.name, objectGraphicSet.objects[-1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
+                                    elif objectGraphicSet.objects[-1].type == "Water":
+                                        selectedThing = Water(objectGraphicSet.name, objectGraphicSet.objects[-1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                     else:
                                         selectedThing = GameObjectInstance(objectGraphicSet.name, objectGraphicSet.objects[-1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                 else:
@@ -349,10 +223,11 @@ def handleEditorEvents():
                                         selectedThing = Entrance(objectGraphicSet.name, objectGraphicSet.objects[objIndex - 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                     elif objectGraphicSet.objects[objIndex - 1].type == "Exit":
                                         selectedThing = Exit(objectGraphicSet.name, objectGraphicSet.objects[objIndex - 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
+                                    elif objectGraphicSet.objects[objIndex - 1].type == "Water":
+                                        selectedThing = Water(objectGraphicSet.name, objectGraphicSet.objects[objIndex - 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                     else:
                                         selectedThing = GameObjectInstance(currentGraphicSet.name, currentGraphicSet.objects[objIndex - 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                 levelInProgress.objects[levelIndex] = selectedThing # update the level object
-                                updateScreen = True
                                 break
             elif event.key == K_s: # change the selected terrain/object to the next one in the graphic set's list
                 if selectedThing != None: # make sure the user has selected something
@@ -375,7 +250,6 @@ def handleEditorEvents():
                                 else:
                                     selectedThing = TerrainPiece.insertTerrain(terrainGraphicSet.name, terrainGraphicSet.terrain[terrainIndex + 1].imageName, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                 levelInProgress.terrain[levelIndex] = selectedThing # update the level object
-                                updateScreen = True
                                 break
                     else: # the selected thing is an object
                         levelIndex = levelInProgress.objects.index(selectedThing)
@@ -396,17 +270,20 @@ def handleEditorEvents():
                                         selectedThing = Entrance(objectGraphicSet.name, objectGraphicSet.objects[0].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                     elif objectGraphicSet.objects[0].type == "Exit":
                                         selectedThing = Exit(objectGraphicSet.name, objectGraphicSet.objects[0].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
+                                    elif objectGraphicSet.objects[0].type == "Water":
+                                        selectedThing = Water(objectGraphicSet.name, objectGraphicSet.objects[0].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                     else:
                                         selectedThing = GameObjectInstance(objectGraphicSet.name, objectGraphicSet.objects[0].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                 else:
                                     if objectGraphicSet.objects[objIndex + 1].type == "Entrance":
-                                        selectedThing = Entrance(currentGraphicSet.name, currentGraphicSet.objects[objIndex + 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
+                                        selectedThing = Entrance(objectGraphicSet.name, objectGraphicSet.objects[objIndex + 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                     elif objectGraphicSet.objects[objIndex + 1].type == "Exit":
-                                        selectedThing = Exit(currentGraphicSet.name, currentGraphicSet.objects[objIndex + 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
+                                        selectedThing = Exit(objectGraphicSet.name, objectGraphicSet.objects[objIndex + 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
+                                    elif objectGraphicSet.objects[objIndex + 1].type == "Water":
+                                        selectedThing = Water(objectGraphicSet.name, objectGraphicSet.objects[objIndex + 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                     else:
                                         selectedThing = GameObjectInstance(currentGraphicSet.name, currentGraphicSet.objects[objIndex + 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                 levelInProgress.objects[levelIndex] = selectedThing # update the level object
-                                updateScreen = True
                                 break
             elif event.key == K_c: # copy the selected thing and paste a new copy of it 16 pixels right and down
                 if selectedThing != None:
@@ -422,17 +299,38 @@ def handleEditorEvents():
                 if selectedThing != None:
                     selectedThing.flipped = not selectedThing.flipped
                     selectedThing.update()
-                    updateScreen = True
             elif event.key == K_i: # invert the selected thing
                 if selectedThing != None:
                     selectedThing.inverted = not selectedThing.inverted
                     selectedThing.update()
-                    updateScreen = True
             elif event.key == K_r: # rotate the selected thing
                 if selectedThing != None:
                     selectedThing.rotated = not selectedThing.rotated
                     selectedThing.update()
-                    updateScreen = True
+            elif event.key == K_MINUS: # move the selected thing toward the background (i.e. further back in the level list)
+                if selectedThing != None:
+                    if selectedThing.__class__.__name__ == "TerrainPiece":
+                        index = levelInProgress.terrain.index(selectedThing)
+                        if index > 0:
+                            levelInProgress.terrain[index] = levelInProgress.terrain[index - 1]
+                            levelInProgress.terrain[index - 1] = selectedThing
+                    else:
+                        index = levelInProgress.objects.index(selectedThing)
+                        if index > 0:
+                            levelInProgress.objects[index] = levelInProgress.objects[index - 1]
+                            levelInProgress.objects[index - 1] = selectedThing
+            elif event.key == K_EQUALS: # move the selected thing toward the foreground (i.e. further up in the level list)
+                if selectedThing != None:
+                    if selectedThing.__class__.__name__ == "TerrainPiece":
+                        index = levelInProgress.terrain.index(selectedThing)
+                        if index < len(levelInProgress.terrain) - 1:
+                            levelInProgress.terrain[index] = levelInProgress.terrain[index + 1]
+                            levelInProgress.terrain[index + 1] = selectedThing
+                    else:
+                        index = levelInProgress.objects.index(selectedThing)
+                        if index > len(levelInProgress.objects) - 1:
+                            levelInProgress.objects[index] = levelInProgress.objects[index + 1]
+                            levelInProgress.objects[index + 1] = selectedThing
             elif event.key == K_DELETE: # delete the selected thing
                 if selectedThing != None:
                     if selectedThing.__class__.__name__ == 'TerrainPiece':
@@ -440,7 +338,6 @@ def handleEditorEvents():
                     else:
                         levelInProgress.objects.remove(selectedThing)
                     selectedThing = None
-                    updateScreen = True
             elif event.key == K_LCTRL or event.key == K_RCTRL: # if ctrl is held, this can affect other held button commands
                 if "ctrl" not in keysPressed:
                     keysPressed.append("ctrl")
@@ -502,174 +399,10 @@ def handleEditorEvents():
             pygame.quit()
             os._exit(0)
 
-def handleSkillsEvents():
-    # handle the user interactions with the skills screen
-    
-    global currentTab, mousex, mousey
-    
-    for event in pygame.event.get():
-        if event.type == MOUSEMOTION:
-            # update the mouse cursor coordinates
-            mousex, mousey = event.pos
-        elif event.type == MOUSEBUTTONDOWN:
-            if editorTab.checkIfClicked(mousex, mousey):
-                # user clicked editor button; go back to the main editor screen
-                currentTab = "editor"
-            elif releaseRateUp.checkIfClicked(mousex, mousey):
-                # increase the level's minimum release rate if possible
-                if levelInProgress.releaseRate < 99:
-                    levelInProgress.releaseRate += 1
-                    renderSkillPanel()
-            elif releaseRateDown.checkIfClicked(mousex, mousey):
-                # decrease the level's minimum release rate if possible
-                if levelInProgress.releaseRate > 1:
-                    levelInProgress.releaseRate -= 1
-                    renderSkillPanel()
-            elif grapplersUp.checkIfClicked(mousex, mousey):
-                # increase the amount of grapplers if possible
-                if levelInProgress.skillCounts[0][Grappler] < 99:
-                    levelInProgress.skillCounts[0][Grappler] += 1
-                    renderSkillPanel()
-            elif grapplersDown.checkIfClicked(mousex, mousey):
-                # decrease the amount of grapplers if possible
-                if levelInProgress.skillCounts[0][Grappler] > 0:
-                    levelInProgress.skillCounts[0][Grappler] -= 1
-                    renderSkillPanel()
-            elif drillersUp.checkIfClicked(mousex, mousey):
-                # increase the amount of drillers if possible
-                if levelInProgress.skillCounts[0][Driller] < 99:
-                    levelInProgress.skillCounts[0][Driller] += 1
-                    renderSkillPanel()
-            elif drillersDown.checkIfClicked(mousex, mousey):
-                # decrease the amount of drillers if possible
-                if levelInProgress.skillCounts[0][Driller] > 0:
-                    levelInProgress.skillCounts[0][Driller] -= 1
-                    renderSkillPanel()
-            elif jackhammerersUp.checkIfClicked(mousex, mousey):
-                # increase the amount of jackhammerers if possible
-                if levelInProgress.skillCounts[0][Jackhammerer] < 99:
-                    levelInProgress.skillCounts[0][Jackhammerer] += 1
-                    renderSkillPanel()
-            elif jackhammerersDown.checkIfClicked(mousex, mousey):
-                # decrease the amount of jackhammerers if possible
-                if levelInProgress.skillCounts[0][Jackhammerer] > 0:
-                    levelInProgress.skillCounts[0][Jackhammerer] -= 1
-                    renderSkillPanel()
-            elif gravityReversersUp.checkIfClicked(mousex, mousey):
-                # increase the amount of gravity reversers if possible
-                if levelInProgress.skillCounts[0][GravityReverser] < 99:
-                    levelInProgress.skillCounts[0][GravityReverser] += 1
-                    renderSkillPanel()
-            elif gravityReversersDown.checkIfClicked(mousex, mousey):
-                # decrease the amount of gravity reversers if possible
-                if levelInProgress.skillCounts[0][GravityReverser] > 0:
-                    levelInProgress.skillCounts[0][GravityReverser] -= 1
-                    renderSkillPanel()
-            elif cautionersUp.checkIfClicked(mousex, mousey):
-                # increase the amount of cautioners if possible
-                if levelInProgress.skillCounts[0][Cautioner] < 99:
-                    levelInProgress.skillCounts[0][Cautioner] += 1
-                    renderSkillPanel()
-            elif cautionersDown.checkIfClicked(mousex, mousey):
-                # decrease the amount of cautioners if possible
-                if levelInProgress.skillCounts[0][Cautioner] > 0:
-                    levelInProgress.skillCounts[0][Cautioner] -= 1
-                    renderSkillPanel()
-            elif detonatorsUp.checkIfClicked(mousex, mousey):
-                # increase the amount of detonators if possible
-                if levelInProgress.skillCounts[0][Detonator] < 99:
-                    levelInProgress.skillCounts[0][Detonator] += 1
-                    renderSkillPanel()
-            elif detonatorsDown.checkIfClicked(mousex, mousey):
-                # decrease the amount of detonators if possible
-                if levelInProgress.skillCounts[0][Detonator] > 0:
-                    levelInProgress.skillCounts[0][Detonator] -= 1
-                    renderSkillPanel()
-        elif event.type == QUIT: # terminate program; all progress will be lost
-            pygame.quit()
-            os._exit(0)
-
-def handleDetailsEvents():
-    # handle all user interactions with the details screen
-    
-    global currentTab, boxEdited, mousex, mousey
-
-    for event in pygame.event.get():
-        if event.type == MOUSEMOTION:
-            # update the mouse cursor coordinates
-            mousex, mousey = event.pos
-        elif event.type == MOUSEBUTTONDOWN:
-            boxEdited = None # set this to None so the user can click to cancel editing
-            if nameBox.checkIfClicked(mousex, mousey):
-                # allow user to edit the level's name
-                boxEdited = "name"
-            elif authorBox.checkIfClicked(mousex, mousey):
-                # allow user to edit the level's author
-                boxEdited = "author"
-            elif musicBox.checkIfClicked(mousex, mousey):
-                # allow user to edit the level's music
-                boxEdited = "music"
-            elif widthBox.checkIfClicked(mousex, mousey):
-                # allow user to edit the level's width
-                boxEdited = "width"
-            elif heightBox.checkIfClicked(mousex, mousey):
-                # allow user to edit the level's height
-                boxEdited = "height"
-            elif startXBox.checkIfClicked(mousex, mousey):
-                # allow user to edit the level's starting X coordinate
-                boxEdited = "startX"
-            elif startYBox.checkIfClicked(mousex, mousey):
-                # allow user to edit the level's starting Y coordinate
-                boxEdited = "startY"
-            #elif numPlayersBox.checkIfClicked(mousex, mousey):
-                # allow user to edit the number of players the level is for
-                #boxEdited = "num players"
-            elif techMechsBox.checkIfClicked(mousex, mousey):
-                # allow user to edit the level's number of Tech Mechs
-                boxEdited = "tech mechs"
-            elif saveRequirementBox.checkIfClicked(mousex, mousey):
-                # allow user to edit the level's save requirement
-                boxEdited = "save requirement"
-            elif editorTab.checkIfClicked(mousex, mousey):
-                # user clicked editor tab; save the details inputted to the level object
-                saveDetails()
-                currentTab = "editor"
-        elif event.type == KEYDOWN:
-            if event.key == K_LSHIFT: # shift is held; allow user to type capital letters
-                if "shift" not in keysPressed:
-                    keysPressed.append("shift")
-            elif boxEdited == "name": # edit the level's name
-                nameBox.changeText(event.key, "shift" in keysPressed)
-            elif boxEdited == "author": # edit the level's author
-                authorBox.changeText(event.key, "shift" in keysPressed)
-            elif boxEdited == "music": # edit the level's music
-                musicBox.changeText(event.key, "shift" in keysPressed)
-            elif boxEdited == "width": # edit the level's width
-                widthBox.changeText(event.key)
-            elif boxEdited == "height": # edit the level's height
-                heightBox.changeText(event.key)
-            elif boxEdited == "startX": # edit the level's starting X coordinate
-                startXBox.changeText(event.key)
-            elif boxEdited == "startY": # edit the level's starting Y coordinate
-                startYBox.changeText(event.key)
-            elif boxEdited == "num players": # edit the level's number of players
-                numPlayersBox.changeText(event.key)
-            elif boxEdited == "tech mechs": # edit the level's number of Tech Mechs
-                techMechsBox.changeText(event.key)
-            elif boxEdited == "save requirement": # edit the level's save requirement
-                saveRequirementBox.changeText(event.key)
-        elif event.type == KEYUP:
-            if event.key == K_LSHIFT: # stop capital letters from being typed
-                if "shift" in keysPressed:
-                    keysPressed.remove("shift")
-        elif event.type == QUIT: # terminate the program; all progress will be lost
-            pygame.quit()
-            os._exit(0)
-
-def executeEditorLoop(SCREEN):
+def executeEditorFrame(SCREEN):
     # execute a frame in level editor
     
-    global updateScreen, directionHeldTimer, textBoxTimer, levelDispX, levelDispY, currentTab, levelInProgress, levelImage
+    global directionHeldTimer, textBoxTimer, levelDispX, levelDispY, currentTab, levelInProgress, levelImage
 
     if currentTab == "editor": # the user is in the main part of the editor
         handleEditorEvents() # handle the user interactions
@@ -689,7 +422,6 @@ def executeEditorLoop(SCREEN):
                 # move the selected thing only if the key has been held for 1 frame or more than half a second
                 if directionHeldTimer == TIME_PASSED or directionHeldTimer >= 0.5:
                     selectedThing.x += distanceMoved
-                    updateScreen = True
         if "left" in keysPressed: # move selected thing to the left
             if selectedThing != None:
                 distanceMoved = 1
@@ -698,7 +430,6 @@ def executeEditorLoop(SCREEN):
                 # move the selected thing only if the key has been held for 1 frame or more than half a second
                 if directionHeldTimer == TIME_PASSED or directionHeldTimer >= 0.5:
                     selectedThing.x -= distanceMoved
-                    updateScreen = True
         if "down" in keysPressed: # move selected thing to the down
             if selectedThing != None:
                 distanceMoved = 1
@@ -707,7 +438,6 @@ def executeEditorLoop(SCREEN):
                 # move the selected thing only if the key has been held for 1 frame or more than half a second
                 if directionHeldTimer == TIME_PASSED or directionHeldTimer >= 0.5:
                     selectedThing.y += distanceMoved
-                    updateScreen = True
         if "up" in keysPressed: # move selected thing to the up
             if selectedThing != None:
                 distanceMoved = 1
@@ -716,7 +446,6 @@ def executeEditorLoop(SCREEN):
                 # move the selected thing only if the key has been held for 1 frame or more than half a second
                 if directionHeldTimer == TIME_PASSED or directionHeldTimer >= 0.5:
                     selectedThing.y -= distanceMoved
-                    updateScreen = True
         if "camera right" in keysPressed: # move perspective right
             if levelDispX + SCREEN_WIDTH < levelInProgress.width: # make sure moving the camera will show more of the level
                 distanceMoved = 1
@@ -751,14 +480,16 @@ def executeEditorLoop(SCREEN):
                 levelDispY -= distanceMoved
         
         SCREEN.fill(GREY) # fill the screen with GREY
-        if updateScreen:
-            levelInProgress.updateWholeImage() # update the level's image with all the terrain
-            updateScreen = False
+        levelInProgress.updateWholeImage() # update the level's image with all the terrain
         # update levelImage with level's terrain and objects
         levelImage.fill(BLACK)
         levelImage.blit(levelInProgress.image, (0, 0))
+        updateObjectOwners()
         for obj in levelInProgress.objects:
             levelImage.blit(obj.image, (obj.x, obj.y))
+            if levelInProgress.numPlayers > 1:
+                if obj.__class__.__name__ == "Entrance" or obj.__class__.__name__ == "Exit":
+                    levelImage.blit(multiplayer_icons[obj.owner], (obj.x - multiplayer_icons[obj.owner].get_width() // 2 + obj.width // 2, obj.y - multiplayer_icons[obj.owner].get_height()))
         # draw a thin rectangle around the selected thing to show the user what they've selected
         if selectedThing != None:
             pygame.draw.rect(levelImage, WHITE, (selectedThing.x, selectedThing.y, selectedThing.width, selectedThing.height), 1)
@@ -778,72 +509,23 @@ def executeEditorLoop(SCREEN):
         CLOCK.tick(FPS)
 
     elif currentTab == "skills": # the user is in the skills part of the editor
-        handleSkillsEvents() # handle user interactions
-
-        # update the screen
-        SCREEN.fill(GREY)
-        SCREEN.blit(skillPanel, (0, 300))
-        editorTab.render(SCREEN)
-        releaseRateUp.render(SCREEN)
-        releaseRateDown.render(SCREEN)
-        grapplersUp.render(SCREEN)
-        grapplersDown.render(SCREEN)
-        drillersUp.render(SCREEN)
-        drillersDown.render(SCREEN)
-        jackhammerersUp.render(SCREEN)
-        jackhammerersDown.render(SCREEN)
-        gravityReversersUp.render(SCREEN)
-        gravityReversersDown.render(SCREEN)
-        cautionersUp.render(SCREEN)
-        cautionersDown.render(SCREEN)
-        detonatorsUp.render(SCREEN)
-        detonatorsDown.render(SCREEN)
-        
-        pygame.display.update()
-        CLOCK.tick(FPS)
+        endSkills = executeEditorSkillsFrame(SCREEN, levelInProgress)
+        if endSkills:
+            currentTab = "editor"
 
     elif currentTab == "details": # the user is in the details section of the editor
-        handleDetailsEvents() # handle user interactions
-
-        # update the screen
-        SCREEN.fill(GREY)
-        editorTab.render(SCREEN)
-        widthLabel.render(SCREEN)
-        widthBox.render(SCREEN, textBoxTimer)
-        heightLabel.render(SCREEN)
-        heightBox.render(SCREEN, textBoxTimer)
-        startLabel.render(SCREEN)
-        startXBox.render(SCREEN, textBoxTimer)
-        startYBox.render(SCREEN, textBoxTimer)
-        #numPlayersLabel.render(SCREEN)
-        #numPlayersBox.render(SCREEN, textBoxTimer)
-        timeLimitLabel.render(SCREEN)
-        timeLimitBox.render(SCREEN, textBoxTimer)
-        techMechsLabel.render(SCREEN)
-        techMechsBox.render(SCREEN, textBoxTimer)
-        saveRequirementLabel.render(SCREEN)
-        saveRequirementBox.render(SCREEN, textBoxTimer)
-        nameLabel.render(SCREEN)
-        nameBox.render(SCREEN, textBoxTimer)
-        authorLabel.render(SCREEN)
-        authorBox.render(SCREEN, textBoxTimer)
-        musicLabel.render(SCREEN)
-        musicBox.render(SCREEN, textBoxTimer)
-        pygame.display.update()
-        CLOCK.tick(FPS)
-        textBoxTimer += TIME_PASSED
-        if textBoxTimer >= 1.0:
-            textBoxTimer -= 1.0
+        endDetails = executeDetailsFrame(SCREEN)
+        if endDetails:
+            saveDetails(levelInProgress, levelImage)
+            currentTab = "editor"
 
     elif currentTab == "load level": # user is in the load screen part of the editor
         levelLoaded = executeLoadScreenFrame(SCREEN) # execute a frame for the loading screen
         if levelLoaded == False:
             currentTab = "editor"
-            updateScreen = True
         elif levelLoaded != None:
             currentTab = "editor"
             levelInProgress = levelLoaded
             levelImage = pygame.surface.Surface((levelInProgress.width, levelInProgress.height))
-            updateScreen = True
 
     return continueEditor

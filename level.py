@@ -5,7 +5,7 @@ from terrain import *
 from skill import *
 
 class Level(object):
-    def __init__(self, width, height, startX, startY, terrain, objects, name, author, numberOfTechMechs, saveRequirement, skillCounts, timeLimit, releaseRate, music, numPlayers):
+    def __init__(self, width, height, startX, startY, terrain, objects, name, author, numberOfTechMechs, saveRequirement, skillCounts, timeLimit, releaseRates, music, numPlayers):
         self.width = width
         self.height = height
         self.startX = startX # the x-coordinate the screen starts at
@@ -21,7 +21,7 @@ class Level(object):
         self.skillCounts = skillCounts
         self.initSkillCounts()
         self.timeLimit = timeLimit # defaults to infinite time, which is -1
-        self.releaseRate = releaseRate # how fast the tech mechs come out of the hatch
+        self.releaseRates = releaseRates # how fast the tech mechs come out of the hatch
         self.music = music # the filename for the music that plays on the level
         self.numPlayers = numPlayers
         self.techMechSprites = "default" # the sprites for the tech mechs on that level
@@ -51,6 +51,10 @@ class Level(object):
             self.skillCounts.append({})
         while len(self.skillCounts) > self.numPlayers:
             self.skillCounts.remove(self.skillCounts[-1])
+        while len(self.releaseRates) < self.numPlayers:
+            self.releaseRates.append(1)
+        while len(self.releaseRates) > self.numPlayers:
+            self.releaseRates.remove(self.releaseRates[-1])
         
     def addTerrain(self, terrain):
         self.terrain.append(terrain)
@@ -78,8 +82,10 @@ class Level(object):
 
     def initializeTriggerMaps(self):
         self.triggersByPoint = {}
-        self.triggersByType = {"exit": [],
+        self.triggersByType = {"water": [],
                                "caution": []}
+        for i in range(self.numPlayers):
+            self.triggersByType["exit" + str(i)] = []
 
     def updateTriggerMaps(self):
         self.initializeTriggerMaps()
@@ -90,8 +96,11 @@ class Level(object):
                     if point not in self.triggersByPoint.keys():
                         self.triggersByPoint[point] = []
                     if type(obj) is Exit:
-                        self.triggersByPoint[point].append("exit")
-                        self.triggersByType["exit"].append(point)
+                        self.triggersByPoint[point].append("exit" + str(obj.owner))
+                        self.triggersByType["exit" + str(obj.owner)].append(point)
+                    elif type(obj) is Water:
+                        self.triggersByPoint[point].append("water")
+                        self.triggersByType["water"].append(point)
         for obj in self.techMechObjects:
             for x in range(obj.triggerWidth):
                 for y in range(obj.triggerHeight):
@@ -114,12 +123,17 @@ class Level(object):
         levelFile.write(str(self.numberOfTechMechs) + "\n")
         levelFile.write(str(self.saveRequirement) + "\n")
         levelFile.write(str(self.timeLimit) + "\n")
-        levelFile.write(str(self.releaseRate) + "\n")
+        for i in range(len(self.releaseRates)):
+            if i < len(self.releaseRates) - 1:
+                levelFile.write(str(self.releaseRates[i]) + ",")
+            else:
+                levelFile.write(str(self.releaseRates[i]) + "\n")
         levelFile.write(self.music + "\n")
         levelFile.write("SKILLS\n")
-        for player in self.skillCounts:
+        for i in range(len(self.skillCounts)):
+            player = self.skillCounts[i]
             for skill in player.keys():
-                levelFile.write(SKILL_STRING_CONVERSIONS[skill] + ": " + str(player[skill]) + ": " + str(self.skillCounts.index(player)) + "\n")
+                levelFile.write(SKILL_STRING_CONVERSIONS[skill] + ": " + str(player[skill]) + ": " + str(i) + "\n")
         levelFile.write("TERRAIN\n")
         for terrain in self.terrain:
             levelFile.write(str(terrain) + "\n")
@@ -142,7 +156,11 @@ class Level(object):
         numberOfTechMechs = levelFile.readline()
         saveRequirement = levelFile.readline()
         timeLimit = levelFile.readline()
-        releaseRate = levelFile.readline()
+        releaseRatesString = levelFile.readline()
+        splitReleaseRates = releaseRatesString.split(",")
+        releaseRates = []
+        for s in splitReleaseRates:
+            releaseRates.append(int(s))
         music = levelFile.readline()
         levelFile.readline() # line that just says SKILLS
         currentLine = levelFile.readline()
@@ -168,17 +186,10 @@ class Level(object):
         currentLine = levelFile.readline()
         objects = []
         while currentLine != "END\n":
-            objType, objGraphicSet, objName, x, y, flipped, inverted, rotated = currentLine.split("~")
-            if objType == "Entrance":
-                newObject = Entrance(objGraphicSet, objName, int(x), int(y), flipped == "True", inverted == "True", rotated == "True\n")
-            elif objType == "Exit":
-                newObject = Exit(objGraphicSet, objName, int(x), int(y), flipped == "True", inverted == "True", rotated == "True\n")
-            else:
-                newObject = GameObjectInstance(objGraphicSet, objName, int(x), int(y), flipped == "True", inverted == "True", rotated == "True\n")
-            objects.append(newObject)
+            objects.append(GameObjectInstance.createObjectFromString(currentLine))
             currentLine = levelFile.readline()
         levelFile.close()
-        level = Level(int(width), int(height), int(startX), int(startY), terrain, objects, levelName[:-1], author[:-1], int(numberOfTechMechs), int(saveRequirement), skillCounts, int(timeLimit), int(releaseRate), music[:-1], int(numPlayers))
+        level = Level(int(width), int(height), int(startX), int(startY), terrain, objects, levelName[:-1], author[:-1], int(numberOfTechMechs), int(saveRequirement), skillCounts, int(timeLimit), releaseRates, music[:-1], int(numPlayers))
         return level
             
 

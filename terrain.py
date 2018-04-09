@@ -6,7 +6,7 @@ class Terrain(object):
     def __init__(self, graphicSet, imageName):
         self.graphicSet = graphicSet
         self.imageName = imageName
-        self.image = pygame.image.load("styles/" + graphicSet + "/terrain/" + imageName + ".png")
+        self.image = pygame.image.load("styles/" + graphicSet + "/terrain/" + imageName + ".png").convert_alpha()
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 

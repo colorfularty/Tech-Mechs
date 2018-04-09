@@ -5,6 +5,7 @@ from gameObject import *
 from techmech import *
 from skill import *
 from vector import *
+from client import Client
 
 mousex = 0
 mousey = 0
@@ -15,18 +16,23 @@ skillHighlight = pygame.image.load("sprites/skill highlight.png").convert()
 skillHighlight.set_colorkey(BLACK)
 skillPanel = pygame.surface.Surface((SKILL_PANEL_WIDTH * NUMBER_OF_SKILL_PANELS, SKILL_PANEL_HEIGHT))
 
+multiplayerIcons = [pygame.image.load("sprites/multiplayer icon green.png").convert_alpha(),
+                    pygame.image.load("sprites/multiplayer icon red.png").convert_alpha()]
+
 playerNum = 0
+serverConn = None
 currentLevel = None
 levelImage = None
-currentReleaseRate = None
+currentReleaseRates = None
 increaseReleaseRate = False
 decreaseReleaseRate = False
 techMechs = []
-techMechsReleased = 0
-techMechsSaved = 0
+techMechsReleased = []
+techMechsSaved = []
+highlightedTechMech = None
 playingLevel = False
 currentFrame = 0
-framesSinceLastRelease = 0
+framesSinceLastReleases = []
 selectedSkill = None
 isPaused = False
 screenX = 0
@@ -34,24 +40,36 @@ screenY = 0
 replay = {}
 grappler = None
 exitsHaveLeft = False
+exitTimer = 0.0
+exitHotkeyPushed = False
 
-def startLevel(level, num):
-    global playerNum, currentLevel, levelImage, currentReleaseRate, increaseReleaseRate, decreaseReleaseRate, techMechs, techMechsReleased, techMechsSaved
-    global playingLevel, currentFrame, framesSinceLastRelease, selectedSkill, isPaused, screenX, screenY, replay, grappler, exitsHaveLeft
+entity = None
+action = None
+vec = None
 
-    playerNum = num
+def startLevel(level, num = 0, conn = None):
+    global playerNum, currentLevel, levelImage, currentReleaseRates, increaseReleaseRate, decreaseReleaseRate, techMechs, techMechsReleased
+    global techMechsSaved, playingLevel, currentFrame, framesSinceLastReleases, selectedSkill, isPaused, screenX, screenY, replay, grappler, exitsHaveLeft, exitTimer
+    global exitHotkeyPushed, serverConn
+
     currentLevel = level
     currentLevel.updateWholeImage()
     levelImage = pygame.surface.Surface((currentLevel.image.get_width(), currentLevel.image.get_height()))
-    currentReleaseRate = currentLevel.releaseRate
     increaseReleaseRate = False
     decreaseReleaseRate = False
     techMechs = []
-    techMechsReleased = 0
-    techMechsSaved = 0
+    techMechsReleased = []
+    techMechsSaved = []
+    currentReleaseRates = []
+    framesSinceLastReleases = []
+    for i in range(currentLevel.numPlayers):
+        techMechs.append([])
+        techMechsReleased.append(0)
+        techMechsSaved.append(0)
+        currentReleaseRates.append(currentLevel.releaseRates[i])
+        framesSinceLastReleases.append(0)
     playingLevel = True
     currentFrame = 0
-    framesSinceLastRelease = 0
     selectedSkill = Grappler
     isPaused = False
     screenX = level.startX
@@ -59,39 +77,38 @@ def startLevel(level, num):
     replay = {}
     grappler = None
     exitsHaveLeft = False
+    exitTimer = 0.0
+    exitHotkeyPushed = False
 
-    renderSkillPanel(skillPanel)
+    playerNum = num
+    serverConn = conn
+
+    renderSkillPanel(skillPanel, currentLevel, currentReleaseRates, playerNum)
 
     Entrance.status = "closed"
     Exit.status = "open"
 
-def renderSkillPanel(skillPanel):
+def renderSkillPanel(skillPanel, currentLevel, currentReleaseRates, playerNum):
     # blits the panels, the images, and the number of skills left
     # to the skill panel
 
     skillPanel.fill(BLACK)
 
     # start by blitting the empty skill panels
-    for i in range(13):
+    for i in range(NUMBER_OF_SKILL_PANELS):
         skillPanel.blit(skillSlot, (i * SKILL_PANEL_WIDTH, 0))
         
     # now blit the skill images on each panel
-    releaseRateIncrease = pygame.image.load("sprites/release rate increase.png").convert()
+    releaseRateIncrease = pygame.image.load("sprites/release rate increase.png").convert_alpha()
     releaseRateDecrease = pygame.image.load("sprites/release rate decrease.png")
-    grapplingHookSkill = pygame.image.load("sprites/grappling hook skill.png").convert()
-    drillSkill = pygame.image.load("sprites/drill skill.png").convert()
-    jackhammerSkill = pygame.image.load("sprites/jackhammer skill.png").convert()
-    gravitySkill = pygame.image.load("sprites/gravity skill.png").convert()
-    cautionSkill = pygame.image.load("sprites/caution skill.png").convert()
-    detonatorSkill = pygame.image.load("sprites/detonator skill.png").convert()
-
-    releaseRateIncrease.set_colorkey(BLACK)
-    grapplingHookSkill.set_colorkey(BLACK)
-    drillSkill.set_colorkey(BLACK)
-    jackhammerSkill.set_colorkey(BLACK)
-    gravitySkill.set_colorkey(BLACK)
-    cautionSkill.set_colorkey(BLACK)
-    detonatorSkill.set_colorkey(BLACK)
+    grapplingHookSkill = pygame.image.load("sprites/grappling hook skill.png").convert_alpha()
+    drillSkill = pygame.image.load("sprites/drill skill.png").convert_alpha()
+    jackhammerSkill = pygame.image.load("sprites/jackhammer skill.png").convert_alpha()
+    gravitySkill = pygame.image.load("sprites/gravity skill.png").convert_alpha()
+    cautionSkill = pygame.image.load("sprites/caution skill.png").convert_alpha()
+    detonatorSkill = pygame.image.load("sprites/detonator skill.png").convert_alpha()
+    pauseIcon = pygame.image.load("sprites/pause.png").convert_alpha()
+    exitIcon = pygame.image.load("sprites/end level.png").convert_alpha()
 
     skillPanel.blit(releaseRateIncrease, (25 - SKILL_WIDTH // 2, 50))
     skillPanel.blit(releaseRateDecrease, (25 - SKILL_WIDTH // 2, 80))
@@ -101,9 +118,11 @@ def renderSkillPanel(skillPanel):
     skillPanel.blit(gravitySkill, (225 - SKILL_WIDTH // 2, 60))
     skillPanel.blit(cautionSkill, (275 - SKILL_WIDTH // 2, 60))
     skillPanel.blit(detonatorSkill, (325 - SKILL_WIDTH // 2, 60))
+    skillPanel.blit(pauseIcon, ((NUMBER_OF_SKILL_PANELS - 2) * 50 + SKILL_WIDTH // 2, 40))
+    skillPanel.blit(exitIcon, ((NUMBER_OF_SKILL_PANELS - 1) * 50 + SKILL_WIDTH // 2, 30))
 
     # compute the skills left and blit those to the skill panel
-    releaseRate = skillFont.render(str(currentReleaseRate), True, WHITE, BLACK)
+    releaseRate = skillFont.render(str(currentReleaseRates[playerNum]), True, WHITE, BLACK)
     grapplingHooksLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Grappler]), True, WHITE, BLACK)
     drillsLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Driller]), True, WHITE, BLACK)
     jackhammersLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Jackhammerer]), True, WHITE, BLACK)
@@ -127,60 +146,80 @@ def renderSkillPanel(skillPanel):
     skillPanel.blit(cautionSignsLeft, (275 - cautionSignsLeft.get_width() // 2, 10))
     skillPanel.blit(landMinesLeft, (325 - landMinesLeft.get_width() // 2, 10))
 
-def addToReplay(techMech, skill, vec = None):
-    if currentFrame not in replay:
-        replay[currentFrame] = []
-    replay[currentFrame].append((techMech, skill, vec))
+def addToReplay(techMech, skill, vec, pNum):
+    if techMech != None or skill != None or vec != None:
+        if currentFrame not in replay:
+            replay[currentFrame] = []
+        replay[currentFrame].append((techMech, skill, vec, pNum))
 
 def executeReplay():
-    global currentReleaseRate
+    global currentReleaseRates
     if currentFrame in replay.keys():
         for assignment in replay[currentFrame]:
+            pNum = assignment[3]
             # check if the replay step is a release rate change
             if assignment[0] == None:
-                currentReleaseRate = assignment[1]
+                currentReleaseRates[pNum] = assignment[1]
             else: # the replay step is a skill assignment
-                techMech = assignment[0]
+                techMech = techMechs[pNum][assignment[0]]
                 skill = assignment[1]
                 vec = assignment[2]
-                if currentLevel.skillCounts[playerNum][skill] > 0:
+                if currentLevel.skillCounts[pNum][skill] > 0:
                     techMech.skillVector = vec
                     techMech.assignSkill(skill)
-                    currentLevel.skillCounts[playerNum][skill] -= 1
-        renderSkillPanel(skillPanel)
+                    currentLevel.skillCounts[pNum][skill] -= 1
+        renderSkillPanel(skillPanel, currentLevel, currentReleaseRates, playerNum)
 
 def renderGameObjects():
-    global techMechsReleased, framesSinceLastRelease, exitsHaveLeft
+    global techMechsReleased, framesSinceLastReleases, exitsHaveLeft
     
     for obj in currentLevel.objects:
         if type(obj) is Entrance and not isPaused:
-            shouldReleaseTechMech = framesSinceLastRelease >= 100 - currentReleaseRate and techMechsReleased < currentLevel.numberOfTechMechs and Entrance.status == "open"
+            shouldReleaseTechMech = framesSinceLastReleases[obj.owner] >= 100 - currentReleaseRates[obj.owner] and techMechsReleased[obj.owner] < currentLevel.numberOfTechMechs and Entrance.status == "open"
             if shouldReleaseTechMech:
-                techMechs.append(TechMech(obj.x + obj.width // 2, obj.y + obj.height // 2))
-                techMechsReleased += 1
-                framesSinceLastRelease = 0
+                owner = obj.owner
+                if currentLevel.numPlayers > 1:
+                    owner += 1
+                techMechs[obj.owner].append(TechMech(obj.x + obj.width // 2, obj.y + obj.height // 2, owner))
+                techMechsReleased[obj.owner] += 1
+                framesSinceLastReleases[obj.owner] = 0
         elif type(obj) is Exit:
             if Exit.status == "closed" and not isPaused:
                 obj.y -= 5
             if obj.y + obj.height > 0:
                 exitsHaveLeft = False
-        levelImage.blit(obj.image, (obj.x, obj.y))
+        obj.render(levelImage)
+
+def renderMultiplayerIcons():
+    for obj in currentLevel.objects:
+        if type(obj) is Entrance or type(obj) is Exit:
+            levelImage.blit(multiplayerIcons[obj.owner], (obj.x + obj.width // 2 - multiplayerIcons[obj.owner].get_width() // 2, obj.y - multiplayerIcons[obj.owner].get_height()))
 
 def renderTechMechs():
-    global techMechsSaved
-    
-    for techMech in techMechs:
-        if not isPaused:
-            if not techMech.act(currentLevel):
-                techMechs.remove(techMech)
-                continue
-            if (techMech.x, techMech.y) in currentLevel.triggersByType["exit"] and Exit.status == "open":
-                techMechs.remove(techMech)
-                techMechsSaved += 1
-                continue
-            elif (techMech.x + techMech.direction, techMech.y) in currentLevel.triggersByType["caution"]:
-                techMech.turnAround()
-        techMech.render(levelImage)
+    global techMechsSaved, highlightedTechMech
+
+    highlightedTechMech = None
+
+    for i in range(len(techMechs)):
+        for techMech in reversed(techMechs[i]):
+            if not isPaused:
+                if not techMech.act(currentLevel):
+                    techMechs[i].remove(techMech)
+                    continue
+                if (techMech.x, techMech.y) in currentLevel.triggersByType["exit" + str(i)] and Exit.status == "open":
+                    techMechs[i].remove(techMech)
+                    techMechsSaved[i] += 1
+                    continue
+                elif (techMech.x, techMech.y) in currentLevel.triggersByType["water"]:
+                    techMechs[i].remove(techMech)
+                    continue
+                elif (techMech.x + techMech.direction, techMech.y) in currentLevel.triggersByType["caution"]:
+                    techMech.turnAround()
+            techMechX = techMech.getXCoordinate()
+            techMechY = techMech.getYCoordinate()
+            if mousex >= techMechX and mousex <= techMechX + TECH_MECH_SPRITE_WIDTH and mousey >= techMechY and mousey <= techMechY + TECH_MECH_SPRITE_HEIGHT:
+                highlightedTechMech = techMech
+            techMech.render(levelImage)
 
 def renderTechMechObjects():
     # first, we remove all tech mech object-specific triggers to update them
@@ -247,7 +286,8 @@ def scrollScreen():
                 break
 
 def handleGameEvents():
-    global mousex, mousey, increaseReleaseRate, decreaseReleaseRate, isPaused, selectedSkill, grappler
+    global mousex, mousey, increaseReleaseRate, decreaseReleaseRate, isPaused, selectedSkill, grappler, exitHotkeyPushed
+    global entity, action, vec
     
     for event in pygame.event.get():
         if event.type == MOUSEMOTION:
@@ -289,11 +329,12 @@ def handleGameEvents():
                 elif mousex < 500:
                     # fast forward
                     pass
-                elif mousex < 550:
-                    isPaused = not isPaused
-                elif mousex < 600:
+                elif mousex < 1250:
+                    if currentLevel.numPlayers == 1:
+                        isPaused = not isPaused
+                elif mousex < 1300 and currentLevel.numPlayers == 1:
                     # launch the ship early
-                    pass
+                    Exit.close()
             # check if there is a Tech Mech waiting to grapple
             elif grappler != None:
                 # the click is for determining where the grappler shoots
@@ -301,12 +342,13 @@ def handleGameEvents():
                 vec = Vector(screenX + mousex - grappler.x, screenY + mousey - grappler.y)
                 vec.normalize()
                 # add the grappler, the skill, and the unit vector to the replay
-                addToReplay(grappler, Grappler, vec)
+                entity = techMechs[playerNum].index(grappler)
+                action = Grappler
                 grappler = None
                 isPaused = False
             else: # normal assignment, not a grappling confirmation
                 # check if you clicked on a techmech
-                for techMech in techMechs:
+                for techMech in techMechs[playerNum]:
                     if techMech.wasClicked(mousex + screenX, mousey + screenY):
                         # tech mech was clicked, make sure they're not falling
                         if techMech.currentSkill != Faller and currentLevel.skillCounts[playerNum][selectedSkill] > 0:
@@ -316,7 +358,8 @@ def handleGameEvents():
                                 grappler = techMech
                             else: # normal skill assignment; add it to the replay
                                 # the vector is None, because it is not required
-                                addToReplay(techMech, selectedSkill)
+                                entity = techMechs[playerNum].index(techMech)
+                                action = selectedSkill
                             break
                 isPaused = False
         elif event.type == MOUSEBUTTONUP:
@@ -338,7 +381,13 @@ def handleGameEvents():
             elif event.key == K_F10:
                 selectedSkill = Jackhammerer
             elif event.key == K_F11:
-                isPaused = not isPaused
+                if currentLevel.numPlayers == 1:
+                    isPaused = not isPaused
+            elif event.key == K_F12:
+                if exitTimer == 0.0:
+                    exitHotkeyPushed = True
+                elif exitHotkeyPushed and currentLevel.numPlayers == 1:
+                    Exit.close()
         elif event.type == KEYUP:
             if event.key == K_F1:
                 decreaseReleaseRate = False
@@ -349,24 +398,50 @@ def handleGameEvents():
             os._exit(0)
 
 def executeGameFrame(SCREEN):
-    global currentFrame, framesSinceLastRelease, currentReleaseRate, techMechs, techMechsReleased, techMechsSaved, playingLevel, exitsHaveLeft
-    
+    global currentFrame, framesSinceLastReleases, currentReleaseRates, techMechs, techMechsReleased, techMechsSaved, playingLevel, exitsHaveLeft, exitTimer, exitHotkeyPushed
+    global entity, action, vec
+
+    entity = None
+    action = None
+    vec = None
+
     # check if the entrances should be opened
-    if currentFrame >= 60:
+    if currentFrame >= 60 and Entrance.status == "closed":
         Entrance.open()
+        try:
+            pygame.mixer.music.load("music/" + currentLevel.music + ".mod")
+            pygame.mixer.music.play(-1)
+        except pygame.error:
+            pass
 
     # check if the exit should be closed due to all Tech Mechs exiting or dying
-    if techMechsReleased == currentLevel.numberOfTechMechs and len(techMechs) == 0:
+    shouldLeave = techMechsReleased[playerNum] == currentLevel.numberOfTechMechs
+    for i in range(len(techMechs)):
+        if len(techMechs[i]) != 0:
+            shouldLeave = False
+            break
+    if shouldLeave:
         Exit.close()
 
     handleGameEvents()
 
     # check if user increased or decreased the release rate
-    if increaseReleaseRate and currentReleaseRate < 99:
-        addToReplay(None, currentReleaseRate + 1, None)
-    elif decreaseReleaseRate and currentReleaseRate > 1:
-        addToReplay(None, currentReleaseRate - 1, None)
-    
+    if increaseReleaseRate and currentReleaseRates[playerNum] < 99:
+        entity = None
+        action = currentReleaseRates[playerNum] + 1
+        vec = None
+    elif decreaseReleaseRate and currentReleaseRates[playerNum] > currentLevel.releaseRate[playerNum]:
+        entity = None
+        action = currentReleaseRates[playerNum] - 1
+        vec = None
+
+    addToReplay(entity, action, vec, playerNum)
+
+    if currentLevel.numPlayers > 1:
+        serverConn.sendTuple((entity, action, vec, playerNum))
+        entity, action, vec, pNum = serverConn.receiveTuple()
+        addToReplay(entity, action, vec, pNum)
+
     executeReplay()
 
     # render everything on screen; start by filling the screen with black,
@@ -380,9 +455,17 @@ def executeGameFrame(SCREEN):
 
     renderGameObjects()
 
+    if currentLevel.numPlayers > 1:
+        renderMultiplayerIcons()
+
     renderTechMechObjects()
 
+    currentLevel.updateTriggerMaps()
+
     renderTechMechs()
+
+    if highlightedTechMech != None:
+        pygame.draw.rect(levelImage, WHITE, (highlightedTechMech.getXCoordinate(), highlightedTechMech.getYCoordinate(), TECH_MECH_SPRITE_WIDTH, TECH_MECH_SPRITE_HEIGHT), 1)
 
     # finally, we blit any skill masks needed to help users see where the skills will be used
     if grappler != None:
@@ -390,6 +473,8 @@ def executeGameFrame(SCREEN):
 
     # now we check if the screen needs to scroll
     scrollScreen()
+
+    SCREEN.fill(GREY)
     
     # now we blit the newly rendered game frame to the screen, taking scrolling into effect
     SCREEN.blit(levelImage, (-screenX, -screenY))
@@ -398,30 +483,35 @@ def executeGameFrame(SCREEN):
     SCREEN.blit(skillPanel, (0, SCREEN_HEIGHT - SKILL_PANEL_HEIGHT))
 
     # now we blit the highlight on the selected skill
-    if selectedSkill == Grappler:
-        SCREEN.blit(skillHighlight, (50, SCREEN_HEIGHT - SKILL_PANEL_HEIGHT))
-    elif selectedSkill == Driller:
-        SCREEN.blit(skillHighlight, (100, SCREEN_HEIGHT - SKILL_PANEL_HEIGHT))
-    elif selectedSkill == Jackhammerer:
-        SCREEN.blit(skillHighlight, (150, SCREEN_HEIGHT - SKILL_PANEL_HEIGHT))
-    elif selectedSkill == GravityReverser:
-        SCREEN.blit(skillHighlight, (200, SCREEN_HEIGHT - SKILL_PANEL_HEIGHT))
-    elif selectedSkill == Cautioner:
-        SCREEN.blit(skillHighlight, (250, SCREEN_HEIGHT - SKILL_PANEL_HEIGHT))
-    elif selectedSkill == Detonator:
-        SCREEN.blit(skillHighlight, (300, SCREEN_HEIGHT - SKILL_PANEL_HEIGHT))
+    SCREEN.blit(skillHighlight, ((SKILLS.index(selectedSkill) + 1) * 50, SCREEN_HEIGHT - SKILL_PANEL_HEIGHT))
+    if isPaused:
+        SCREEN.blit(skillHighlight, ((NUMBER_OF_SKILL_PANELS - 2) * 50, SCREEN_HEIGHT - SKILL_PANEL_HEIGHT))
+
+    if exitHotkeyPushed:
+        exitTimer += TIME_PASSED
+    if exitTimer >= 0.2:
+        exitTimer = 0.0
+        exitHotkeyPushed = False
 
     # show screen updates and advance time
     pygame.display.update()
     CLOCK.tick(FPS)
     if not isPaused:
         currentFrame += 1
-        framesSinceLastRelease += 1
+        for i in range(currentLevel.numPlayers):
+            framesSinceLastReleases[i] += 1
 
     if exitsHaveLeft:
+        Exit.sound.stop()
+        try:
+            pygame.mixer.music.stop()
+        except pygame.error:
+            pass
         playingLevel = False
+        if currentLevel.numPlayers > 1:
+            serverConn.sendString("Quit server")
 
-    return playingLevel
+    return playingLevel, techMechsSaved[playerNum]
 
 
 

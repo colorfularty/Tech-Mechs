@@ -16,18 +16,22 @@ mousey = 0
 levelFiles = None
 levelLoaded = None
 
-def loadLevelFiles():
+def loadLevelFiles(numPlayers):
     # reads and returns the names of all .txt files in your levels directory
     files = []
     for file in os.listdir("levels"):
         if file.endswith(".txt"):
-            files.append(file.split(".")[0]) # removes the extension
+            openFile = open("levels/" + file, 'r')
+            firstLine = openFile.readline()
+            if numPlayers == None or int(firstLine) == numPlayers:
+                files.append(file.split(".")[0]) # removes the extension
+            openFile.close()
     return files
 
-def startLoadScreen():
+def startLoadScreen(numPlayers = None):
     global levelFiles, levelLoaded
 
-    levelFiles = loadLevelFiles()
+    levelFiles = loadLevelFiles(numPlayers)
     levelLoaded = None
 
 topNameIndex = 0

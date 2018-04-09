@@ -17,6 +17,13 @@ class Label(object):
     def render(self, surf):
         surf.blit(self.image, (self.x, self.y))
 
+    def changeText(self, text):
+        self.text = text
+        self.image = font.render(self.text, True, WHITE, BLACK)
+        self.image.set_colorkey(BLACK)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
 class Button(Label):
     def __init__(self, x, y, text):
         Label.__init__(self, x, y, text)
@@ -67,14 +74,21 @@ class TextBox(object):
         self.setImage()
 
 class NumberBox(TextBox):
-    def __init__(self, x, y, text, fontColor = WHITE, backColor = BLACK, size = 6):
+    def __init__(self, x, y, text, fontColor = WHITE, backColor = BLACK, size = 6, minVal = 0, maxVal = 1000):
         TextBox.__init__(self, x, y, text, fontColor, backColor, size)
+        self.minValue = minVal
+        self.maxValue = maxVal
 
     def checkIfClicked(self, mousex, mousey):
         self.isClicked = mousex >= self.x and mousex <= self.x + self.baseImage.get_width() and mousey >= self.y and mousey <= self.y + self.baseImage.get_height()
         if self.text == "":
             self.text = "0"
             self.setImage()
+        if not self.isClicked:
+            if int(self.text) < self.minValue:
+                self.text = str(self.minValue)
+            elif int(self.text) > self.maxValue:
+                self.text = str(self.maxValue)
         return self.isClicked
 
     def changeText(self, key):
@@ -82,10 +96,53 @@ class NumberBox(TextBox):
             if len(self.text) > 0:
                 self.text = self.text[0:-1]
         elif key >= 48 and key <= 57 and len(self.text) < self.size:
-            if len(self.text) > 0 or key != 48:
-                self.text += pygame.key.name(key)
+            self.text += pygame.key.name(key)
         for i in range(len(self.text)):
             if self.text[i] != "0":
                 self.text = self.text[i:]
                 break
         self.setImage()
+
+class SimpleImage(object):
+    # a surface with a simple pygame.draw operation performed on it
+
+    def __init__(self, startX, startY, width, height, speed, doesWrap):
+        self.x = startX
+        self.y = startY
+        self.width = width
+        self.height = height
+        self.image = pygame.surface.Surface((self.width, self.height))
+        self.speed = speed
+        self.doesWrap = doesWrap
+
+    def render(self, surf):
+        surf.blit(self.image, (self.x, self.y))
+
+    def checkForWrapping(self):
+        if self.x < 0:
+            self.x += SCREEN_WIDTH
+        elif self.x >= SCREEN_WIDTH:
+            self.x -= SCREEN_WIDTH
+        if self.y < 0:
+            self.y += SCREEN_HEIGHT
+        elif self.y >= SCREEN_HEIGHT:
+            self.y -= SCREEN_HEIGHT
+
+    def move(self, direction):
+        if "left" in direction:
+            self.x -= self.speed
+        if "right" in direction:
+            self.x += self.speed
+        if "up" in direction:
+            self.y -= self.speed
+        if "down" in direction:
+            self.y += self.speed
+        if self.doesWrap:
+            self.checkForWrapping()
+
+class Star(SimpleImage):
+    # a star used for menus
+
+    def __init__(self, startX, startY, radius = 5, speed = 15, doesWrap = True):
+        SimpleImage.__init__(self, startX, startY, radius, radius, speed, doesWrap)
+        pygame.draw.circle(self.image, WHITE, (self.width // 2, self.height // 2), self.width // 2)

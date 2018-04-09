@@ -1,4 +1,5 @@
 import pygame
+pygame.init()
 from skill import *
 
 # colors
@@ -6,8 +7,8 @@ BLACK = (  0,   0,   0)
 GREY  = (128, 128, 128)
 WHITE = (255, 255, 255)
 
-SCREEN_WIDTH = 650
-SCREEN_HEIGHT = 500
+SCREEN_WIDTH = 1300
+SCREEN_HEIGHT = 700
 CLOCK = pygame.time.Clock()
 FPS = 30
 TIME_PASSED = CLOCK.tick(FPS) / 1000.0
@@ -25,9 +26,15 @@ ANIMATION_FRAMES = {Walker: 16,
                     Detonator: 1}
 GRAPPLER_RANGE = 150
 
-NUMBER_OF_SKILL_PANELS = 13
+SKILLS = [Grappler,
+          Driller,
+          Jackhammerer,
+          GravityReverser,
+          Cautioner,
+          Detonator]
 SKILL_PANEL_WIDTH = 50
 SKILL_PANEL_HEIGHT = 100
+NUMBER_OF_SKILL_PANELS = SCREEN_WIDTH // SKILL_PANEL_WIDTH
 SKILL_WIDTH = 27
 SKILL_HEIGHT = 26
 
@@ -48,5 +55,8 @@ SKILL_STRING_CONVERSIONS = {Walker: "Walker",
                             Cautioner: "Cautioner",
                             Detonator: "Detonator",
                             GravityReverser: "GravityReverser"}
+
+MULTIPLAYER_COLORS = {0: "green",
+                      1: "red"}
 
 PORT = 9898
