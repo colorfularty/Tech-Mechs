@@ -8,8 +8,8 @@ Me
 10
 10
 -1
-1
-
+20
+panic
 SKILLS
 Driller: 10: 0
 Jackhammerer: 10: 0

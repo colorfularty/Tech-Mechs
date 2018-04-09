@@ -9,14 +9,14 @@ Me
 10
 -1
 1
-
+industrial
 SKILLS
-Grappler: 0: 0
 Driller: 0: 0
 Jackhammerer: 0: 0
-GravityReverser: 0: 0
 Cautioner: 0: 0
 Detonator: 0: 0
+Grappler: 0: 0
+GravityReverser: 0: 0
 TERRAIN
 special~test level~0~0~False~False~False
 OBJECTS

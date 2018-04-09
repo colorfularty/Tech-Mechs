@@ -1,0 +1,102 @@
+2
+Multiplayer Test
+Me
+640
+320
+0
+0
+5
+1
+-1
+20,1
+intense
+SKILLS
+Driller: 10: 0
+Jackhammerer: 10: 0
+Cautioner: 0: 0
+Detonator: 0: 0
+Grappler: 10: 0
+GravityReverser: 0: 0
+Driller: 10: 1
+Jackhammerer: 10: 1
+Cautioner: 0: 1
+Detonator: 0: 1
+Grappler: 10: 1
+GravityReverser: 0: 1
+TERRAIN
+lego~red 4x1~0~298~False~False~False
+lego~red 4x1~64~298~False~False~False
+lego~red 4x1~128~298~False~False~False
+lego~red 4x1~192~298~False~False~False
+lego~red 4x1~256~298~False~False~False
+lego~green 4x1~320~298~False~False~False
+lego~green 4x1~384~298~False~False~False
+lego~green 4x1~448~298~False~False~False
+lego~green 4x1~512~298~False~False~False
+lego~green 4x1~576~298~False~False~False
+lego~red tall up ramp~288~244~False~False~False
+lego~green tall up ramp~320~244~True~False~False
+lego~red tall ramp~32~244~True~False~False
+lego~red 2x1~0~280~False~False~False
+lego~red 2x1~0~262~False~False~False
+lego~red 2x1~0~244~False~False~False
+lego~red tall ramp~16~190~True~False~False
+lego~red 1x1~0~226~False~False~False
+lego~red 1x1~0~208~False~False~False
+lego~red 1x1~0~190~False~False~False
+lego~red 2x1~0~172~False~False~False
+lego~red 2x1~0~154~False~False~False
+lego~red 2x1~0~136~False~False~False
+lego~green 4x1~0~118~False~False~False
+lego~red 2x1~0~100~False~False~False
+lego~red 2x1~0~82~False~False~False
+lego~red 2x1~0~64~False~False~False
+lego~red 2x1~0~46~False~False~False
+lego~red 2x1~0~28~False~False~False
+lego~red 2x1~0~10~False~False~False
+lego~red 2x1~0~-8~False~False~False
+lego~green tall ramp~576~244~False~False~False
+lego~green 2x1~608~280~False~False~False
+lego~green 2x1~608~262~False~False~False
+lego~green 2x1~608~244~False~False~False
+lego~green tall ramp~592~190~False~False~False
+lego~green 1x1~624~226~False~False~False
+lego~green 1x1~624~208~False~False~False
+lego~green 1x1~624~190~False~False~False
+lego~green 2x1~608~172~False~False~False
+lego~green 2x1~608~154~False~False~False
+lego~green 2x1~608~136~False~False~False
+lego~red 4x1~576~118~False~False~False
+lego~green 2x1~608~100~False~False~False
+lego~green 2x1~608~82~False~False~False
+lego~green 2x1~608~64~False~False~False
+lego~green 2x1~608~46~False~False~False
+lego~green 2x1~608~28~False~False~False
+lego~green 2x1~608~10~False~False~False
+lego~green 2x1~608~-8~False~False~False
+lego~green 4x1~64~118~False~False~False
+lego~green 4x1~128~118~False~False~False
+lego~green 2x1~160~100~False~False~False
+lego~green 2x1~160~82~False~False~False
+lego~green 2x1~160~64~False~False~False
+lego~green 2x1~160~46~False~False~False
+lego~green 2x1~160~28~False~False~False
+lego~green 2x1~160~10~False~False~False
+lego~green up ramp long~128~-8~False~False~False
+lego~green up ramp~176~-8~True~False~False
+lego~red 4x1~512~118~False~False~False
+lego~red 4x1~448~118~False~False~False
+lego~red 2x1~448~100~False~False~False
+lego~red 2x1~448~82~False~False~False
+lego~red 2x1~448~64~False~False~False
+lego~red 2x1~448~46~False~False~False
+lego~red 2x1~448~28~False~False~False
+lego~red 2x1~448~10~False~False~False
+lego~red up ramp~432~-8~False~False~False
+lego~red up ramp long~464~-8~True~False~False
+OBJECTS
+Entrance~lego~entrance~48~48~True~True~True~0
+Entrance~lego~entrance~528~48~True~True~True~1
+Exit~lego~exit~352~46~True~True~True~0
+Exit~lego~exit~160~46~True~True~True~1
+END
