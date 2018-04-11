@@ -17,8 +17,6 @@ Jackhammerer: 10: 0
 GravityReverser: 10: 0
 Cautioner: 10: 0
 Detonator: 10: 0
-Energizer: 10: 0
-MagnetBoots: 10: 0
 TERRAIN
 lego~blue 4x1~0~298~False~False~False
 lego~blue 4x1~64~298~False~False~False
