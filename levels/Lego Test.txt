@@ -11,12 +11,14 @@ Me
 20
 panic
 SKILLS
+Grappler: 10: 0
 Driller: 10: 0
 Jackhammerer: 10: 0
+GravityReverser: 10: 0
 Cautioner: 10: 0
 Detonator: 10: 0
-Grappler: 10: 0
-GravityReverser: 10: 0
+Energizer: 10: 0
+MagnetBoots: 10: 0
 TERRAIN
 lego~blue 4x1~0~298~False~False~False
 lego~blue 4x1~64~298~False~False~False
@@ -39,7 +41,9 @@ lego~red 4x1~320~262~False~False~False
 lego~red 4x1~256~262~False~False~False
 lego~yellow ramp long~272~244~False~False~False
 lego~yellow ramp long~320~244~True~False~False
+lego~orange 2x1 top~224~278~False~False~False
+lego~red 2x1 top~384~278~False~False~False
 OBJECTS
-Entrance~lego~entrance~64~136~False~False~False
-Exit~lego~exit~512~46~False~False~False
+Entrance~lego~entrance~64~136~True~True~True~0
+Exit~lego~exit~512~46~True~True~True~0
 END
