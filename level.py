@@ -31,18 +31,9 @@ class Level(object):
     def initSkillCounts(self):
         # ensures all skills are in skill counts even if you have 0 of them
         for player in self.skillCounts:
-            if Grappler not in player:
-                player[Grappler] = 0
-            if Driller not in player:
-                player[Driller] = 0
-            if Jackhammerer not in player:
-                player[Jackhammerer] = 0
-            if GravityReverser not in player:
-                player[GravityReverser] = 0
-            if Cautioner not in player:
-                player[Cautioner] = 0
-            if Detonator not in player:
-                player[Detonator] = 0
+            for skill in SKILLS:
+                if skill not in player:
+                    player[skill] = 0
 
     def updateNumPlayers(self, numPlayers):
         # update the number of players and modify the skill counts to match the current number of players
@@ -166,12 +157,10 @@ class Level(object):
         currentLine = levelFile.readline()
         skillCounts = []
         for i in range(int(numPlayers)):
-            skillCounts.append({Driller: 0,
-                       Jackhammerer: 0,
-                       Cautioner: 0,
-                       Detonator: 0,
-                       Grappler: 0,
-                       GravityReverser: 0})
+            skillCount = {}
+            for skill in SKILLS:
+                skillCount[skill] = 0
+            skillCounts.append(skillCount)
         while currentLine != "TERRAIN\n":
             skill, amount, player = currentLine.split(": ")
             skillCounts[int(player)][STRING_SKILL_CONVERSIONS[skill]] = int(amount)

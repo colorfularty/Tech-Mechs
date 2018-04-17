@@ -1,26 +1,21 @@
-Editor hotkeys:
-Insert a new piece of terrain: T
-Insert a new object: O
-Change selected terrain/object to the previous one in the graphic set's list: A
-Change selected terrain/object to the next one in the graphic set's list: S
-Flip the selected terrain/object horizontally: F
-Invert the selected terrain/object vertically: I
-Rotate the selected terrain/object 90 degrees: R
-Copy the selected terrain/object and move the copy 16 pixels left and down: C
-Delete the selected terrain/object: DELETE
-Move the selected terrain/object 1 pixel right: RIGHT ARROW KEY
-Move the selected terrain/object 1 pixel left: LEFT ARROW KEY
-Move the selected terrain/object 1 pixel down: DOWN ARROW KEY
-Move the selected terrain/object 1 pixel up: UP ARROW KEY
-Move the selected terrain/object 8 pixels right: CTRL + RIGHT ARROW KEY
-Move the selected terrain/object 8 pixels left: CTRL + LEFT ARROW KEY
-Move the selected terrain/object 8 pixels down: CTRL + DOWN ARROW KEY
-Move the selected terrain/object 8 pixels up: CTRL + UP ARROW KEY
-Move the perspective on the level 1 pixel right: J
-Move the perspective on the level 1 pixel left: G
-Move the perspective on the level 1 pixel down: H
-Move the perspective on the level 1 pixel up: Y
-Move the perspective on the level 8 pixels right: CTRL + J
-Move the perspective on the level 8 pixels left: CTRL + G
-Move the perspective on the level 8 pixels down: CTRL + H
-Move the perspective on the level 8 pixels up: CTRL + Y
+INSERT PIECE OF TERRAIN: t
+INSERT OBJECT: o
+MOVE SELECTED TERRAIN/OBJECT RIGHT: right
+MOVE SELECTED TERRAIN/OBJECT LEFT: left
+MOVE SELECTED TERRAIN/OBJECT DOWN: down
+MOVE SELECTED TERRAIN/OBJECT UP: up
+FLIP SELECTED TERRAIN/OBJECT: f
+INVERT SELECTED TERRAIN/OBJECT: i
+ROTATE SELECTED TERRAIN/OBJECT: r
+MOVE SELECTED TERRAIN/OBJECT TOWARD BACKGROUND: equals sign
+MOVE SELECTED TERRAIN/OBJECT TOWARD FOREGROUND: minus sign
+COPY SELECTED TERRAIN/OBJECT: c
+DELETE SELECTED TERRAIN/OBJECT: delete
+CHANGE TERRAIN/OBJECT TO NEXT ONE IN LIST: s
+CHANGE TERRAIN/OBJECT TO PREVIOUS ONE IN LIST: a
+MOVE PERSPECTIVE RIGHT: j
+MOVE PERSPECTIVE LEFT: g
+MOVE PERSPECTIVE DOWN: h
+MOVE PERSPECTIVE UP: y
+INCREASE MOVEMENT SPEED (HOLD): left ctrl
+LEAVE EDITOR: escape

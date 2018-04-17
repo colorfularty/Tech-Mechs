@@ -62,6 +62,8 @@ class TechMech(object):
         self.currentSkill = Walker # what the tech mech is currently doing
         self.direction = 1 # this is 1 for right and -1 for left
         self.orientation = 1 # this is 1 for upright, and -1 for upside-down
+        self.rotation = 0 # this is 0 for upright, 1 for walking on a right wall, and -1 for walking on a left wall
+        self.permanentSkills = [] # a list of all permanent skills assigned to the Tech Mech
         self.skillVector = None # used to store a vector needed for certain skills (i.e. grappling hook)
         self.animationFrame = 0
         self.soundEffect = None
@@ -70,6 +72,7 @@ class TechMech(object):
     def setImage(self, newSkill):
         self.image = self.spriteSheets[self.owner][newSkill].subsurface((0, self.animationFrame * TECH_MECH_SPRITE_HEIGHT, TECH_MECH_SPRITE_WIDTH, TECH_MECH_SPRITE_HEIGHT))
         self.image = pygame.transform.flip(self.image, self.direction < 0, self.orientation < 0)
+        self.image = pygame.transform.rotate(self.image, 90 * self.rotation)
 
     def wasClicked(self, x, y):
         if self.orientation > 0:
@@ -81,9 +84,17 @@ class TechMech(object):
         return False
 
     def getXCoordinate(self):
+        if self.rotation == 1:
+            return self.x - 47
+        elif self.rotation == -1:
+            return self.x
         return self.x - 17
 
     def getYCoordinate(self):
+        if self.rotation != 0:
+            return self.y - 17
+        if self.orientation == -1:
+            return self.y
         return self.y - 47
 
     def render(self, surf):
@@ -91,54 +102,89 @@ class TechMech(object):
         # the trigger area is 9 pixels left and 47 pixels down from the
         # upper-left corner
         if self.orientation > 0:
-            surf.blit(self.image, (self.x - 17, self.y - 47))
+            surf.blit(self.image, (self.getXCoordinate(), self.getYCoordinate()))
         else:
             surf.blit(self.image, (self.x - 17, self.y))
         
     def assignSkill(self, newSkill):
         # changes a tech mech's current skill, either because the user gave
         # them a tool, or they walked off a cliff, etc.
-        if self.soundEffect != None:
-            self.soundEffect.stop()
-        if newSkill.soundEffect != None:
-            self.soundEffect = pygame.mixer.Sound("sound/" + newSkill.soundEffect + ".wav")
-            self.soundEffect.play(newSkill.loops)
-        if newSkill == GravityReverser:
+
+        if issubclass(newSkill, PermanentSkill):
+            if newSkill in self.permanentSkills:
+                return False
+            self.permanentSkills.append(newSkill)
+        elif newSkill == GravityReverser:
+            if MagnetBoots in self.permanentSkills:
+                return False
             self.reverseGravity()
             self.currentSkill = Walker
             self.animationFrame = 0
             self.setImage(Walker)
         else:
+            if self.currentSkill == Faller and newSkill != Walker or self.rotation != 0:
+                return False
             self.currentSkill = newSkill
             self.animationFrame = 0
             self.setImage(newSkill)
+        if self.soundEffect != None:
+            self.soundEffect.stop()
+        if newSkill.soundEffect != None:
+            self.soundEffect = pygame.mixer.Sound("sound/" + newSkill.soundEffect + ".wav")
+            self.soundEffect.play(newSkill.loops)
+        return True
 
     def turnAround(self):
         self.direction *= -1
         self.image = pygame.transform.flip(self.image, True, False)
 
+    def walkUpWall(self):
+        self.rotation = self.direction
+        self.image = pygame.transform.rotate(self.image, 90 * self.rotation)
+
+    def walkDownWall(self):
+        self.rotation = -self.direction
+        self.image = pygame.transform.rotate(self.image, 90 * self.rotation)
+
+    def walkOffWall(self):
+        self.image = pygame.transform.rotate(self.image, -90 * self.rotation)
+        self.rotation = 0
+
     def reverseGravity(self):
         self.orientation *= -1
         self.image = pygame.transform.flip(self.image, False, True)
 
-    def act(self, level):
-        self.setImage(self.currentSkill)
+    def act(self, level, savedCounter, player):
+        actions = 1
+        if Energizer in self.permanentSkills:
+            actions = 2
+        for i in range(actions):
+            self.setImage(self.currentSkill)
 
-        if not self.currentSkill.use(self, level, self.skillVector):
-            return False
+            if not self.currentSkill.use(self, level, self.skillVector):
+                return False
 
-        # adjust the animation frame
-        if self.animationFrame >= ANIMATION_FRAMES[self.currentSkill] - 1:
-            self.animationFrame = 0
-        else:
-            self.animationFrame += 1
-            
-        # check if tech mech is over a pit
-        try:
-            if level.image.get_at((self.x, self.y + self.orientation)) == BLACK and self.currentSkill != Faller:
-                self.assignSkill(Faller)
-        except IndexError: # the Tech Mech fell in a bottomless pit
-            return False
+            # adjust the animation frame
+            if self.animationFrame >= ANIMATION_FRAMES[self.currentSkill] - 1:
+                self.animationFrame = 0
+            else:
+                self.animationFrame += 1
+                
+            # check if tech mech is over a pit
+            if MagnetBoots not in self.permanentSkills:
+                try:
+                    if level.image.get_at((self.x, self.y + self.orientation)) == BLACK and self.currentSkill != Faller:
+                        self.assignSkill(Faller)
+                except IndexError: # the Tech Mech fell in a bottomless pit
+                    return False
+
+            if (self.x, self.y) in level.triggersByType["exit" + str(player)] and Exit.status == "open":
+                savedCounter[player] += 1
+                return False
+            elif (self.x, self.y) in level.triggersByType["water"]:
+                return False
+            elif (self.x + self.direction, self.y) in level.triggersByType["caution"]:
+                self.turnAround()
         return True
 
 

@@ -58,11 +58,10 @@ def loadDetails(levelInProgress):
     textBoxTimer = 0.0
     endDetails = False
 
-def saveDetails(levelInProgress, levelImage):
+def saveDetails(levelInProgress):
     # saves the new values inputted into the text and number boxes on the details screen into the level object's attributes
     levelInProgress.width = int(widthBox.text)
     levelInProgress.height = int(heightBox.text)
-    levelImage = pygame.surface.Surface((levelInProgress.width, levelInProgress.height))
     levelInProgress.initializeImage()
     levelInProgress.updateWholeImage()
     levelInProgress.startX = int(startXBox.text)

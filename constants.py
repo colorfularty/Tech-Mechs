@@ -26,12 +26,20 @@ ANIMATION_FRAMES = {Walker: 16,
                     Detonator: 1}
 GRAPPLER_RANGE = 150
 
-SKILLS = [Grappler,
-          Driller,
-          Jackhammerer,
-          GravityReverser,
+GAME_HOTKEYS = {}
+from gameHotkeys import loadGameHotkeys
+loadGameHotkeys()
+EDITOR_HOTKEYS = {}
+NUM_HOTKEY_PANELS = SCREEN_HEIGHT // 50 - 3
+
+SKILLS = [MagnetBoots,
+          Energizer,
+          Detonator,
           Cautioner,
-          Detonator]
+          Grappler,
+          Driller,
+          GravityReverser,
+          Jackhammerer]
 SKILL_PANEL_WIDTH = 50
 SKILL_PANEL_HEIGHT = 100
 NUMBER_OF_SKILL_PANELS = SCREEN_WIDTH // SKILL_PANEL_WIDTH
@@ -39,13 +47,15 @@ SKILL_WIDTH = 27
 SKILL_HEIGHT = 26
 
 STRING_SKILL_CONVERSIONS = {"Walker": Walker,
-                          "Faller": Faller,
-                          "Driller": Driller,
-                          "Jackhammerer": Jackhammerer,
-                          "Grappler": Grappler,
-                          "Cautioner": Cautioner,
-                          "Detonator": Detonator,
-                          "GravityReverser": GravityReverser}
+                            "Faller": Faller,
+                            "Driller": Driller,
+                            "Jackhammerer": Jackhammerer,
+                            "Grappler": Grappler,
+                            "Cautioner": Cautioner,
+                            "Detonator": Detonator,
+                            "GravityReverser": GravityReverser,
+                            "Energizer": Energizer,
+                            "MagnetBoots": MagnetBoots}
 
 SKILL_STRING_CONVERSIONS = {Walker: "Walker",
                             Faller: "Faller",
@@ -54,9 +64,14 @@ SKILL_STRING_CONVERSIONS = {Walker: "Walker",
                             Grappler: "Grappler",
                             Cautioner: "Cautioner",
                             Detonator: "Detonator",
-                            GravityReverser: "GravityReverser"}
+                            GravityReverser: "GravityReverser",
+                            Energizer: "Energizer",
+                            MagnetBoots: "MagnetBoots"}
 
 MULTIPLAYER_COLORS = {0: "green",
                       1: "red"}
+
+TERRAIN_PANEL_LENGTH = 100
+NUM_TERRAIN_PANELS = 5
 
 PORT = 9898

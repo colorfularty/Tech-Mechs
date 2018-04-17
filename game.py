@@ -70,7 +70,7 @@ def startLevel(level, num = 0, conn = None):
         framesSinceLastReleases.append(0)
     playingLevel = True
     currentFrame = 0
-    selectedSkill = Grappler
+    selectedSkill = MagnetBoots
     isPaused = False
     screenX = level.startX
     screenY = level.startY
@@ -101,50 +101,32 @@ def renderSkillPanel(skillPanel, currentLevel, currentReleaseRates, playerNum):
     # now blit the skill images on each panel
     releaseRateIncrease = pygame.image.load("sprites/release rate increase.png").convert_alpha()
     releaseRateDecrease = pygame.image.load("sprites/release rate decrease.png")
-    grapplingHookSkill = pygame.image.load("sprites/grappling hook skill.png").convert_alpha()
-    drillSkill = pygame.image.load("sprites/drill skill.png").convert_alpha()
-    jackhammerSkill = pygame.image.load("sprites/jackhammer skill.png").convert_alpha()
-    gravitySkill = pygame.image.load("sprites/gravity skill.png").convert_alpha()
-    cautionSkill = pygame.image.load("sprites/caution skill.png").convert_alpha()
-    detonatorSkill = pygame.image.load("sprites/detonator skill.png").convert_alpha()
+
+    skillIcons = []
+    skillsLeft = []
+    for skill in SKILLS:
+        skillIcons.append(pygame.image.load("sprites/" + SKILL_STRING_CONVERSIONS[skill] + " Icon.png").convert_alpha())
+        skillLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][skill]), True, WHITE, BLACK)
+        skillLeft.set_colorkey(BLACK)
+        skillsLeft.append(skillLeft)
+        
     pauseIcon = pygame.image.load("sprites/pause.png").convert_alpha()
     exitIcon = pygame.image.load("sprites/end level.png").convert_alpha()
 
     skillPanel.blit(releaseRateIncrease, (25 - SKILL_WIDTH // 2, 50))
     skillPanel.blit(releaseRateDecrease, (25 - SKILL_WIDTH // 2, 80))
-    skillPanel.blit(grapplingHookSkill, (75 - SKILL_WIDTH // 2, 60))
-    skillPanel.blit(drillSkill, (125 - SKILL_WIDTH // 2, 60))
-    skillPanel.blit(jackhammerSkill, (175 - SKILL_WIDTH // 2, 60))
-    skillPanel.blit(gravitySkill, (225 - SKILL_WIDTH // 2, 60))
-    skillPanel.blit(cautionSkill, (275 - SKILL_WIDTH // 2, 60))
-    skillPanel.blit(detonatorSkill, (325 - SKILL_WIDTH // 2, 60))
+    for i in range(len(skillIcons)):
+        skillPanel.blit(skillIcons[i], (75 + (i * 50) - SKILL_WIDTH // 2, 60))
     skillPanel.blit(pauseIcon, ((NUMBER_OF_SKILL_PANELS - 2) * 50 + SKILL_WIDTH // 2, 40))
     skillPanel.blit(exitIcon, ((NUMBER_OF_SKILL_PANELS - 1) * 50 + SKILL_WIDTH // 2, 30))
 
     # compute the skills left and blit those to the skill panel
     releaseRate = skillFont.render(str(currentReleaseRates[playerNum]), True, WHITE, BLACK)
-    grapplingHooksLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Grappler]), True, WHITE, BLACK)
-    drillsLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Driller]), True, WHITE, BLACK)
-    jackhammersLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Jackhammerer]), True, WHITE, BLACK)
-    gravityReversersLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][GravityReverser]), True, WHITE, BLACK)
-    cautionSignsLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Cautioner]), True, WHITE, BLACK)
-    landMinesLeft = skillFont.render(str(currentLevel.skillCounts[playerNum][Detonator]), True, WHITE, BLACK)
-
     releaseRate.set_colorkey(BLACK)
-    grapplingHooksLeft.set_colorkey(BLACK)
-    drillsLeft.set_colorkey(BLACK)
-    jackhammersLeft.set_colorkey(BLACK)
-    gravityReversersLeft.set_colorkey(BLACK)
-    cautionSignsLeft.set_colorkey(BLACK)
-    landMinesLeft.set_colorkey(BLACK)
 
     skillPanel.blit(releaseRate, (25 - releaseRate.get_width() // 2, 10))
-    skillPanel.blit(grapplingHooksLeft, (75 - grapplingHooksLeft.get_width() // 2, 10))
-    skillPanel.blit(drillsLeft, (125 - drillsLeft.get_width() // 2, 10))
-    skillPanel.blit(jackhammersLeft, (175 - jackhammersLeft.get_width() // 2, 10))
-    skillPanel.blit(gravityReversersLeft, (225 - gravityReversersLeft.get_width() // 2, 10))
-    skillPanel.blit(cautionSignsLeft, (275 - cautionSignsLeft.get_width() // 2, 10))
-    skillPanel.blit(landMinesLeft, (325 - landMinesLeft.get_width() // 2, 10))
+    for i in range(len(skillsLeft)):
+        skillPanel.blit(skillsLeft[i], (75 + (i * 50) - skillsLeft[i].get_width() // 2, 10))
 
 def addToReplay(techMech, skill, vec, pNum):
     if techMech != None or skill != None or vec != None:
@@ -166,8 +148,8 @@ def executeReplay():
                 vec = assignment[2]
                 if currentLevel.skillCounts[pNum][skill] > 0:
                     techMech.skillVector = vec
-                    techMech.assignSkill(skill)
-                    currentLevel.skillCounts[pNum][skill] -= 1
+                    if techMech.assignSkill(skill):
+                        currentLevel.skillCounts[pNum][skill] -= 1
         renderSkillPanel(skillPanel, currentLevel, currentReleaseRates, playerNum)
 
 def renderGameObjects():
@@ -203,21 +185,12 @@ def renderTechMechs():
     for i in range(len(techMechs)):
         for techMech in reversed(techMechs[i]):
             if not isPaused:
-                if not techMech.act(currentLevel):
+                if not techMech.act(currentLevel, techMechsSaved, i):
                     techMechs[i].remove(techMech)
                     continue
-                if (techMech.x, techMech.y) in currentLevel.triggersByType["exit" + str(i)] and Exit.status == "open":
-                    techMechs[i].remove(techMech)
-                    techMechsSaved[i] += 1
-                    continue
-                elif (techMech.x, techMech.y) in currentLevel.triggersByType["water"]:
-                    techMechs[i].remove(techMech)
-                    continue
-                elif (techMech.x + techMech.direction, techMech.y) in currentLevel.triggersByType["caution"]:
-                    techMech.turnAround()
             techMechX = techMech.getXCoordinate()
             techMechY = techMech.getYCoordinate()
-            if mousex >= techMechX and mousex <= techMechX + TECH_MECH_SPRITE_WIDTH and mousey >= techMechY and mousey <= techMechY + TECH_MECH_SPRITE_HEIGHT:
+            if mousex >= techMechX and mousex <= techMechX + TECH_MECH_SPRITE_WIDTH and mousey >= techMechY and mousey <= techMechY + TECH_MECH_SPRITE_HEIGHT and i == playerNum:
                 highlightedTechMech = techMech
             techMech.render(levelImage)
 
@@ -304,30 +277,28 @@ def handleGameEvents():
                         decreaseReleaseRate = True
                 # check if user clicked on the grappling hook skill
                 elif mousex < 100:
-                    selectedSkill = Grappler
+                    selectedSkill = SKILLS[0]
                 # check if user clicked on the drill skill
                 elif mousex < 150:
-                    selectedSkill = Driller
+                    selectedSkill = SKILLS[1]
                 # check if user clicked on the jackhammer skill
                 elif mousex < 200:
-                    selectedSkill = Jackhammerer
+                    selectedSkill = SKILLS[2]
                 # check if the user clicked on the gravity reverser skill
                 elif mousex < 250:
-                    selectedSkill = GravityReverser
+                    selectedSkill = SKILLS[3]
                 # check if the user clicked on the caution sign skill
                 elif mousex < 300:
-                    selectedSkill = Cautioner
+                    selectedSkill = SKILLS[4]
                 # check if the user clicked on the detonator skill
                 elif mousex < 350:
-                    selectedSkill = Detonator
+                    selectedSkill = SKILLS[5]
+                # check if the user clicked on the energizer skill
                 elif mousex < 400:
-                    # skill 7
-                    pass
+                    selectedSkill = SKILLS[6]
                 elif mousex < 450:
-                    # skill 8
-                    pass
-                elif mousex < 500:
-                    # fast forward
+                    selectedSkill = SKILLS[7]
+                elif mousex < 1200:
                     pass
                 elif mousex < 1250:
                     if currentLevel.numPlayers == 1:
@@ -351,7 +322,7 @@ def handleGameEvents():
                 for techMech in techMechs[playerNum]:
                     if techMech.wasClicked(mousex + screenX, mousey + screenY):
                         # tech mech was clicked, make sure they're not falling
-                        if techMech.currentSkill != Faller and currentLevel.skillCounts[playerNum][selectedSkill] > 0:
+                        if currentLevel.skillCounts[playerNum][selectedSkill] > 0:
                             # if skill assigned is grappler, this is a special case
                             # simply change the grappler variable to this tech mech
                             if selectedSkill == Grappler:
@@ -366,24 +337,30 @@ def handleGameEvents():
             increaseReleaseRate = False
             decreaseReleaseRate = False
         elif event.type == KEYDOWN:
-            if event.key == K_F1:
+            if pygame.key.name(event.key) == GAME_HOTKEYS["DECREASE RELEASE RATE"]:
                 decreaseReleaseRate = True
-            elif event.key == K_F2:
+            elif pygame.key.name(event.key) == GAME_HOTKEYS["INCREASE RELEASE RATE"]:
                 increaseReleaseRate = True
-            elif event.key == K_F5:
+            elif pygame.key.name(event.key) == GAME_HOTKEYS["SELECT MAGNET BOOTS SKILL"]:
+                selectedSkill = MagnetBoots
+            elif pygame.key.name(event.key) == GAME_HOTKEYS["SELECT ENERGIZER SKILL"]:
+                selectedSkill = Energizer
+            elif pygame.key.name(event.key) == GAME_HOTKEYS["SELECT DETONATOR SKILL"]:
                 selectedSkill = Detonator
-            elif event.key == K_F6:
+            elif pygame.key.name(event.key) == GAME_HOTKEYS["SELECT CAUTIONER SKILL"]:
                 selectedSkill = Cautioner
-            elif event.key == K_F7:
+            elif pygame.key.name(event.key) == GAME_HOTKEYS["SELECT GRAPPLER SKILL"]:
                 selectedSkill = Grappler
-            elif event.key == K_F8:
+            elif pygame.key.name(event.key) == GAME_HOTKEYS["SELECT DRILLER SKILL"]:
                 selectedSkill = Driller
-            elif event.key == K_F10:
+            elif pygame.key.name(event.key) == GAME_HOTKEYS["SELECT GRAVITY REVERSER SKILL"]:
+                selectedSkill = GravityReverser
+            elif pygame.key.name(event.key) == GAME_HOTKEYS["SELECT JACKHAMMERER SKILL"]:
                 selectedSkill = Jackhammerer
-            elif event.key == K_F11:
+            elif pygame.key.name(event.key) == GAME_HOTKEYS["PAUSE"]:
                 if currentLevel.numPlayers == 1:
                     isPaused = not isPaused
-            elif event.key == K_F12:
+            elif pygame.key.name(event.key) == GAME_HOTKEYS["END LEVEL"]:
                 if exitTimer == 0.0:
                     exitHotkeyPushed = True
                 elif exitHotkeyPushed and currentLevel.numPlayers == 1:
@@ -465,7 +442,7 @@ def executeGameFrame(SCREEN):
     renderTechMechs()
 
     if highlightedTechMech != None:
-        pygame.draw.rect(levelImage, WHITE, (highlightedTechMech.getXCoordinate(), highlightedTechMech.getYCoordinate(), TECH_MECH_SPRITE_WIDTH, TECH_MECH_SPRITE_HEIGHT), 1)
+        pygame.draw.rect(levelImage, WHITE, (highlightedTechMech.getXCoordinate(), highlightedTechMech.getYCoordinate(), highlightedTechMech.image.get_width(), highlightedTechMech.image.get_height()), 1)
 
     # finally, we blit any skill masks needed to help users see where the skills will be used
     if grappler != None:

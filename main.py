@@ -18,6 +18,7 @@ from levelEditor import *
 from loadScreen import *
 from waitScreen import *
 from resultsScreen import *
+from settingsScreen import *
 from client import Client
 
 mousex = 0
@@ -89,20 +90,44 @@ while True: # main game loop
         currentMenu = "main"
 
     while currentMenu == "multiplayer":
-        connection = Client()
-        playerNum = int(connection.receiveString())
-        currentLevel = None
-        if playerNum == 0:
-            startWaitScreen(connection, "Please wait while Player 2 joins the server...")
-            dataSent = False
-            while dataSent == False:
-                dataSent = executeWaitScreenFrame(SCREEN)
-            if dataSent != "False":
-                startLoadScreen(2)
-                while currentLevel == None:
-                    currentLevel = executeLoadScreenFrame(SCREEN)
-                if currentLevel != False:
-                    connection.sendString(currentLevel.name)
+        continueSetup = True
+        try:
+            connection = Client()
+        except ConnectionRefusedError:
+            continueSetup = False
+        if continueSetup:
+            playerNum = int(connection.receiveString())
+            currentLevel = None
+            if playerNum == 0:
+                startWaitScreen(connection, "Please wait while Player 2 joins the server...")
+                dataSent = False
+                while dataSent == False:
+                    dataSent = executeWaitScreenFrame(SCREEN)
+                if dataSent != "False":
+                    startLoadScreen(2)
+                    while currentLevel == None:
+                        currentLevel = executeLoadScreenFrame(SCREEN)
+                    if currentLevel != False:
+                        connection.sendString(currentLevel.name)
+                        startLevel(currentLevel, playerNum, connection)
+                        playingLevel = True
+                        while playingLevel:
+                            playingLevel, techMechsSaved = executeGameFrame(SCREEN)
+                        continueResults = True
+                        startResultsScreen(techMechsSaved, currentLevel.saveRequirement)
+                        while continueResults:
+                            continueResults = executeResultsScreenFrame(SCREEN)
+                    else:
+                        connection.sendString("False")
+            else:
+                connection.sendString("Start")
+                startWaitScreen(connection, "Please wait while Player 1 chooses a 2P level...")
+                dataSent = False
+                while dataSent == False:
+                    dataSent = executeWaitScreenFrame(SCREEN)
+                if dataSent != "False":
+                    currentLevel = Level.loadLevel(dataSent)
+                if currentLevel != None:
                     startLevel(currentLevel, playerNum, connection)
                     playingLevel = True
                     while playingLevel:
@@ -111,25 +136,6 @@ while True: # main game loop
                     startResultsScreen(techMechsSaved, currentLevel.saveRequirement)
                     while continueResults:
                         continueResults = executeResultsScreenFrame(SCREEN)
-                else:
-                    connection.sendString("False")
-        else:
-            connection.sendString("Start")
-            startWaitScreen(connection, "Please wait while Player 1 chooses a 2P level...")
-            dataSent = False
-            while dataSent == False:
-                dataSent = executeWaitScreenFrame(SCREEN)
-            if dataSent != "False":
-                currentLevel = Level.loadLevel(dataSent)
-            if currentLevel != None:
-                startLevel(currentLevel, playerNum, connection)
-                playingLevel = True
-                while playingLevel:
-                    playingLevel, techMechsSaved = executeGameFrame(SCREEN)
-                continueResults = True
-                startResultsScreen(techMechsSaved, currentLevel.saveRequirement)
-                while continueResults:
-                    continueResults = executeResultsScreenFrame(SCREEN)
         currentMenu = "main"
 
     while currentMenu == "editor":
@@ -140,6 +146,10 @@ while True: # main game loop
         currentMenu = "main"
 
     while currentMenu == "settings":
+        startSettingsScreen()
+        continueSettings = True
+        while continueSettings:
+            continueSettings = executeSettingsFrame(SCREEN)
         currentMenu = "main"
 
 

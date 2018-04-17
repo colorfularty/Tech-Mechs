@@ -18,36 +18,107 @@ class Walker(Skill):
     def use(self, techMech, level, unitVec):
         # the Tech Mech walks. Returns False if the Tech Mech walks offscreen
         # to its death, and True otherwise
-        newXPos = techMech.x + techMech.direction
-        # check if the tech mech is about to hit a wall
-        try: # checks to make sure there are no index out of bounds errors
-            from constants import BLACK
-            if level.image.get_at((newXPos, techMech.y)) != BLACK:
-                # check if the wall is short enough to walk up
-                wallHeight = 1
-                for i in range(1, 7):
-                    if level.image.get_at((newXPos, techMech.y - (i * techMech.orientation))) == BLACK:
-                        break
-                    wallHeight += 1
-                if wallHeight == 7: # the wall was too tall to walk up
-                    techMech.turnAround()
-                else: # the wall is short enough to walk up
+        if techMech.rotation == 0:
+            newXPos = techMech.x + techMech.direction
+            # check if the tech mech is about to hit a wall
+            try: # checks to make sure there are no index out of bounds errors
+                from constants import BLACK
+                if level.image.get_at((newXPos, techMech.y)) != BLACK:
+                    # check if the wall is short enough to walk up
+                    wallHeight = 1
+                    for i in range(1, 11):
+                        if level.image.get_at((newXPos, techMech.y - (i * techMech.orientation))) == BLACK:
+                            break
+                        wallHeight += 1
+                    if wallHeight == 11: # the wall was too tall to walk up
+                        if MagnetBoots in techMech.permanentSkills:
+                            techMech.walkUpWall()
+                        else:
+                            techMech.turnAround()
+                    else: # the wall is short enough to walk up
+                        techMech.x = newXPos
+                        techMech.y -= (wallHeight * techMech.orientation)
+                else: # tech mech can move normally
                     techMech.x = newXPos
-                    techMech.y -= (wallHeight * techMech.orientation)
-            else: # tech mech can move normally
-                techMech.x = newXPos
-                # check if there is pit short enough to walk down
-                pitHeight = 0
-                for i in range(1, 7):
-                    # check if the pit ends
-                    if level.image.get_at((techMech.x, techMech.y + (i * techMech.orientation))) != BLACK:
-                        break
-                    pitHeight += 1
-                # if pit height is less than 6 pixels high, you can walk down it
-                if pitHeight < 6:
-                    techMech.y += (pitHeight * techMech.orientation)
-        except IndexError: # IndexError means the Tech Mech walked off the level
-            return False
+                    # check if there is pit short enough to walk down
+                    pitHeight = 0
+                    for i in range(1, 11):
+                        # check if the pit ends
+                        if level.image.get_at((techMech.x, techMech.y + (i * techMech.orientation))) != BLACK:
+                            break
+                        pitHeight += 1
+                    # if pit height is less than 10 pixels high, you can walk down it
+                    if pitHeight < 10:
+                        techMech.y += (pitHeight * techMech.orientation)
+                    elif MagnetBoots in techMech.permanentSkills:
+                        techMech.y += 1
+                        techMech.walkDownWall()
+            except IndexError: # IndexError means the Tech Mech walked off the level
+                return False
+        elif techMech.rotation == 1:
+            newYPos = techMech.y - techMech.direction * techMech.orientation
+            try:
+                from constants import BLACK
+                if level.image.get_at((techMech.x, newYPos)) != BLACK:
+                    wallHeight = 1
+                    for i in range(1, 11):
+                        if level.image.get_at((techMech.x - i, newYPos)) == BLACK:
+                            break
+                        wallHeight += 1
+                    if wallHeight == 11:
+                        if techMech.direction == -1:
+                            techMech.walkOffWall()
+                        else:
+                            techMech.turnAround()
+                    else:
+                        techMech.x -= wallHeight
+                        techMech.y = newYPos
+                else:
+                    techMech.y = newYPos
+                    pitHeight = 0
+                    for i in range(1, 11):
+                        if level.image.get_at((techMech.x + i, techMech.y)) != BLACK:
+                            break
+                        pitHeight += 1
+                    if pitHeight < 10:
+                        techMech.x += pitHeight
+                    elif techMech.direction == 1:
+                        techMech.x += 1
+                        techMech.walkOffWall()
+            except IndexError:
+                return False
+        else:
+            newYPos = techMech.y + techMech.direction * techMech.orientation
+            try:
+                from constants import BLACK
+                if level.image.get_at((techMech.x, newYPos)) != BLACK:
+                    wallHeight = 1
+                    for i in range(1, 11):
+                        if level.image.get_at((techMech.x + i, newYPos)) == BLACK:
+                            break
+                        wallHeight += 1
+                    if wallHeight == 11:
+                        if techMech.direction == 1:
+                            techMech.walkOffWall()
+                        else:
+                            techMech.turnAround()
+                    else:
+                        techMech.x += wallHeight
+                        techMech.y = newYPos
+                else:
+                    techMech.y = newYPos
+                    pitHeight = 0
+                    for i in range(1, 11):
+                        if level.image.get_at((techMech.x - i, techMech.y)) != BLACK:
+                            break
+                        pitHeight += 1
+                    if pitHeight < 10:
+                        techMech.x -= pitHeight
+                    elif techMech.direction == -1:
+                        techMech.x -= 1
+                        techMech.walkOffWall()
+            except IndexError:
+                return False
         return True
 
 class Faller(Skill):
@@ -212,11 +283,17 @@ class Detonator(Skill):
         techMech.assignSkill(Walker)
         return True
 
+class PermanentSkill(Skill):
+    # a skill that permanently affects a Tech Mech's behavior
 
+    pass
 
+class Energizer(PermanentSkill):
+    # makes a Tech Mech move and act twice as fast
 
+    pass
 
+class MagnetBoots(PermanentSkill):
+    # lets a Tech Mech walk on walls
 
-
-
-    
+    pass

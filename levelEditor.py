@@ -7,6 +7,7 @@ from graphicSet import *
 from editorSkills import *
 from editorDetails import *
 from loadScreen import *
+from editorHotkeys import loadEditorHotkeys
 
 levelInProgress = None # the level object being edited
 levelImage = None # the image with all the level's terrain and objects blitted to it
@@ -22,6 +23,12 @@ backTab = Button(0, SCREEN_HEIGHT - 100, "Exit editor")
 graphicSetLeft = Button(200, SCREEN_HEIGHT - 100, "<-")
 graphicSetLabel = None
 graphicSetRight = Button(550, SCREEN_HEIGHT - 100, "->")
+terrainUp = Button(SCREEN_WIDTH - 50, 0, "^")
+terrainIndex = 0
+terrainPanels = []
+for i in range(NUM_TERRAIN_PANELS):
+    terrainPanels.append(pygame.surface.Surface((TERRAIN_PANEL_LENGTH, TERRAIN_PANEL_LENGTH)))
+terrainDown = Button(SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50, "v")
 skillsTab = Button(0, SCREEN_HEIGHT - 50, "Skills")
 detailsTab = Button(170, SCREEN_HEIGHT - 50, "Details")
 loadTab = Button(340, SCREEN_HEIGHT - 50, "Load level")
@@ -39,26 +46,31 @@ textBoxActive = skillFont.render("_", True, WHITE, BLACK) # used to show when a 
 # timers used for moving terrain/objects quickly and for blitting text box editing underscore
 directionHeldTimer = 0.0
 textBoxTimer = 0.0
+saveTimer = 0.0
 
 multiplayer_icons = {0: pygame.image.load("sprites/multiplayer icon " + MULTIPLAYER_COLORS[0] + ".png").convert_alpha(),
                      1: pygame.image.load("sprites/multiplayer icon " + MULTIPLAYER_COLORS[1] + ".png").convert_alpha()}
 
 def startEditor():
     # call everytime the user starts the editor; initializes the important variables to their proper values
-    global levelInProgress, levelImage, currentGraphicSet, selectedThing, continueEditor, keysPressed
-    levelInProgress = Level(640, 320, 0, 0, [], [], "", "", 1, 1, [{}], -1, [0], "", 1)
+    global levelInProgress, levelImage, currentGraphicSet, selectedThing, continueEditor, keysPressed, terrainIndex
+    levelInProgress = Level(640, 320, 0, 0, [], [], "", "", 1, 1, [{}], -1, [1], "", 1)
     levelImage = pygame.surface.Surface((640, 320))
     currentGraphicSet = GraphicSet.graphicSets[0]
     selectedThing = None
     continueEditor = True
     keysPressed = []
+    terrainIndex = 0
+    updateTerrainPanels()
+    saveTab.changeText("Save level")
+    loadEditorHotkeys()
 
 def setGraphicSetLabel():
     # changes the label stating which graphic set is selected and centers it between the arrows
 
     global graphicSetLabel
 
-    graphicSetLabel = Label(0, 400, currentGraphicSet.name)
+    graphicSetLabel = Label(0, SCREEN_HEIGHT - 100, currentGraphicSet.name)
     graphicSetLabel.x = 375 - graphicSetLabel.width // 2
 
 # graphicSetLabel is still None, we need to give it the right value now
@@ -84,6 +96,19 @@ def changeGraphicSet(direction):
             currentGraphicSet = GraphicSet.graphicSets[index + 1]
     # change the graphic set label to the new graphic set
     setGraphicSetLabel()
+
+def updateTerrainPanels():
+    index = terrainIndex
+    for i in range(NUM_TERRAIN_PANELS):
+        terrainPanels[i].fill(BLACK)
+        terrainImage = currentGraphicSet.terrain[index].image
+        while terrainImage.get_width() > TERRAIN_PANEL_LENGTH or terrainImage.get_height() > TERRAIN_PANEL_LENGTH:
+            terrainImage = pygame.transform.scale(terrainImage, (terrainImage.get_width() // 2, terrainImage.get_height() // 2))
+        terrainPanels[i].blit(terrainImage, (0, 0))
+        if index == len(currentGraphicSet.terrain) - 1:
+            index = 0
+        else:
+            index += 1
 
 def insertTerrain(x, y, name, graphicSet, flipped = False, inverted = False, rotated = False):
     # inserts a piece of terrain into the level you are editing
@@ -112,7 +137,7 @@ def updateObjectOwners():
 def handleEditorEvents():
     # handles all user interactions with the main editor screen
     
-    global mousex, mousey, mouseClicked, continueEditor, selectedThing, currentTab
+    global mousex, mousey, mouseClicked, continueEditor, selectedThing, currentTab, terrainIndex, saveTimer
     
     for event in pygame.event.get():
         if event.type == MOUSEMOTION:
@@ -124,6 +149,7 @@ def handleEditorEvents():
                 selectedThing.y = mousey + levelDispY
         elif event.type == MOUSEBUTTONDOWN:
             mouseClicked = True
+            index = terrainIndex
             if backTab.checkIfClicked(mousex, mousey):
                 # user clicked exit editor; terminate loop condition
                 continueEditor = False
@@ -131,6 +157,16 @@ def handleEditorEvents():
                 changeGraphicSet("left")
             elif graphicSetRight.checkIfClicked(mousex, mousey):
                 changeGraphicSet("right")
+            elif terrainUp.checkIfClicked(mousex, mousey):
+                if terrainIndex == 0:
+                    terrainIndex = len(currentGraphicSet.terrain) - 1
+                else:
+                    terrainIndex -= 1
+            elif terrainDown.checkIfClicked(mousex, mousey):
+                if terrainIndex == len(currentGraphicSet.terrain) - 1:
+                    terrainIndex = 0
+                else:
+                    terrainIndex += 1
             elif skillsTab.checkIfClicked(mousex, mousey):
                 # user clicked skills tab; take them to the skills part of the editor
                 currentTab = "skills"
@@ -146,6 +182,8 @@ def handleEditorEvents():
             elif saveTab.checkIfClicked(mousex, mousey):
                 # user clicked save level; save the level object as a text file in the levels subdirectory
                 levelInProgress.saveLevel()
+                saveTab.changeText("Level saved")
+                saveTimer = 1.0
             else:
                 # user clicked on something else; check if they clicked on something in the editor
                 selectedThing = None
@@ -162,20 +200,30 @@ def handleEditorEvents():
                             # user clicked on this terrain; set selectedThing to terrain and break out of the loop
                             selectedThing = terrain
                             break
+            if mousex >= SCREEN_WIDTH - 150:
+                for i in range(len(terrainPanels)):
+                    if mousey >= 50 + 125 * i and mousey < 150 + 125 * i:
+                        selectedThing = insertTerrain(levelDispX, levelDispY, currentGraphicSet.terrain[index].imageName, currentGraphicSet.name)
+                        levelInProgress.addTerrain(selectedThing)
+                        break
+                    if index == len(currentGraphicSet.terrain) - 1:
+                        index = 0
+                    else:
+                        index += 1
         elif event.type == MOUSEBUTTONUP:
             mouseClicked = False
         elif event.type == KEYDOWN:
-            if event.key == K_t: # insert terrain
+            if pygame.key.name(event.key) == EDITOR_HOTKEYS["INSERT PIECE OF TERRAIN"]: # insert terrain
                 if len(currentGraphicSet.terrain) > 0: # make sure the current graphic set has terrain in it
                     # there is terrain; insert the first terrain in the list into the level and make the new insertion the selected thing
                     selectedThing = insertTerrain(levelDispX, levelDispY, currentGraphicSet.terrain[0].imageName, currentGraphicSet.name)
                     levelInProgress.addTerrain(selectedThing)
-            elif event.key == K_o: # insert object
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["INSERT OBJECT"]: # insert object
                 if len(currentGraphicSet.objects) > 0: # make sure the current graphic set has an object to insert
                     # there is an object; insert the first object in the list into the level and make the new insertion the selected thing
                     selectedThing = insertObject(levelDispX, levelDispY, currentGraphicSet.objects[0].name, currentGraphicSet.name, currentGraphicSet.objects[0].type)
                     levelInProgress.addObject(selectedThing)
-            elif event.key == K_a: # change selected terrain/object to the previous one in the graphic set's list
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["CHANGE TERRAIN/OBJECT TO PREVIOUS ONE IN LIST"]: # change selected terrain/object to the previous one in the graphic set's list
                 if selectedThing != None: # make sure the user has something selected
                     if selectedThing.__class__.__name__ == "TerrainPiece": # checks if the selected thing is terrain
                         levelIndex = levelInProgress.terrain.index(selectedThing) # the index of the currently selected terrain in the level object's list
@@ -229,7 +277,7 @@ def handleEditorEvents():
                                         selectedThing = GameObjectInstance(currentGraphicSet.name, currentGraphicSet.objects[objIndex - 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                 levelInProgress.objects[levelIndex] = selectedThing # update the level object
                                 break
-            elif event.key == K_s: # change the selected terrain/object to the next one in the graphic set's list
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["CHANGE TERRAIN/OBJECT TO NEXT ONE IN LIST"]: # change the selected terrain/object to the next one in the graphic set's list
                 if selectedThing != None: # make sure the user has selected something
                     if selectedThing.__class__.__name__ == "TerrainPiece": # check if the selected thing is terrain
                         levelIndex = levelInProgress.terrain.index(selectedThing)
@@ -285,7 +333,7 @@ def handleEditorEvents():
                                         selectedThing = GameObjectInstance(currentGraphicSet.name, currentGraphicSet.objects[objIndex + 1].name, selectedThing.x, selectedThing.y, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                                 levelInProgress.objects[levelIndex] = selectedThing # update the level object
                                 break
-            elif event.key == K_c: # copy the selected thing and paste a new copy of it 16 pixels right and down
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["COPY SELECTED TERRAIN/OBJECT"]: # copy the selected thing and paste a new copy of it 16 pixels right and down
                 if selectedThing != None:
                     # check if the selected thing is terrain
                     if selectedThing.__class__.__name__ == "TerrainPiece":
@@ -295,19 +343,19 @@ def handleEditorEvents():
                     else: # the selected thing is an object
                         selectedThing = insertObject(selectedThing.x + 16, selectedThing.y + 16, selectedThing.name, selectedThing.graphicSet, selectedThing.__class__.__name__, selectedThing.flipped, selectedThing.inverted, selectedThing.rotated)
                         levelInProgress.addObject(selectedThing)
-            elif event.key == K_f: # flip the selected thing
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["FLIP SELECTED TERRAIN/OBJECT"]: # flip the selected thing
                 if selectedThing != None:
                     selectedThing.flipped = not selectedThing.flipped
                     selectedThing.update()
-            elif event.key == K_i: # invert the selected thing
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["INVERT SELECTED TERRAIN/OBJECT"]: # invert the selected thing
                 if selectedThing != None:
                     selectedThing.inverted = not selectedThing.inverted
                     selectedThing.update()
-            elif event.key == K_r: # rotate the selected thing
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["ROTATE SELECTED TERRAIN/OBJECT"]: # rotate the selected thing
                 if selectedThing != None:
                     selectedThing.rotated = not selectedThing.rotated
                     selectedThing.update()
-            elif event.key == K_MINUS: # move the selected thing toward the background (i.e. further back in the level list)
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE SELECTED TERRAIN/OBJECT TOWARD BACKGROUND"]: # move the selected thing toward the background (i.e. further back in the level list)
                 if selectedThing != None:
                     if selectedThing.__class__.__name__ == "TerrainPiece":
                         index = levelInProgress.terrain.index(selectedThing)
@@ -319,7 +367,7 @@ def handleEditorEvents():
                         if index > 0:
                             levelInProgress.objects[index] = levelInProgress.objects[index - 1]
                             levelInProgress.objects[index - 1] = selectedThing
-            elif event.key == K_EQUALS: # move the selected thing toward the foreground (i.e. further up in the level list)
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE SELECTED TERRAIN/OBJECT TOWARD FOREGROUND"]: # move the selected thing toward the foreground (i.e. further up in the level list)
                 if selectedThing != None:
                     if selectedThing.__class__.__name__ == "TerrainPiece":
                         index = levelInProgress.terrain.index(selectedThing)
@@ -331,68 +379,68 @@ def handleEditorEvents():
                         if index > len(levelInProgress.objects) - 1:
                             levelInProgress.objects[index] = levelInProgress.objects[index + 1]
                             levelInProgress.objects[index + 1] = selectedThing
-            elif event.key == K_DELETE: # delete the selected thing
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["DELETE SELECTED TERRAIN/OBJECT"]: # delete the selected thing
                 if selectedThing != None:
                     if selectedThing.__class__.__name__ == 'TerrainPiece':
                         levelInProgress.terrain.remove(selectedThing)
                     else:
                         levelInProgress.objects.remove(selectedThing)
                     selectedThing = None
-            elif event.key == K_LCTRL or event.key == K_RCTRL: # if ctrl is held, this can affect other held button commands
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["INCREASE MOVEMENT SPEED (HOLD)"]: # if ctrl is held, this can affect other held button commands
                 if "ctrl" not in keysPressed:
                     keysPressed.append("ctrl")
-            elif event.key == K_RIGHT: # will move the selected thing right as long as it's held
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE SELECTED TERRAIN/OBJECT RIGHT"]: # will move the selected thing right as long as it's held
                 if "right" not in keysPressed:
                     keysPressed.append("right")
-            elif event.key == K_LEFT: # will move the selected thing left as long as it's held
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE SELECTED TERRAIN/OBJECT LEFT"]: # will move the selected thing left as long as it's held
                 if "left" not in keysPressed:
                     keysPressed.append("left")
-            elif event.key == K_DOWN: # will move the selected thing down as long as it's held
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE SELECTED TERRAIN/OBJECT DOWN"]: # will move the selected thing down as long as it's held
                 if "down" not in keysPressed:
                     keysPressed.append("down")
-            elif event.key == K_UP: # will move the selected thing up as long as it's held
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE SELECTED TERRAIN/OBJECT UP"]: # will move the selected thing up as long as it's held
                 if "up" not in keysPressed:
                     keysPressed.append("up")
-            elif event.key == K_j: # will move the perspective on the level right as long as it's held
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE PERSPECTIVE RIGHT"]: # will move the perspective on the level right as long as it's held
                 if "camera right" not in keysPressed:
                     keysPressed.append("camera right")
-            elif event.key == K_g: # will move the perspective on the level left as long as it's held
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE PERSPECTIVE LEFT"]: # will move the perspective on the level left as long as it's held
                 if "camera left" not in keysPressed:
                     keysPressed.append("camera left")
-            elif event.key == K_h: # will move the perspective on the level down as long as it's held
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE PERSPECTIVE DOWN"]: # will move the perspective on the level down as long as it's held
                 if "camera down" not in keysPressed:
                     keysPressed.append("camera down")
-            elif event.key == K_y: # will move the perspective on the level up as long as it's held
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE PERSPECTIVE UP"]: # will move the perspective on the level up as long as it's held
                 if "camera up" not in keysPressed:
                     keysPressed.append("camera up")
-            elif event.key == K_ESCAPE: # a shortcut to leave the editor
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["LEAVE EDITOR"]: # a shortcut to leave the editor
                 continueEditor = False
         elif event.type == KEYUP: # if the user releases a held key, this will stop some actions
-            if event.key == K_LCTRL: # if user stops holding down ctrl, this will change some actions
+            if pygame.key.name(event.key) == EDITOR_HOTKEYS["INCREASE MOVEMENT SPEED (HOLD)"]: # if user stops holding down ctrl, this will change some actions
                 if "ctrl" in keysPressed:
                     keysPressed.remove("ctrl")
-            elif event.key == K_RIGHT: # stop moving selected thing right
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE SELECTED TERRAIN/OBJECT RIGHT"]: # stop moving selected thing right
                 if "right" in keysPressed:
                     keysPressed.remove("right")
-            elif event.key == K_LEFT: # stop moving selected thing left
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE SELECTED TERRAIN/OBJECT LEFT"]: # stop moving selected thing left
                 if "left" in keysPressed:
                     keysPressed.remove("left")
-            elif event.key == K_DOWN: # stop moving selected thing down
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE SELECTED TERRAIN/OBJECT DOWN"]: # stop moving selected thing down
                 if "down" in keysPressed:
                     keysPressed.remove("down")
-            elif event.key == K_UP: # stop moving selected thing up
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE SELECTED TERRAIN/OBJECT UP"]: # stop moving selected thing up
                 if "up" in keysPressed:
                     keysPressed.remove("up")
-            elif event.key == K_j: # stop moving perspective right
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE PERSPECTIVE RIGHT"]: # stop moving perspective right
                 if "camera right" in keysPressed:
                     keysPressed.remove("camera right")
-            elif event.key == K_g: # stop moving perspective left
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE PERSPECTIVE LEFT"]: # stop moving perspective left
                 if "camera left" in keysPressed:
                     keysPressed.remove("camera left")
-            elif event.key == K_h: # stop moving perspective down
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE PERSPECTIVE DOWN"]: # stop moving perspective down
                 if "camera down" in keysPressed:
                     keysPressed.remove("camera down")
-            elif event.key == K_y: # stop moving perspective up
+            elif pygame.key.name(event.key) == EDITOR_HOTKEYS["MOVE PERSPECTIVE UP"]: # stop moving perspective up
                 if "camera up" in keysPressed:
                     keysPressed.remove("camera up")
         elif event.type == QUIT: # terminate the program; all progress will be lost
@@ -402,10 +450,11 @@ def handleEditorEvents():
 def executeEditorFrame(SCREEN):
     # execute a frame in level editor
     
-    global directionHeldTimer, textBoxTimer, levelDispX, levelDispY, currentTab, levelInProgress, levelImage
+    global directionHeldTimer, textBoxTimer, levelDispX, levelDispY, currentTab, levelInProgress, levelImage, saveTimer
 
     if currentTab == "editor": # the user is in the main part of the editor
         handleEditorEvents() # handle the user interactions
+        updateTerrainPanels()
 
         # if no direction keys are held, restart the direction timer; otherwise increase it
         if "right" not in keysPressed and "left" not in keysPressed and "down" not in keysPressed and "up" not in keysPressed:
@@ -497,13 +546,22 @@ def executeEditorFrame(SCREEN):
         SCREEN.blit(levelImage, (-levelDispX, -levelDispY))
         # draw an area and render all the buttons and tabs for the editor
         pygame.draw.rect(SCREEN, GREY, (0, SCREEN_HEIGHT - 100, SCREEN_WIDTH, 100))
+        pygame.draw.rect(SCREEN, GREY, (SCREEN_WIDTH - 150, 0, 150, SCREEN_HEIGHT))
         backTab.render(SCREEN)
         graphicSetLeft.render(SCREEN)
         graphicSetLabel.render(SCREEN)
         graphicSetRight.render(SCREEN)
+        terrainUp.render(SCREEN)
+        for panel in terrainPanels:
+            SCREEN.blit(panel, (SCREEN_WIDTH - 100, 50 + 125 * terrainPanels.index(panel)))
+        terrainDown.render(SCREEN)
         skillsTab.render(SCREEN)
         detailsTab.render(SCREEN)
         loadTab.render(SCREEN)
+        if saveTimer > 0.0:
+            saveTimer -= TIME_PASSED
+            if saveTimer <= 0.0:
+                saveTab.changeText("Save level")
         saveTab.render(SCREEN)
         pygame.display.update()
         CLOCK.tick(FPS)
@@ -516,7 +574,8 @@ def executeEditorFrame(SCREEN):
     elif currentTab == "details": # the user is in the details section of the editor
         endDetails = executeDetailsFrame(SCREEN)
         if endDetails:
-            saveDetails(levelInProgress, levelImage)
+            saveDetails(levelInProgress)
+            levelImage = pygame.surface.Surface((levelInProgress.width, levelInProgress.height))
             currentTab = "editor"
 
     elif currentTab == "load level": # user is in the load screen part of the editor

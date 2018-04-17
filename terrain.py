@@ -23,9 +23,9 @@ class TerrainPiece(Terrain):
         self.flipped = flipped
         self.inverted = inverted
         self.rotated = rotated
-        self.image = pygame.transform.flip(self.image, self.flipped, self.inverted)
         if self.rotated:
             self.image = pygame.transform.rotate(self.image, 90)
+        self.image = pygame.transform.flip(self.image, self.flipped, self.inverted)
 
     def __str__(self):
         return self.graphicSet + "~" + self.imageName + "~" + str(self.x) + "~" + str(self.y) + "~" + str(self.flipped) + "~" + str(self.inverted) + "~" + str(self.rotated)

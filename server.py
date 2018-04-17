@@ -1,13 +1,12 @@
 import socket, pickle
 from threading import Thread
-from constants import PORT
 
 class Server(object):
     # the server that sends and receives data across clients
 
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind(('', PORT))
+        self.sock.bind(('', 9898))
         while True:
             self.sock.listen(2)
             clients = [] # a list of client connections

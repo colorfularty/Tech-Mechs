@@ -6,7 +6,7 @@ class Client(object):
 
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect(('127.0.0.1', PORT))
+        self.sock.connect(('146.71.78.13', PORT))
 
     def sendString(self, s):
         self.sock.send(s.encode())
