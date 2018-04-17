@@ -407,7 +407,7 @@ def executeGameFrame(SCREEN):
         entity = None
         action = currentReleaseRates[playerNum] + 1
         vec = None
-    elif decreaseReleaseRate and currentReleaseRates[playerNum] > currentLevel.releaseRate[playerNum]:
+    elif decreaseReleaseRate and currentReleaseRates[playerNum] > currentLevel.releaseRates[playerNum]:
         entity = None
         action = currentReleaseRates[playerNum] - 1
         vec = None
