@@ -51,6 +51,8 @@ class GameObjectInstance(GameObject):
             return Entrance(graphicSet, name, int(x), int(y), bool(flipped), bool(inverted), bool(rotated), int(owner))
         elif cls == 'Exit':
             return Exit(graphicSet, name, int(x), int(y), bool(flipped), bool(inverted), bool(rotated), int(owner))
+        elif cls == 'Water':
+            return Water(graphicSet, name, int(x), int(y), bool(flipped), bool(inverted), bool(rotated))
         else:
             return GameObjectInstance(graphicSet, name, int(x), int(y), bool(flipped), bool(inverted), bool(rotated))
 
