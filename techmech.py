@@ -111,6 +111,8 @@ class TechMech(object):
         # them a tool, or they walked off a cliff, etc.
 
         if issubclass(newSkill, PermanentSkill):
+            if newSkill == MagnetBoots and self.orientation == -1:
+                return False
             if newSkill in self.permanentSkills:
                 return False
             self.permanentSkills.append(newSkill)
