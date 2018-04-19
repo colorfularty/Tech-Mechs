@@ -130,10 +130,12 @@ def updateObjectOwners():
     for obj in levelInProgress.objects:
         if obj.__class__.__name__ == "Entrance":
             obj.owner = entranceOwner
-            entranceOwner = int(not entranceOwner)
+            if levelInProgress.numPlayers > 1:
+                entranceOwner = int(not entranceOwner)
         elif obj.__class__.__name__ == "Exit":
             obj.owner = exitOwner
-            exitOwner = int(not exitOwner)
+            if levelInProgress.numPlayers > 1:
+                exitOwner = int(not exitOwner)
 
 def handleEditorEvents():
     # handles all user interactions with the main editor screen
