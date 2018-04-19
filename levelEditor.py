@@ -79,8 +79,9 @@ setGraphicSetLabel()
 def changeGraphicSet(direction):
     # changes the selected graphic set based on if the user clicked on left or right arrow
     
-    global currentGraphicSet
+    global currentGraphicSet, terrainIndex
 
+    terrainIndex = 0
     index = GraphicSet.graphicSets.index(currentGraphicSet) # the index of the graphic set in the list of all graphic sets
     if direction == "left":
         # direction is left, new index is one less than current index unless current index is 0, then new index is the last one in the list
