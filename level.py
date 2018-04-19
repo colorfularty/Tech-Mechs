@@ -23,7 +23,7 @@ class Level(object):
         self.timeLimit = timeLimit # defaults to infinite time, which is -1
         self.releaseRates = releaseRates # how fast the tech mechs come out of the hatch
         self.music = music # the filename for the music that plays on the level
-        self.numPlayers = numPlayers
+        self.numPlayers = numPlayers # the number of players the level is made for
         self.techMechSprites = "default" # the sprites for the tech mechs on that level
         self.initializeImage()
         self.initializeTriggerMaps()
@@ -48,14 +48,17 @@ class Level(object):
             self.releaseRates.remove(self.releaseRates[-1])
         
     def addTerrain(self, terrain):
+        # insert a piece of terrain into the level
         self.terrain.append(terrain)
         self.updateImage(terrain)
 
     def addObject(self, obj):
+        # insert an object into the level
         self.objects.append(obj)
         self.updateTriggerMaps()
 
     def addTechMechObject(self, obj):
+        # insert a Tech Mech-specific object (i.e. a caution sign) into the level
         self.techMechObjects.append(obj)
         self.updateTriggerMaps()
 
@@ -64,9 +67,11 @@ class Level(object):
         self.image.fill(BLACK)
 
     def updateImage(self, terrain):
+        # add a given piece of terrain to the level's image
         self.image.blit(terrain.image, (terrain.x, terrain.y))
 
     def updateWholeImage(self):
+        # re-initialize the level image and blit every piece of terrain to it
         self.image.fill(BLACK)
         for terrain in self.terrain:
             self.image.blit(terrain.image, (terrain.x, terrain.y))
@@ -79,6 +84,7 @@ class Level(object):
             self.triggersByType["exit" + str(i)] = []
 
     def updateTriggerMaps(self):
+        # update the trigger maps with all necessary triggers
         self.initializeTriggerMaps()
         for obj in self.objects:
             for x in range(obj.triggerWidth):
@@ -103,6 +109,7 @@ class Level(object):
                         self.triggersByType["caution"].append(point)
 
     def saveLevel(self):
+        # encode the level and save as a .txt file
         levelFile = open("levels/" + self.name + ".txt", 'w')
         levelFile.write(str(self.numPlayers) + "\n")
         levelFile.write(self.name + "\n")
@@ -136,6 +143,7 @@ class Level(object):
 
     @classmethod
     def loadLevel(self, name):
+        # create a level from data included in a valid .txt file
         levelFile = open("levels/" + name + ".txt", 'r')
         numPlayers = levelFile.readline()
         levelName = levelFile.readline()

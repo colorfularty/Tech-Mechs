@@ -4,12 +4,14 @@ from constants import *
 from widgets import *
 from level import *
 
+# the buttons used for selecting a level
 backButton = Button(500, 0, "Back")
 upArrow = Button(0, 0, "^")
 downArrow = Button(0, 450, "v")
 
-buttons = []
+buttons = [] # a list of the level buttons you can click on
 
+# keeps track of the mouse pointer's coordinates
 mousex = 0
 mousey = 0
 
@@ -34,7 +36,7 @@ def startLoadScreen(numPlayers = None):
     levelFiles = loadLevelFiles(numPlayers)
     levelLoaded = None
 
-topNameIndex = 0
+topNameIndex = 0 # the index of the top level name
 
 def renderLevelNames(surf):
     # renders the level images on the screen

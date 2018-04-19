@@ -3,10 +3,10 @@ from pygame.locals import *
 from constants import *
 from widgets import Label
 
-continueResults = True
-savedText = None
-requiredText = None
-finalText = None
+continueResults = True # the variable returned to main.py; if False, close the results
+savedText = None # the text letting you know how many you saved
+requiredText = None # the text letting you know how many yoy needed to save
+finalText = None # the text letting you know your final result
 clickText = Label(0, SCREEN_HEIGHT - 50, "Click anywhere to go back to the main menu.")
 
 def startResultsScreen(techMechsSaved, saveRequirement):

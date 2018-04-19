@@ -400,6 +400,16 @@ def executeGameFrame(SCREEN):
     if shouldLeave:
         Exit.close()
 
+    if exitsHaveLeft:
+        Exit.sound.stop()
+        try:
+            pygame.mixer.music.stop()
+        except pygame.error:
+            pass
+        playingLevel = False
+        if currentLevel.numPlayers > 1:
+            serverConn.sendString("Quit server")
+
     handleGameEvents()
 
     # check if user increased or decreased the release rate
@@ -417,6 +427,8 @@ def executeGameFrame(SCREEN):
     if currentLevel.numPlayers > 1:
         serverConn.sendTuple((entity, action, vec, playerNum))
         entity, action, vec, pNum = serverConn.receiveTuple()
+        if entity == action == vec == pNum == None:
+            playingLevel = False
         addToReplay(entity, action, vec, pNum)
 
     executeReplay()
@@ -477,16 +489,6 @@ def executeGameFrame(SCREEN):
         currentFrame += 1
         for i in range(currentLevel.numPlayers):
             framesSinceLastReleases[i] += 1
-
-    if exitsHaveLeft:
-        Exit.sound.stop()
-        try:
-            pygame.mixer.music.stop()
-        except pygame.error:
-            pass
-        playingLevel = False
-        if currentLevel.numPlayers > 1:
-            serverConn.sendString("Quit server")
 
     return playingLevel, techMechsSaved[playerNum]
 

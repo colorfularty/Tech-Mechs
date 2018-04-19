@@ -4,11 +4,12 @@ from gameObject import *
 class Skill(object):
     # a skill used by Tech Mechs
 
-    soundEffect = None
-    loops = 0
+    soundEffect = None # the sound effect that plays while the skill is being used
+    loops = 0 # the number of times to loop the sound effect; -1 means play endlessly
 
     @classmethod
     def use(self):
+        # this method is called to make a Tech Mech perform a given task
         pass
 
 class Walker(Skill):
@@ -18,7 +19,7 @@ class Walker(Skill):
     def use(self, techMech, level, unitVec):
         # the Tech Mech walks. Returns False if the Tech Mech walks offscreen
         # to its death, and True otherwise
-        if techMech.rotation == 0:
+        if techMech.rotation == 0: # the Tech Mech is walking on the floor (or ceiling)
             newXPos = techMech.x + techMech.direction
             # check if the tech mech is about to hit a wall
             try: # checks to make sure there are no index out of bounds errors
@@ -55,72 +56,78 @@ class Walker(Skill):
                         techMech.walkDownWall()
             except IndexError: # IndexError means the Tech Mech walked off the level
                 return False
-        elif techMech.rotation == 1:
+        elif techMech.rotation == 1: # the tech mechs is walking on a right wall
             newYPos = techMech.y - techMech.direction * techMech.orientation
-            try:
+            # check if the Tech Mech is about to hit the floor/ceiling
+            try: # ensures if the Tech Mech causes an OutOfBoundsError, he will die rather than crash the game
                 from constants import BLACK
                 if level.image.get_at((techMech.x, newYPos)) != BLACK:
+                    # check if the ceiling/floor is short enough to walk up
                     wallHeight = 1
                     for i in range(1, 11):
-                        if level.image.get_at((techMech.x - i, newYPos)) == BLACK:
+                        if level.image.get_at((techMech.x - i, newYPos)) == BLACK: # end of the floor/ceiling
                             break
                         wallHeight += 1
-                    if wallHeight == 11:
-                        if techMech.direction == -1:
+                    if wallHeight == 11: # the floor/ceiling was too high to walk up
+                        if techMech.direction == -1: # if the Tech Mech is facing left, he hit the floor; walk off the wall
                             techMech.walkOffWall()
-                        else:
+                        else: # the Tech Mech hit the ceiling; turn around
                             techMech.turnAround()
-                    else:
+                    else: # the floor/ceiling was short enough to walk up
                         techMech.x -= wallHeight
                         techMech.y = newYPos
                 else:
                     techMech.y = newYPos
+                    # check to see in the Tech Mech is no longer standing on the wall
                     pitHeight = 0
                     for i in range(1, 11):
-                        if level.image.get_at((techMech.x + i, techMech.y)) != BLACK:
+                        if level.image.get_at((techMech.x + i, techMech.y)) != BLACK: # it is a small dent in the wall; the Tech Mech can walk down it
                             break
                         pitHeight += 1
-                    if pitHeight < 10:
+                    if pitHeight < 10: # it is just a small dent in the wall; walk down it
                         techMech.x += pitHeight
-                    elif techMech.direction == 1:
+                    elif techMech.direction == 1: # the Tech Mech reached the top of the wall; walk up to the new floor
                         techMech.x += 1
                         techMech.walkOffWall()
-                    else:
+                    else: # the Tech Mech walked off the bottom of the wall; proceed to fall down to the floor
                         techMech.walkOffWall()
                         techMech.assignSkill(Faller)
             except IndexError:
                 return False
-        else:
+        else: # the Tech Mech is walking on a left wall
             newYPos = techMech.y + techMech.direction * techMech.orientation
-            try:
+            # check if the Tech Mech is about to hit the floor/ceiling
+            try: # ensures if the Tech Mech causes an OutOfBoundsError, he will die rather than crash the game
                 from constants import BLACK
                 if level.image.get_at((techMech.x, newYPos)) != BLACK:
+                    # check if the ceiling/floor is short enough to walk up
                     wallHeight = 1
                     for i in range(1, 11):
-                        if level.image.get_at((techMech.x + i, newYPos)) == BLACK:
+                        if level.image.get_at((techMech.x + i, newYPos)) == BLACK: # end of the floor/ceiling
                             break
                         wallHeight += 1
-                    if wallHeight == 11:
-                        if techMech.direction == 1:
+                    if wallHeight == 11: # the floor/ceiling was too high to walk up
+                        if techMech.direction == 1: # if the Tech Mech is facing left, he hit the floor; walk off the wall
                             techMech.walkOffWall()
-                        else:
+                        else: # the Tech Mech hit the ceiling; turn around
                             techMech.turnAround()
-                    else:
+                    else: # the floor/ceiling was short enough to walk up
                         techMech.x += wallHeight
                         techMech.y = newYPos
                 else:
                     techMech.y = newYPos
+                    # check to see in the Tech Mech is no longer standing on the wall
                     pitHeight = 0
                     for i in range(1, 11):
-                        if level.image.get_at((techMech.x - i, techMech.y)) != BLACK:
+                        if level.image.get_at((techMech.x - i, techMech.y)) != BLACK: # it is a small dent in the wall; the Tech Mech can walk down it
                             break
                         pitHeight += 1
-                    if pitHeight < 10:
+                    if pitHeight < 10: # it is just a small dent in the wall; walk down it
                         techMech.x -= pitHeight
-                    elif techMech.direction == -1:
+                    elif techMech.direction == -1: # the Tech Mech reached the top of the wall; walk up to the new floor
                         techMech.x -= 1
                         techMech.walkOffWall()
-                    else:
+                    else: # the Tech Mech walked off the bottom of the wall; proceed to fall down to the floor
                         techMech.walkOffWall()
                         techMech.assignSkill(Faller)
             except IndexError:

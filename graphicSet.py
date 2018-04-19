@@ -3,7 +3,9 @@ from terrain import *
 from gameObject import *
 
 class GraphicSet(object):
-    graphicSets = []
+    # a collection of terrain and objects
+    
+    graphicSets = [] # a list of all the graphic sets in the game
     
     def __init__(self, name):
         self.name = name
@@ -18,6 +20,7 @@ class GraphicSet(object):
 
     @classmethod
     def loadGraphicSets(self):
+        # loads every single graphic set and adds them to the class variable
         graphicSetNames = []
         allFiles = os.listdir("styles/")
         for file in allFiles:

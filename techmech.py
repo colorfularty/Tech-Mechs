@@ -15,6 +15,7 @@ class TechMech(object):
     cautionerSprites = pygame.image.load("sprites/cautioner.png").convert_alpha()
     detonatorSprites = pygame.image.load("sprites/detonator.png").convert_alpha()
 
+    # sprite sheets for multiplayer
     greenWalkerSprites = pygame.image.load("sprites/walker green.png").convert_alpha()
     greenFallerSprites = pygame.image.load("sprites/faller green.png").convert_alpha()
     greenGrapplerSprites = pygame.image.load("sprites/grappler green.png").convert_alpha()
@@ -31,6 +32,7 @@ class TechMech(object):
     redCautionerSprites = pygame.image.load("sprites/cautioner red.png").convert_alpha()
     redDetonatorSprites = pygame.image.load("sprites/detonator red.png").convert_alpha()
 
+    # list of sprite sheets by player number
     spriteSheets = [{Walker:      walkerSprites,
                     Faller:       fallerSprites,
                     Grappler:     grapplerSprites,
@@ -58,23 +60,25 @@ class TechMech(object):
     def __init__(self, x, y, owner = 0):
         self.x = x # their x-coordinate relative to the map (trigger area)
         self.y = y # their y-coordinate relative to the map (trigger area)
-        self.owner = owner
+        self.owner = owner # the player the Tech Mech belongs to
         self.currentSkill = Walker # what the tech mech is currently doing
         self.direction = 1 # this is 1 for right and -1 for left
         self.orientation = 1 # this is 1 for upright, and -1 for upside-down
         self.rotation = 0 # this is 0 for upright, 1 for walking on a right wall, and -1 for walking on a left wall
         self.permanentSkills = [] # a list of all permanent skills assigned to the Tech Mech
         self.skillVector = None # used to store a vector needed for certain skills (i.e. grappling hook)
-        self.animationFrame = 0
-        self.soundEffect = None
+        self.animationFrame = 0 # the current frame of the Tech Mech's skill animation
+        self.soundEffect = None # the sound effect of the skill the Tech Mech is using
         self.setImage(self.currentSkill)
 
     def setImage(self, newSkill):
+        # sets the Tech Mech's current image for the given frame based on its current animation sequence
         self.image = self.spriteSheets[self.owner][newSkill].subsurface((0, self.animationFrame * TECH_MECH_SPRITE_HEIGHT, TECH_MECH_SPRITE_WIDTH, TECH_MECH_SPRITE_HEIGHT))
         self.image = pygame.transform.flip(self.image, self.direction < 0, self.orientation < 0)
         self.image = pygame.transform.rotate(self.image, 90 * self.rotation)
 
     def wasClicked(self, x, y):
+        # returns True if the user clicked on the Tech Mech
         if self.orientation > 0:
             if x >= self.x - TECH_MECH_SPRITE_WIDTH // 2 and x <= self.x + TECH_MECH_SPRITE_WIDTH // 2 and y >= self.y - self.image.get_height() and y <= self.y:
                 return True
@@ -84,6 +88,7 @@ class TechMech(object):
         return False
 
     def getXCoordinate(self):
+        # returns the x-coordinate of the Tech Mech relative to image blitting
         if self.rotation == 1:
             return self.x - 47
         elif self.rotation == -1:
@@ -91,6 +96,7 @@ class TechMech(object):
         return self.x - 17
 
     def getYCoordinate(self):
+        # returns the y-coordinate of the Tech Mech relative to image blitting
         if self.rotation != 0:
             return self.y - 17
         if self.orientation == -1:
@@ -110,28 +116,32 @@ class TechMech(object):
         # changes a tech mech's current skill, either because the user gave
         # them a tool, or they walked off a cliff, etc.
 
-        if issubclass(newSkill, PermanentSkill):
-            if newSkill == MagnetBoots and self.orientation == -1:
+        # if this method returns False, the user is refunded the skill they tried to use
+
+        if issubclass(newSkill, PermanentSkill): # checks if the skill is a permanent skill (i.e. Magnet Boots, Energizer, etc.)
+            if newSkill == MagnetBoots and self.orientation == -1: # you can't assign Magnet Boots to an upside-down Tech Mech
                 return False
-            if newSkill in self.permanentSkills:
+            if newSkill in self.permanentSkills: # you can't assign a permanent skill to a Tech Mech who already has that permanent skill
                 return False
-            self.permanentSkills.append(newSkill)
+            self.permanentSkills.append(newSkill) # add the assigned skill to the Tech Mech's list of permanent skills
         elif newSkill == GravityReverser:
-            if MagnetBoots in self.permanentSkills:
+            if MagnetBoots in self.permanentSkills: # you can't flip a Tech Mech with Magnet Boots upside-down
                 return False
+            # flip the Tech Mech upside-down
             self.reverseGravity()
             self.currentSkill = Walker
             self.animationFrame = 0
             self.setImage(Walker)
         else:
-            if self.currentSkill == Faller and newSkill != Walker or self.rotation != 0:
+            if self.currentSkill == Faller and newSkill != Walker or self.rotation != 0: # you can't assign a skill to a Tech Mech on the wall or free-falling
                 return False
+            # change the Tech Mech's current skill to the assigned skill
             self.currentSkill = newSkill
             self.animationFrame = 0
             self.setImage(newSkill)
-        if self.soundEffect != None:
+        if self.soundEffect != None: # stop the sound effect the Tech Mech was currently making (if any)
             self.soundEffect.stop()
-        if newSkill.soundEffect != None:
+        if newSkill.soundEffect != None: # start the new skill's sound effect (if any)
             self.soundEffect = pygame.mixer.Sound("sound/" + newSkill.soundEffect + ".wav")
             self.soundEffect.play(newSkill.loops)
         return True

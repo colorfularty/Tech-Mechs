@@ -48,6 +48,7 @@ directionHeldTimer = 0.0
 textBoxTimer = 0.0
 saveTimer = 0.0
 
+# used to show which entrance/exit cooresponds to which player
 multiplayer_icons = {0: pygame.image.load("sprites/multiplayer icon " + MULTIPLAYER_COLORS[0] + ".png").convert_alpha(),
                      1: pygame.image.load("sprites/multiplayer icon " + MULTIPLAYER_COLORS[1] + ".png").convert_alpha()}
 
@@ -99,6 +100,7 @@ def changeGraphicSet(direction):
     setGraphicSetLabel()
 
 def updateTerrainPanels():
+    # updates the panels showing terrain pieces with new terrain pieces
     index = terrainIndex
     for i in range(NUM_TERRAIN_PANELS):
         terrainPanels[i].fill(BLACK)
@@ -125,6 +127,7 @@ def insertObject(x, y, name, graphicSet, objType = "Normal", flipped = False, in
         return GameObjectInstance(graphicSet, name, x, y, flipped, inverted, rotated)
 
 def updateObjectOwners():
+    # updates the owners of each entrance/exit; used when the user deletes or inserts an entrance/exit
     entranceOwner = 0
     exitOwner = 0
     for obj in levelInProgress.objects:
@@ -204,6 +207,7 @@ def handleEditorEvents():
                             selectedThing = terrain
                             break
             if mousex >= SCREEN_WIDTH - 150:
+                # check if the user clicked on a terrain panel
                 for i in range(len(terrainPanels)):
                     if mousey >= 50 + 125 * i and mousey < 150 + 125 * i:
                         selectedThing = insertTerrain(levelDispX, levelDispY, currentGraphicSet.terrain[index].imageName, currentGraphicSet.name)
@@ -536,7 +540,9 @@ def executeEditorFrame(SCREEN):
         # update levelImage with level's terrain and objects
         levelImage.fill(BLACK)
         levelImage.blit(levelInProgress.image, (0, 0))
+        # ensure each object has the right owner (only affects multiplayer levels)
         updateObjectOwners()
+        # render all objects and owner icons (if necessary)
         for obj in levelInProgress.objects:
             levelImage.blit(obj.image, (obj.x, obj.y))
             if levelInProgress.numPlayers > 1:

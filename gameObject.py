@@ -1,9 +1,11 @@
 import pygame
 
 class GameObject(object):
+    # an object included in a graphic set
+    
     def __init__(self, graphicSet, imageName):
-        self.graphicSet = graphicSet
-        self.name = imageName
+        self.graphicSet = graphicSet # the NAME of the graphic set this object belongs to
+        self.name = imageName # the NAME of the object's sprite sheet
         self.spriteSheet = pygame.image.load("styles/" + self.graphicSet + "/objects/" + self.name + ".png").convert_alpha()
         self.type, self.numFrames, self.triggerXDisp, self.triggerYDisp, self.triggerWidth, self.triggerHeight = GameObject.getData(self.graphicSet, self.name)
         self.width = self.spriteSheet.get_width() # the width of the object
@@ -11,6 +13,7 @@ class GameObject(object):
 
     @classmethod
     def getData(self, graphicSet, objName):
+        # gets the data regarding this specific object from the graphic set's data.txt file
         dataFile = open("styles/" + graphicSet + "/data.txt", 'r')
         for line in dataFile:
             objType, name, numFrames, triggerXDisp, triggerYDisp, triggerWidth, triggerHeight = line.split("~")
@@ -19,9 +22,11 @@ class GameObject(object):
                 return objType, int(numFrames), int(triggerXDisp), int(triggerYDisp), int(triggerWidth), int(triggerHeight)
 
 class GameObjectInstance(GameObject):
-    # a game object inserted into the level    
+    # a game object inserted into the level
+    
     @classmethod
     def insertObject(cls, graphicSet, name, x, y, flipped, inverted, rotated):
+        # returns an object to be inserted into a level
         return cls(graphicSet, name, x, y, flipped, inverted, rotated)
 
     def __init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated):
@@ -41,6 +46,7 @@ class GameObjectInstance(GameObject):
 
     @classmethod
     def createObjectFromString(self, string):
+        # returns an object made from a string (used for loading levels from .txt files)
         owner = "0"
         splitString = string.split("~")
         if len(splitString) == 8:
@@ -60,9 +66,11 @@ class GameObjectInstance(GameObject):
         self.image = self.spriteSheet.subsurface((0, self.height * self.animationFrame, self.width, self.height)).convert_alpha()
 
     def update(self):
+        # re-initializes the object, useful for updating coordinates and images
         self.__init__(self.graphicSet, self.name, self.x, self.y, self.flipped, self.inverted, self.rotated)
 
     def render(self, surf):
+        # blits the image to a surface
         surf.blit(self.image, (self.x, self.y))
         if self.animationFrame == self.numFrames - 1:
             self.animationFrame = 0
@@ -72,11 +80,13 @@ class GameObjectInstance(GameObject):
         
 
 class Entrance(GameObjectInstance):
-    status = "closed"
+    # An object that releases Tech Mechs into the level
+    
+    status = "closed" # will only release Tech Mechs when it's opened
     
     def __init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated, owner = 0):
         GameObjectInstance.__init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated)
-        self.owner = owner
+        self.owner = owner # the owner of the entrance; determines which colored Tech Mechs should be released from the entrance
 
     def __str__(self):
         return GameObjectInstance.__str__(self) + "~" + str(self.owner)
@@ -94,12 +104,14 @@ class Entrance(GameObjectInstance):
         
         
 class Exit(GameObjectInstance):
-    status = "open"
+    # an object that lets Tech Mechs exit the level
+    
+    status = "open" # an exit can only be entered when it's open; when it's closed it blasts off to space
     sound = pygame.mixer.Sound("sound/rocket.wav")
     
     def __init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated, owner = 0):
         GameObjectInstance.__init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated)
-        self.owner = owner
+        self.owner = owner # determines which Tech Mechs can enter it
 
     def __str__(self):
         return GameObjectInstance.__str__(self) + "~" + str(self.owner)
@@ -119,6 +131,8 @@ class Exit(GameObjectInstance):
         self.setImage()
 
 class Water(GameObjectInstance):
+    # an object that shorts out Tech Mechs who touch it; killing them
+    
     def __init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated):
         GameObjectInstance.__init__(self, graphicSet, imageName, x, y, flipped, inverted, rotated)
 

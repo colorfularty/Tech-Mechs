@@ -4,8 +4,8 @@ from threading import Thread
 from constants import *
 from widgets import Label
 
-dataSent = False
-text = Label(0, 0, "")
+dataSent = False # the variable returned to main.py; if False, stop the wait screen
+text = Label(0, 0, "") # the text displayed to the user
 
 def startWaitScreen(conn, newText):
     global dataSent

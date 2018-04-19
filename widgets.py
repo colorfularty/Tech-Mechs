@@ -2,9 +2,11 @@ import pygame
 from pygame.locals import *
 from constants import *
 
-font = pygame.font.SysFont('helvetica', 32)
+font = pygame.font.SysFont('helvetica', 32) # the font used for the widgets
 
-class Label(object):    
+class Label(object):
+    # a text label
+    
     def __init__(self, x, y, text):
         self.x = x
         self.y = y
@@ -25,6 +27,8 @@ class Label(object):
         self.height = self.image.get_height()
 
 class Button(Label):
+    # a button you can push
+    
     def __init__(self, x, y, text):
         Label.__init__(self, x, y, text)
 
@@ -32,6 +36,8 @@ class Button(Label):
         return mousex >= self.x and mousex <= self.x + self.image.get_width() and mousey >= self.y and mousey <= self.y + self.image.get_height()
         
 class TextBox(object):
+    # a box you can input text into
+    
     def __init__(self, x, y, text = "", fontColor = WHITE, backColor = BLACK, size = 32):
         self.x = x
         self.y = y
@@ -74,6 +80,8 @@ class TextBox(object):
         self.setImage()
 
 class NumberBox(TextBox):
+    # a box you can enter a number into
+    
     def __init__(self, x, y, text, fontColor = WHITE, backColor = BLACK, size = 6, minVal = 0, maxVal = 1000):
         TextBox.__init__(self, x, y, text, fontColor, backColor, size)
         self.minValue = minVal

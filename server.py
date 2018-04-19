@@ -27,8 +27,8 @@ class Server(object):
             data = clients[clientNum].recv(1024)
             try:
                 if data.decode() == "Quit server":
-                    #finalData = pickle.dumps((None, None, None, None))
-                    #clients[not clientNum].send(finalData)
+                    finalData = pickle.dumps((None, None, None, None))
+                    clients[not clientNum].send(finalData)
                     break
             except UnicodeDecodeError:
                 pass
