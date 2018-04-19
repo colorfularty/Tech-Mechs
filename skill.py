@@ -85,6 +85,9 @@ class Walker(Skill):
                     elif techMech.direction == 1:
                         techMech.x += 1
                         techMech.walkOffWall()
+                    else:
+                        techMech.walkOffWall()
+                        techMech.assignSkill(Faller)
             except IndexError:
                 return False
         else:
@@ -117,6 +120,9 @@ class Walker(Skill):
                     elif techMech.direction == -1:
                         techMech.x -= 1
                         techMech.walkOffWall()
+                    else:
+                        techMech.walkOffWall()
+                        techMech.assignSkill(Faller)
             except IndexError:
                 return False
         return True
