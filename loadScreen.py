@@ -17,6 +17,7 @@ mousey = 0
 
 levelFiles = None
 levelLoaded = None
+topNameIndex = 0 # the index of the top level name
 
 def loadLevelFiles(numPlayers):
     # reads and returns the names of all .txt files in your levels directory
@@ -31,12 +32,11 @@ def loadLevelFiles(numPlayers):
     return files
 
 def startLoadScreen(numPlayers = None):
-    global levelFiles, levelLoaded
+    global levelFiles, levelLoaded, topNameIndex
 
     levelFiles = loadLevelFiles(numPlayers)
     levelLoaded = None
-
-topNameIndex = 0 # the index of the top level name
+    topNameIndex = 0
 
 def renderLevelNames(surf):
     # renders the level images on the screen
