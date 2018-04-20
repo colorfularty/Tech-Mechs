@@ -1,0 +1,164 @@
+1
+Demolition team
+Me
+640
+634
+0
+0
+10
+10
+-1
+50
+industrial
+SKILLS
+MagnetBoots: 0: 0
+Energizer: 0: 0
+Detonator: 0: 0
+Cautioner: 0: 0
+Grappler: 0: 0
+Driller: 0: 0
+GravityReverser: 0: 0
+Jackhammerer: 2: 0
+TERRAIN
+lego~purple 4x1~0~612~False~False~False
+lego~purple 4x1~64~612~False~False~False
+lego~purple 4x1~128~612~False~False~False
+lego~purple 4x1~192~612~False~False~False
+lego~purple 4x1~256~612~False~False~False
+lego~purple 4x1~320~612~False~False~False
+lego~purple 4x1~384~612~False~False~False
+lego~purple 4x1~448~612~False~False~False
+lego~purple 4x1~512~612~False~False~False
+lego~purple 4x1~576~612~False~False~False
+lego~purple 2x1~0~594~False~False~False
+lego~purple 2x1~0~576~False~False~False
+lego~purple 2x1~0~558~False~False~False
+lego~purple 2x1~0~540~False~False~False
+lego~purple 2x1~608~594~False~False~False
+lego~purple 2x1~608~576~False~False~False
+lego~purple 2x1~608~558~False~False~False
+lego~purple 2x1~608~540~False~False~False
+lego~blue 4x1~0~522~False~False~False
+lego~blue 4x1~64~522~False~False~False
+lego~blue 4x1~128~522~False~False~False
+lego~blue 4x1~192~522~False~False~False
+lego~blue 4x1~256~522~False~False~False
+lego~blue 4x1~320~522~False~False~False
+lego~blue 4x1~384~522~False~False~False
+lego~blue 4x1~448~522~False~False~False
+lego~blue 4x1~512~522~False~False~False
+lego~blue 4x1~576~522~False~False~False
+lego~blue 2x1~0~504~False~False~False
+lego~blue 2x1~0~486~False~False~False
+lego~blue 2x1~0~468~False~False~False
+lego~blue 2x1~0~450~False~False~False
+lego~blue 2x1~608~504~False~False~False
+lego~blue 2x1~608~486~False~False~False
+lego~blue 2x1~608~468~False~False~False
+lego~blue 2x1~608~450~False~False~False
+lego~blue 2x1~144~504~False~False~False
+lego~blue 2x1~144~486~False~False~False
+lego~blue 2x1~144~468~False~False~False
+lego~blue 2x1~144~450~False~False~False
+lego~green 4x1~0~432~False~False~False
+lego~green 4x1~64~432~False~False~False
+lego~green 4x1~128~432~False~False~False
+lego~green 4x1~192~432~False~False~False
+lego~green 4x1~256~432~False~False~False
+lego~green 4x1~320~432~False~False~False
+lego~green 4x1~384~432~False~False~False
+lego~green 4x1~448~432~False~False~False
+lego~green 4x1~512~432~False~False~False
+lego~green 4x1~576~432~False~False~False
+lego~blue 1x1 thin~212~704~False~False~False
+lego~green 2x1~0~414~False~False~False
+lego~green 2x1~0~396~False~False~False
+lego~green 2x1~0~378~False~False~False
+lego~green 2x1~0~360~False~False~False
+lego~green 2x1~608~414~False~False~False
+lego~green 2x1~608~396~False~False~False
+lego~green 2x1~608~378~False~False~False
+lego~green 2x1~608~360~False~False~False
+lego~yellow 4x1~0~342~False~False~False
+lego~yellow 4x1~64~342~False~False~False
+lego~yellow 4x1~192~342~False~False~False
+lego~yellow 4x1~256~342~False~False~False
+lego~yellow 4x1~320~342~False~False~False
+lego~yellow 4x1~384~342~False~False~False
+lego~yellow 4x1~448~342~False~False~False
+lego~yellow 4x1~512~342~False~False~False
+lego~yellow 4x1~576~342~False~False~False
+lego~yellow 2x1~0~324~False~False~False
+lego~yellow 2x1~0~306~False~False~False
+lego~yellow 2x1~0~288~False~False~False
+lego~yellow 2x1~0~270~False~False~False
+lego~yellow 2x1~608~324~False~False~False
+lego~yellow 2x1~608~306~False~False~False
+lego~yellow 2x1~608~288~False~False~False
+lego~yellow 2x1~608~270~False~False~False
+lego~yellow 2x1~480~324~False~False~False
+lego~yellow 2x1~480~306~False~False~False
+lego~yellow 2x1~320~324~False~False~False
+lego~yellow 2x1~320~306~False~False~False
+lego~yellow 2x1~320~288~False~False~False
+lego~yellow 2x1~320~270~False~False~False
+lego~yellow 2x1~96~324~False~False~False
+lego~yellow 2x1~96~306~False~False~False
+lego~yellow 2x1~96~288~False~False~False
+lego~yellow 2x1~224~324~False~False~False
+lego~blue 2x1~288~504~False~False~False
+lego~blue 2x1~464~504~False~False~False
+lego~blue 2x1~464~486~False~False~False
+lego~orange 4x1~0~252~False~False~False
+lego~orange 4x1~64~252~False~False~False
+lego~orange 4x1~128~252~False~False~False
+lego~orange 4x1~192~252~False~False~False
+lego~orange 4x1~256~252~False~False~False
+lego~orange 4x1~320~252~False~False~False
+lego~orange 4x1~384~252~False~False~False
+lego~orange 4x1~448~252~False~False~False
+lego~orange 4x1~512~252~False~False~False
+lego~orange 4x1~576~252~False~False~False
+lego~orange 2x1~0~234~False~False~False
+lego~orange 2x1~0~216~False~False~False
+lego~orange 2x1~0~198~False~False~False
+lego~orange 2x1~0~180~False~False~False
+lego~orange 2x1~608~234~False~False~False
+lego~orange 2x1~608~216~False~False~False
+lego~orange 2x1~608~198~False~False~False
+lego~orange 2x1~608~180~False~False~False
+lego~red 4x1~0~162~False~False~False
+lego~red 4x1~64~162~False~False~False
+lego~red 4x1~128~162~False~False~False
+lego~red 4x1~256~162~False~False~False
+lego~red 4x1~320~162~False~False~False
+lego~red 4x1~448~162~False~False~False
+lego~red 4x1~512~162~False~False~False
+lego~red 4x1~576~162~False~False~False
+lego~red 2x1~0~144~False~False~False
+lego~red 2x1~0~126~False~False~False
+lego~red 2x1~0~108~False~False~False
+lego~red 2x1~0~90~False~False~False
+lego~red 2x1~608~144~False~False~False
+lego~red 2x1~608~126~False~False~False
+lego~red 2x1~608~108~False~False~False
+lego~red 2x1~608~90~False~False~False
+lego~green 2x1~144~414~False~False~False
+lego~green 2x1~144~396~False~False~False
+lego~green 2x1~144~378~False~False~False
+lego~green 2x1~144~360~False~False~False
+lego~yellow 4x1~128~342~False~False~False
+lego~orange 2x1~416~234~False~False~False
+lego~orange 2x1~416~216~False~False~False
+lego~orange 2x1~416~198~False~False~False
+lego~orange 2x1~416~180~False~False~False
+lego~orange 2x1~192~234~False~False~False
+lego~orange 2x1~192~216~False~False~False
+lego~orange 2x1~192~198~False~False~False
+lego~orange 2x1~192~180~False~False~False
+lego~red 4x1~192~162~False~False~False
+lego~red 4x1~384~162~False~False~False
+OBJECTS
+Entrance~lego~entrance~288~72~True~True~True~0
+Exit~lego~exit~336~360~True~True~True~0
+END

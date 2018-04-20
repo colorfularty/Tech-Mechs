@@ -1,0 +1,60 @@
+1
+Get yo' drill on
+Me
+640
+320
+0
+0
+20
+10
+-1
+10
+happy
+SKILLS
+Grappler: 0: 0
+Driller: 10: 0
+Jackhammerer: 0: 0
+GravityReverser: 0: 0
+Cautioner: 0: 0
+Detonator: 0: 0
+TERRAIN
+lego~green 4x1~0~298~False~False~False
+lego~green 4x1~64~298~False~False~False
+lego~green 4x1~128~298~False~False~False
+lego~green 4x1~192~298~False~False~False
+lego~green 4x1~256~298~False~False~False
+lego~green 4x1~320~298~False~False~False
+lego~green 4x1~384~298~False~False~False
+lego~green 4x1~448~298~False~False~False
+lego~green 4x1~512~298~False~False~False
+lego~green 4x1~576~298~False~False~False
+lego~green 2x1~0~280~False~False~False
+lego~green 2x1~0~262~False~False~False
+lego~green 2x1~0~244~False~False~False
+lego~yellow 4x1~160~280~False~False~False
+lego~yellow 4x1~160~262~False~False~False
+lego~yellow 4x1~160~244~False~False~False
+lego~orange 1x1~288~280~False~False~False
+lego~orange 1x1~320~280~False~False~False
+lego~orange 1x1~288~262~False~False~False
+lego~orange 1x1~320~262~False~False~False
+lego~orange 1x1~288~244~False~False~False
+lego~orange 1x1~320~244~False~False~False
+lego~orange arch small~288~226~False~False~False
+lego~yellow tall ramp~160~190~False~False~False
+lego~yellow tall ramp~192~190~True~False~False
+lego~green 4x1 top~32~296~False~False~False
+lego~green 4x1 top~96~296~False~False~False
+lego~green 4x1 top~224~296~False~False~False
+lego~green 4x1 top~336~296~False~False~False
+lego~green 4x1 top~448~296~False~False~False
+lego~green 1x1 top~304~296~False~False~False
+lego~red tall ramp~400~244~False~False~False
+lego~red 1x1~432~280~False~False~False
+lego~red 1x1~432~262~False~False~False
+lego~red 1x1~432~244~False~False~False
+lego~red tall ramp~416~190~True~False~False
+OBJECTS
+Exit~lego~exit~512~46~False~False~False~0
+Entrance~lego~entrance~64~226~False~False~False~0
+END

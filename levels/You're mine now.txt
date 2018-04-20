@@ -1,0 +1,27 @@
+1
+You're mine now
+Me
+768
+400
+0
+0
+20
+20
+-1
+1
+intense
+SKILLS
+MagnetBoots: 10: 0
+Energizer: 10: 0
+Detonator: 10: 0
+Cautioner: 10: 0
+Grappler: 10: 0
+Driller: 10: 0
+GravityReverser: 10: 0
+Jackhammerer: 10: 0
+TERRAIN
+special~test level~0~0~False~False~False
+OBJECTS
+Exit~special~exit~656~222~True~True~True~0
+Entrance~lego~entrance~128~272~True~True~True~0
+END

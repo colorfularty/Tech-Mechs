@@ -1,0 +1,89 @@
+1
+Danger zone
+Me
+640
+320
+0
+0
+10
+5
+-1
+30
+industrial
+SKILLS
+MagnetBoots: 0: 0
+Energizer: 0: 0
+Detonator: 10: 0
+Cautioner: 0: 0
+Grappler: 0: 0
+Driller: 0: 0
+GravityReverser: 0: 0
+Jackhammerer: 0: 0
+TERRAIN
+lego~green 4x1~0~298~False~False~False
+lego~green 4x1~64~298~False~False~False
+lego~green 4x1~128~298~False~False~False
+lego~green 4x1~192~298~False~False~False
+lego~green 4x1~256~298~False~False~False
+lego~green 4x1~320~298~False~False~False
+lego~green 4x1~384~298~False~False~False
+lego~green 4x1~448~298~False~False~False
+lego~green 4x1~512~298~False~False~False
+lego~green 4x1~576~298~False~False~False
+lego~green 4x1 top~0~296~False~False~False
+lego~green 4x1 top~64~296~False~False~False
+lego~green 4x1 top~128~296~False~False~False
+lego~green 4x1 top~192~296~False~False~False
+lego~green 4x1 top~256~296~False~False~False
+lego~green 4x1 top~320~296~False~False~False
+lego~green 4x1 top~384~296~False~False~False
+lego~green 4x1 top~448~296~False~False~False
+lego~green 4x1 top~512~296~False~False~False
+lego~green 4x1 top~576~296~False~False~False
+lego~yellow 4x1 thin~192~106~False~False~False
+lego~yellow 4x1 thin~256~106~False~False~False
+lego~yellow 4x1 thin~320~106~False~False~False
+lego~yellow 4x1 thin~384~106~False~False~False
+lego~red 4x1~192~202~False~False~False
+lego~orange 4x1 thin~192~160~False~False~False
+lego~orange 4x1 thin~256~160~False~False~False
+lego~orange 4x1 thin~320~160~False~False~False
+lego~orange 4x1 thin~384~160~False~False~False
+lego~red 1x1~448~202~False~False~False
+lego~red 1x1~448~184~False~False~False
+lego~red 1x1~448~166~False~False~False
+lego~red 1x1~176~202~False~False~False
+lego~red 1x1~176~184~False~False~False
+lego~red 1x1~176~166~False~False~False
+lego~orange 1x1~448~148~False~False~False
+lego~orange 1x1~448~130~False~False~False
+lego~orange 1x1~448~112~False~False~False
+lego~orange 1x1~176~148~False~False~False
+lego~orange 1x1~176~130~False~False~False
+lego~orange 1x1~176~112~False~False~False
+lego~yellow 1x1~448~94~False~False~False
+lego~yellow 1x1~448~76~False~False~False
+lego~yellow 1x1~448~58~False~False~False
+lego~yellow 1x1~448~40~False~False~False
+lego~yellow 1x1~448~22~False~False~False
+lego~yellow 1x1~448~4~False~False~False
+lego~yellow 1x1~448~-14~False~False~False
+lego~yellow 1x1~176~94~False~False~False
+lego~yellow 1x1~176~76~False~False~False
+lego~yellow 1x1~176~58~False~False~False
+lego~yellow 1x1~176~40~False~False~False
+lego~yellow 1x1~176~22~False~False~False
+lego~yellow 1x1~176~4~False~False~False
+lego~yellow 1x1~176~-14~False~False~False
+lego~red 4x1~256~202~False~False~False
+lego~red 4x1~320~202~False~False~False
+lego~red 4x1~384~202~False~False~False
+lego~orange 4x1 top~192~158~False~False~False
+lego~orange 4x1 top~256~158~False~False~False
+lego~orange 4x1 top~320~158~False~False~False
+lego~orange 4x1 top~384~158~False~False~False
+OBJECTS
+Exit~lego~exit~0~40~False~False~False~0
+Exit~lego~exit~512~40~False~False~False~0
+Entrance~lego~entrance~288~34~False~False~False~0
+END

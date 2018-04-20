@@ -1,0 +1,97 @@
+1
+Force your way through
+Me
+640
+320
+0
+0
+10
+10
+-1
+1
+puzzling
+SKILLS
+MagnetBoots: 0: 0
+Energizer: 0: 0
+Detonator: 0: 0
+Cautioner: 0: 0
+Grappler: 0: 0
+Driller: 0: 0
+GravityReverser: 20: 0
+Jackhammerer: 0: 0
+TERRAIN
+lego~green 4x1~0~298~False~False~False
+lego~green 4x1~64~298~False~False~False
+lego~green 4x1~128~298~False~False~False
+lego~green 4x1~576~298~False~False~False
+lego~green 4x1~512~298~False~False~False
+lego~green 4x1~448~298~False~False~False
+lego~green 4x1~384~298~False~False~False
+lego~green 4x1~192~298~False~False~False
+lego~green 4x1~0~280~False~False~False
+lego~green 4x1~64~280~False~False~False
+lego~green 4x1~128~280~False~False~False
+lego~green 4x1~192~280~False~False~False
+lego~green 4x1~384~280~False~False~False
+lego~green 4x1~448~280~False~False~False
+lego~green 4x1~512~280~False~False~False
+lego~green 4x1~576~280~False~False~False
+lego~green 2x1~0~262~False~False~False
+lego~green 2x1~0~244~False~False~False
+lego~green 2x1~0~226~False~False~False
+lego~green 2x1~0~208~False~False~False
+lego~green 2x1~0~190~False~False~False
+lego~green 2x1~0~172~False~False~False
+lego~green 2x1~0~154~False~False~False
+lego~green 2x1~0~136~False~False~False
+lego~green 2x1~0~118~False~False~False
+lego~green 2x1~0~100~False~False~False
+lego~green 2x1~0~82~False~False~False
+lego~green 2x1~0~64~False~False~False
+lego~green 2x1~0~46~False~False~False
+lego~green 2x1~0~28~False~False~False
+lego~green 2x1~0~10~False~False~False
+lego~green 2x1~608~262~False~False~False
+lego~green 2x1~608~244~False~False~False
+lego~green 2x1~608~226~False~False~False
+lego~green 2x1~608~208~False~False~False
+lego~green 2x1~608~190~False~False~False
+lego~green 2x1~608~172~False~False~False
+lego~green 2x1~608~154~False~False~False
+lego~green 2x1~608~136~False~False~False
+lego~green 2x1~608~118~False~False~False
+lego~green 2x1~608~100~False~False~False
+lego~green 2x1~608~82~False~False~False
+lego~green 2x1~608~64~False~False~False
+lego~green 2x1~608~46~False~False~False
+lego~green 2x1~608~28~False~False~False
+lego~green 2x1~608~10~False~False~False
+lego~green 4x1~0~-8~False~False~False
+lego~green 4x1~64~-8~False~False~False
+lego~green 4x1~128~-8~False~False~False
+lego~green 4x1~192~-8~False~False~False
+lego~green 4x1~256~-8~False~False~False
+lego~green 4x1~320~-8~False~False~False
+lego~green 4x1~384~-8~False~False~False
+lego~green 4x1~448~-8~False~False~False
+lego~green 4x1~512~-8~False~False~False
+lego~green 4x1~576~-8~False~False~False
+lego~green 4x1 top~384~278~False~False~False
+lego~green 4x1 top~448~278~False~False~False
+lego~green 4x1 top~512~278~False~False~False
+lego~green 2x1 top~576~278~False~False~False
+lego~green 4x1 top~32~278~False~False~False
+lego~green 4x1 top~96~278~False~False~False
+lego~green 4x1 top~192~278~False~False~False
+lego~green 2x1~160~262~False~False~False
+lego~green 2x1~160~244~False~False~False
+lego~green 2x1~160~226~False~False~False
+lego~green up ramp long~176~208~True~False~False
+lego~green 1x1 thin~160~220~False~False~False
+lego~green 1x1 thin~160~214~False~False~False
+lego~green ledge~160~200~False~False~False
+OBJECTS
+Water~lego~water~256~286~True~True~True
+Entrance~lego~entrance~64~208~True~True~True~0
+Exit~lego~exit~448~22~True~True~True~0
+END

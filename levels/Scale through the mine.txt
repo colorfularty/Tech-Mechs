@@ -1,0 +1,27 @@
+1
+Scale through the mine
+Me
+768
+400
+0
+0
+10
+1
+-1
+1
+happy
+SKILLS
+MagnetBoots: 10: 0
+Energizer: 0: 0
+Detonator: 0: 0
+Cautioner: 0: 0
+Grappler: 0: 0
+Driller: 0: 0
+GravityReverser: 0: 0
+Jackhammerer: 0: 0
+TERRAIN
+special~test level~0~0~False~False~False
+OBJECTS
+Exit~special~exit~656~222~False~False~False~0
+Entrance~lego~entrance~128~272~False~False~False~0
+END

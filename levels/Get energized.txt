@@ -1,0 +1,63 @@
+1
+Get energized
+Me
+640
+320
+0
+0
+20
+15
+-1
+50
+puzzling
+SKILLS
+MagnetBoots: 0: 0
+Energizer: 1: 0
+Detonator: 0: 0
+Cautioner: 0: 0
+Grappler: 0: 0
+Driller: 1: 0
+GravityReverser: 0: 0
+Jackhammerer: 0: 0
+TERRAIN
+lego~blue 4x1~128~298~False~False~False
+lego~blue 4x1~192~298~False~False~False
+lego~blue 4x1~256~298~False~False~False
+lego~blue 4x1~320~298~False~False~False
+lego~blue 4x1~384~298~False~False~False
+lego~blue 4x1~448~298~False~False~False
+lego~blue 4x1~512~298~False~False~False
+lego~blue 4x1~576~298~False~False~False
+lego~blue 4x1~256~280~False~False~False
+lego~blue 4x1~256~262~False~False~False
+lego~blue 4x1~256~244~False~False~False
+lego~blue 4x1~256~226~False~False~False
+lego~blue 4x1~256~208~False~False~False
+lego~blue 4x1~256~190~False~False~False
+lego~blue 4x1~256~172~False~False~False
+lego~blue 4x1~320~280~False~False~False
+lego~blue 4x1~384~280~False~False~False
+lego~blue 4x1~448~280~False~False~False
+lego~blue 4x1~320~262~False~False~False
+lego~blue 4x1~384~262~False~False~False
+lego~blue 4x1~448~262~False~False~False
+lego~blue 4x1~320~244~False~False~False
+lego~blue 4x1~384~244~False~False~False
+lego~blue 4x1~448~244~False~False~False
+lego~blue 4x1~320~226~False~False~False
+lego~blue 4x1~384~226~False~False~False
+lego~blue 4x1~448~226~False~False~False
+lego~blue 4x1~320~208~False~False~False
+lego~blue 4x1~384~208~False~False~False
+lego~blue 4x1~448~208~False~False~False
+lego~blue 4x1~320~190~False~False~False
+lego~blue 4x1~384~190~False~False~False
+lego~blue 4x1~448~190~False~False~False
+lego~blue 4x1~320~172~False~False~False
+lego~blue 4x1~384~172~False~False~False
+lego~blue 4x1~448~172~False~False~False
+OBJECTS
+Water~lego~water~0~286~False~False~False
+Entrance~lego~entrance~128~208~False~False~False~0
+Exit~lego~exit~512~46~False~False~False~0
+END

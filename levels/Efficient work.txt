@@ -1,0 +1,27 @@
+1
+Efficient work
+Me
+768
+400
+0
+0
+20
+15
+-1
+1
+panic
+SKILLS
+MagnetBoots: 1: 0
+Energizer: 1: 0
+Detonator: 1: 0
+Cautioner: 1: 0
+Grappler: 1: 0
+Driller: 1: 0
+GravityReverser: 1: 0
+Jackhammerer: 1: 0
+TERRAIN
+special~test level 3~0~0~False~False~False
+OBJECTS
+Exit~special~exit~656~163~True~True~True~0
+Entrance~lego~entrance~16~240~True~True~True~0
+END

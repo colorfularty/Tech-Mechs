@@ -1,0 +1,27 @@
+1
+Get yourselves up there
+Me
+768
+704
+0
+200
+30
+20
+-1
+50
+panic
+SKILLS
+MagnetBoots: 0: 0
+Energizer: 0: 0
+Detonator: 0: 0
+Cautioner: 0: 0
+Grappler: 20: 0
+Driller: 0: 0
+GravityReverser: 0: 0
+Jackhammerer: 0: 0
+TERRAIN
+special~test level 2~0~192~False~False~False
+OBJECTS
+Entrance~lego~entrance~96~558~True~True~True~0
+Exit~lego~exit~192~32~True~True~True~0
+END
