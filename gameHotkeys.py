@@ -3,17 +3,19 @@ from pygame.locals import *
 from constants import *
 from widgets import *
 
-continueGameHotkeys = True
-hotkeyEdited = None
+continueGameHotkeys = True # returned to settings.py; terminates when False
+hotkeyEdited = None # the current hotkey being edited
 
+# used to determine the mouse pointer's coordinates
 mousex = 0
 mousey = 0
 
-hotkeyFunctions = []
-hotkeys = []
+hotkeyFunctions = [] # a list of all of the labels of the hotkey functions
+hotkeys = [] # a list of all of the buttons of the hotkey values
 backButton = Button(0, SCREEN_HEIGHT - 50, "Back to settings")
 
 def loadGameHotkeys():
+    # loads the hotkey values from game hotkeys.txt and modifies the variables in constants.py
     hotkeyFile = open("game hotkeys.txt", 'r')
     for line in hotkeyFile:
         function, hotkey = line.split(": ")
@@ -23,6 +25,7 @@ def loadGameHotkeys():
     hotkeyFile.close()
 
 def saveGameHotkeys():
+    # saves the current game hotkey values to the text file
     hotkeyFile = open("game hotkeys.txt", 'w')
     for i in range(len(hotkeys)):
         hotkeyFile.write(hotkeyFunctions[i].text + ": " + hotkeys[i].text)

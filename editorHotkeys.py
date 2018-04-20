@@ -3,21 +3,25 @@ from pygame.locals import *
 from constants import *
 from widgets import *
 
-continueEditorHotkeys = True
-hotkeyEdited = None
+continueEditorHotkeys = True # returned to settings.py; terminate if False
+hotkeyEdited = None # the hotkey currently being edited
 
+# keeps track of the mouse pointer's coordinates
 mousex = 0
 mousey = 0
 
-hotkeys = []
-hotkeyFunctions = []
-hotkeyValues = []
-topHotkey = 0
+hotkeys = [] # a list of all of the hotkeys taken from the text file
+hotkeyFunctions = [] # a list of all of the labels regarding what the hotkeys do
+hotkeyValues = [] # a list of all of the buttons allowing you to change hotkey values
+topHotkey = 0 # the index of the hotkey at the top of the screen
+
+# buttons for navigating the hotkey menu
 hotkeyUp = Button(0, 0, "^")
 hotkeyDown = Button(0, SCREEN_HEIGHT - 100, "v")
 backButton = Button(0, SCREEN_HEIGHT - 50, "Back to settings")
 
 def loadHotkeyPanels():
+    # loads as many hotkeys onto the screen as possible
     global hotkeyFunctions, hotkeyValues
 
     hotkeyFunctions = []
@@ -28,6 +32,7 @@ def loadHotkeyPanels():
         hotkeyValues.append(Button(2 * SCREEN_WIDTH // 3, (i + 1) * 50, value))
 
 def loadEditorHotkeys():
+    # loads the hotkeys from the text file and updates the variable in constants.py
     hotkeyFile = open("editor hotkeys.txt", 'r')
     for line in hotkeyFile:
         function, hotkey = line.split(": ")
@@ -37,6 +42,7 @@ def loadEditorHotkeys():
     hotkeyFile.close()
 
 def saveEditorHotkeys():
+    # saves the current hotkey configuration to the text file
     hotkeyFile = open("editor hotkeys.txt", 'w')
     for i in range(len(hotkeys)):
         hotkeyFile.write(hotkeys[i][0] + ": " + hotkeys[i][1] + '\n')

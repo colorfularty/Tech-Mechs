@@ -3,7 +3,7 @@ from pygame.locals import *
 from constants import *
 
 # initialize game window
-SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), FULLSCREEN, 32)
+SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
 pygame.display.set_caption("Tech Mechs")
 pygame.display.set_icon(pygame.image.load("sprites/icon.png").convert_alpha())
 

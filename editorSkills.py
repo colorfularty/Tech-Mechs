@@ -4,6 +4,7 @@ from game import renderSkillPanel
 from constants import *
 from widgets import *
 
+# tabs used for navigating the skills portion of the editor
 editorTab = Button(0, 0, "<-Editor")
 playerLabel = Label(0, 100, "Green player")
 playerLeft = Button(100, 100, "<")
@@ -27,9 +28,9 @@ skillSlot = pygame.image.load("sprites/skill panel.png")
 mousex = 0
 mousey = 0
 
-endSkills = False
-numPlayers = 0
-playerSelected = 0
+endSkills = False # the variable returned to levelEditor.py; terminates when True
+numPlayers = 0 # the number of players for the level in question
+playerSelected = 0 # the current player whose skills you are modifying
 
 def startEditorSkills(levelInProgress):
     global endSkills, numPlayers, playerSelected

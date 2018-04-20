@@ -32,6 +32,7 @@ class TerrainPiece(Terrain):
 
     @classmethod
     def createTerrainFromString(self, string):
+        # takes a specific string, parses it, and turns it into a piece of terrain (used in loading levels from .txt files
         graphicSet, imageName, x, y, flipped, inverted, rotated = string.split("~")
         return TerrainPiece(graphicSet, imageName, int(x), int(y), bool(flipped), bool(inverted), bool(rotated))
 

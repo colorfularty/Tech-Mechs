@@ -6,7 +6,7 @@ class Server(object):
 
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind(('', 9898))
+        self.sock.bind(('', 50000))
         while True:
             self.sock.listen(2)
             clients = [] # a list of client connections
@@ -24,11 +24,13 @@ class Server(object):
     def listenToClient(self, clientNum, clients):
         while True:
             # wait to receive data from the client
-            data = clients[clientNum].recv(1024)
+            clients[clientNum].settimeout(150.0)
+            try:
+                data = clients[clientNum].recv(1024)
+            except socket.timeout:
+                break
             try:
                 if data.decode() == "Quit server":
-                    finalData = pickle.dumps((None, None, None, None))
-                    clients[not clientNum].send(finalData)
                     break
             except UnicodeDecodeError:
                 pass

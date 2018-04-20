@@ -7,47 +7,51 @@ from skill import *
 from vector import *
 from client import Client
 
+# keeps track of the mouse pointer's coordinates
 mousex = 0
 mousey = 0
 
+# used in the skill panel
 skillFont = pygame.font.SysFont("helvetica", 32)
 skillSlot = pygame.image.load("sprites/skill panel.png")
 skillHighlight = pygame.image.load("sprites/skill highlight.png").convert()
 skillHighlight.set_colorkey(BLACK)
 skillPanel = pygame.surface.Surface((SKILL_PANEL_WIDTH * NUMBER_OF_SKILL_PANELS, SKILL_PANEL_HEIGHT))
 
+# used in determining whose entrance/exit is whose in multiplayer
 multiplayerIcons = [pygame.image.load("sprites/multiplayer icon green.png").convert_alpha(),
                     pygame.image.load("sprites/multiplayer icon red.png").convert_alpha()]
 
-playerNum = 0
-serverConn = None
+playerNum = 0 # the number of the player in the game, is 0 for single player
+serverConn = None # the connection to the server, is None for single player
 currentLevel = None
-levelImage = None
+levelImage = None # the image of the level, its terrain, objects, tech mechs, etc.
 currentReleaseRates = None
-increaseReleaseRate = False
-decreaseReleaseRate = False
-techMechs = []
-techMechsReleased = []
-techMechsSaved = []
-highlightedTechMech = None
-playingLevel = False
+increaseReleaseRate = False # will increase the release rate if True
+decreaseReleaseRate = False # will decrease the release rate if True
+techMechs = [] # a list of the tech mechs currently active on the level
+techMechsReleased = [] # a list how many tech mechs each player has released
+techMechsSaved = [] # a list of how many tech mechs each player has saved
+highlightedTechMech = None # the tech mech you are pointing to with your mouse
+playingLevel = False # used to determine when to terminate and return to main.py
 currentFrame = 0
-framesSinceLastReleases = []
+framesSinceLastReleases = [] # used for determining when to release a Tech Mech
 selectedSkill = None
 isPaused = False
-screenX = 0
-screenY = 0
-replay = {}
-grappler = None
-exitsHaveLeft = False
+screenX = 0 # the x-displacement of the screen relative to the starting x-coordinate of the level
+screenY = 0 # the y-displacement of the screen relative to the starting y-coordinate of the level
+replay = {} # a dict containing all of the user's actions on each frame; used for executing skill assignments and release rate manipulation
+grappler = None # stores the tech mech getting ready to shoot a grappling hook
+exitsHaveLeft = False # when true, the exits are closed and blasting off to space; triggers level's end when they leave the screen
 exitTimer = 0.0
-exitHotkeyPushed = False
+exitHotkeyPushed = False # used for determining if the user chose to leave the level early
 
-entity = None
-action = None
-vec = None
+entity = None # the tech mech performing a skill for the replay; is None for release rate changes
+action = None # the skill a given tech mech is performing during the replay; is a special value for release rate changes
+vec = None # the vector specifying the direction a skill is used in; only used for Grapplers
 
 def startLevel(level, num = 0, conn = None):
+    # called before a level begins; sets variables to their default value
     global playerNum, currentLevel, levelImage, currentReleaseRates, increaseReleaseRate, decreaseReleaseRate, techMechs, techMechsReleased
     global techMechsSaved, playingLevel, currentFrame, framesSinceLastReleases, selectedSkill, isPaused, screenX, screenY, replay, grappler, exitsHaveLeft, exitTimer
     global exitHotkeyPushed, serverConn
@@ -102,6 +106,7 @@ def renderSkillPanel(skillPanel, currentLevel, currentReleaseRates, playerNum):
     releaseRateIncrease = pygame.image.load("sprites/release rate increase.png").convert_alpha()
     releaseRateDecrease = pygame.image.load("sprites/release rate decrease.png")
 
+    # blit the skill icons
     skillIcons = []
     skillsLeft = []
     for skill in SKILLS:
@@ -113,6 +118,7 @@ def renderSkillPanel(skillPanel, currentLevel, currentReleaseRates, playerNum):
     pauseIcon = pygame.image.load("sprites/pause.png").convert_alpha()
     exitIcon = pygame.image.load("sprites/end level.png").convert_alpha()
 
+    # blit the skills left numbers to the panel
     skillPanel.blit(releaseRateIncrease, (25 - SKILL_WIDTH // 2, 50))
     skillPanel.blit(releaseRateDecrease, (25 - SKILL_WIDTH // 2, 80))
     for i in range(len(skillIcons)):
@@ -129,12 +135,14 @@ def renderSkillPanel(skillPanel, currentLevel, currentReleaseRates, playerNum):
         skillPanel.blit(skillsLeft[i], (75 + (i * 50) - skillsLeft[i].get_width() // 2, 10))
 
 def addToReplay(techMech, skill, vec, pNum):
+    # add a skill assignment or release rate change to the replay, which is executed this frame
     if techMech != None or skill != None or vec != None:
         if currentFrame not in replay:
             replay[currentFrame] = []
         replay[currentFrame].append((techMech, skill, vec, pNum))
 
 def executeReplay():
+    # execute all skill assignments/release rate changes that occured THIS frame
     global currentReleaseRates
     if currentFrame in replay.keys():
         for assignment in replay[currentFrame]:
@@ -156,7 +164,7 @@ def renderGameObjects():
     global techMechsReleased, framesSinceLastReleases, exitsHaveLeft
     
     for obj in currentLevel.objects:
-        if type(obj) is Entrance and not isPaused:
+        if type(obj) is Entrance and not isPaused: # check if a tech mech should be released from the entrance (is based on time and release rate
             shouldReleaseTechMech = framesSinceLastReleases[obj.owner] >= 100 - currentReleaseRates[obj.owner] and techMechsReleased[obj.owner] < currentLevel.numberOfTechMechs and Entrance.status == "open"
             if shouldReleaseTechMech:
                 owner = obj.owner
@@ -166,7 +174,7 @@ def renderGameObjects():
                 techMechsReleased[obj.owner] += 1
                 framesSinceLastReleases[obj.owner] = 0
         elif type(obj) is Exit:
-            if Exit.status == "closed" and not isPaused:
+            if Exit.status == "closed" and not isPaused: # check if the exit rocket is launching into space
                 obj.y -= 5
             if obj.y + obj.height > 0:
                 exitsHaveLeft = False
@@ -337,6 +345,7 @@ def handleGameEvents():
             increaseReleaseRate = False
             decreaseReleaseRate = False
         elif event.type == KEYDOWN:
+            # check for hotkey presses
             if pygame.key.name(event.key) == GAME_HOTKEYS["DECREASE RELEASE RATE"]:
                 decreaseReleaseRate = True
             elif pygame.key.name(event.key) == GAME_HOTKEYS["INCREASE RELEASE RATE"]:
@@ -391,25 +400,6 @@ def executeGameFrame(SCREEN):
         except pygame.error:
             pass
 
-    # check if the exit should be closed due to all Tech Mechs exiting or dying
-    shouldLeave = techMechsReleased[playerNum] == currentLevel.numberOfTechMechs
-    for i in range(len(techMechs)):
-        if len(techMechs[i]) != 0:
-            shouldLeave = False
-            break
-    if shouldLeave:
-        Exit.close()
-
-    if exitsHaveLeft:
-        Exit.sound.stop()
-        try:
-            pygame.mixer.music.stop()
-        except pygame.error:
-            pass
-        playingLevel = False
-        if currentLevel.numPlayers > 1:
-            serverConn.sendString("Quit server")
-
     handleGameEvents()
 
     # check if user increased or decreased the release rate
@@ -427,8 +417,6 @@ def executeGameFrame(SCREEN):
     if currentLevel.numPlayers > 1:
         serverConn.sendTuple((entity, action, vec, playerNum))
         entity, action, vec, pNum = serverConn.receiveTuple()
-        if entity == action == vec == pNum == None:
-            playingLevel = False
         addToReplay(entity, action, vec, pNum)
 
     executeReplay()
@@ -489,6 +477,23 @@ def executeGameFrame(SCREEN):
         currentFrame += 1
         for i in range(currentLevel.numPlayers):
             framesSinceLastReleases[i] += 1
+
+    # check if the exit should be closed due to all Tech Mechs exiting or dying
+    shouldLeave = techMechsReleased[playerNum] == currentLevel.numberOfTechMechs
+    for i in range(len(techMechs)):
+        if len(techMechs[i]) != 0:
+            shouldLeave = False
+            break
+    if shouldLeave:
+        Exit.close()
+
+    if exitsHaveLeft:
+        Exit.sound.stop()
+        try:
+            pygame.mixer.music.stop()
+        except pygame.error:
+            pass
+        playingLevel = False
 
     return playingLevel, techMechsSaved[playerNum]
 

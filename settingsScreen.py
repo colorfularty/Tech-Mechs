@@ -5,11 +5,13 @@ from widgets import *
 from gameHotkeys import *
 from editorHotkeys import *
 
-continueSettings = True
+continueSettings = True # returned to main.py; terminates when False
 
+# keeps track of the mouse pointer's coordinates
 mousex = 0
 mousey = 0
 
+# buttons for navigating the menu
 gameHotkeysButton = Button(0, 0, "Game Hotkeys")
 editorHotkeysButton = Button(0, 50, "Editor Hotkeys")
 backButton = Button(0, SCREEN_HEIGHT - 50, "Back to menu")
